@@ -1,11 +1,11 @@
 # Copie figée du contrat OpenAPI du backend
-# Source : thebaroness-back, docs/openapi.yaml v1.4.1, commit 3303b45 (16/11/2026)
-# Généré depuis src/docs/openapi.ts (v1.4.1) par `npm run openapi`.
+# Source : thebaroness-back, docs/openapi.yaml v1.6.0, commit c406748 (16/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.6.0) par `npm run openapi`.
 # Ne pas modifier à la main.
 openapi: 3.1.0
 info:
   title: thebaroness API
-  version: 1.4.1
+  version: 1.6.0
   description: 'API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l''espace privé est stocké dans MongoDB. Erreurs : `{ "error": { "code", "message" } }`. Inconnu = `null`, jamais 0.'
 servers:
   - url: /api
@@ -162,6 +162,38 @@ paths:
       responses:
         "200":
           description: Profil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerProfile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/refresh:
+    post:
+      tags:
+        - Joueurs
+      summary: Forcer l’actualisation d’un joueur
+      description: "Relit profil Steam et historique auprès de Deadlock API sans attendre l’expiration du cache, puis renvoie la même réponse que `GET /players/{steamId}`. Délai minimum de **60 s par joueur** (partagé entre tous les utilisateurs) : pendant ce délai la copie actuelle est renvoyée sans appel au fournisseur. La date de la donnée est dans `meta.fetchedAt`. Fournisseur en échec : copie précédente avec `meta.isStale`. Aucun corps, aucune authentification."
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+      responses:
+        "200":
+          description: Profil actualisé
           content:
             application/json:
               schema:
@@ -609,8 +641,14 @@ paths:
                   minItems: 2
                   maxItems: 20
                   uniqueItems: true
+                  description: Doublons détectés après normalisation
                   items:
                     type: string
+                    description: SteamID64 (17 chiffres), code ami Steam/Deadlock (account ID 32 bits), `[U:1:n]` ou URL `https://steamcommunity.com/profiles/<SteamID64>`. Normalisé en SteamID64 ; les URL `/id/<pseudo>` sont refusées.
+                    examples:
+                      - "76561198957316510"
+                      - "997050782"
+                      - https://steamcommunity.com/profiles/76561198957316510
       responses:
         "200":
           description: Groupe modifié
@@ -671,6 +709,48 @@ paths:
       responses:
         "200":
           description: Comparaison
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupCompare"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /groups/{id}/refresh:
+    post:
+      tags:
+        - Groupes
+      summary: Forcer l’actualisation des membres et comparer
+      description: Comme `GET /groups/{id}/compare`, mais relit chaque membre auprès de Deadlock API (délai minimum de 60 s par joueur, partagé avec `POST /players/{steamId}/refresh`). Mêmes contrôles et mêmes erreurs. Aucun corps.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439012
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - season
+            default: 30d
+      responses:
+        "200":
+          description: Comparaison actualisée
           content:
             application/json:
               schema:
@@ -1345,9 +1425,14 @@ components:
           minItems: 2
           maxItems: 20
           uniqueItems: true
+          description: Doublons détectés après normalisation
           items:
             type: string
-            pattern: ^\d{17}$
+            description: SteamID64 (17 chiffres), code ami Steam/Deadlock (account ID 32 bits), `[U:1:n]` ou URL `https://steamcommunity.com/profiles/<SteamID64>`. Normalisé en SteamID64 ; les URL `/id/<pseudo>` sont refusées.
+            examples:
+              - "76561198957316510"
+              - "997050782"
+              - https://steamcommunity.com/profiles/76561198957316510
     GroupCompare:
       type: object
       required:
@@ -1843,7 +1928,11 @@ components:
       properties:
         steamId:
           type: string
-          pattern: ^\d{17}$
+          description: SteamID64 (17 chiffres), code ami Steam/Deadlock (account ID 32 bits), `[U:1:n]` ou URL `https://steamcommunity.com/profiles/<SteamID64>`. Normalisé en SteamID64 ; les URL `/id/<pseudo>` sont refusées.
+          examples:
+            - "76561198957316510"
+            - "997050782"
+            - https://steamcommunity.com/profiles/76561198957316510
         alias:
           type: string
           maxLength: 80

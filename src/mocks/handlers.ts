@@ -101,11 +101,25 @@ function validateGroup(body: Record<string, unknown>, full: boolean): string | n
     const ids = body.steamIds;
     if (!Array.isArray(ids) || ids.length < 2 || ids.length > 20)
       return "steamIds : 2 à 20 joueurs.";
-    if (ids.some((i) => typeof i !== "string" || !STEAM_ID_RE.test(i)))
-      return "steamIds : 17 chiffres chacun.";
-    if (new Set(ids).size !== ids.length) return "steamIds : doublons interdits.";
+    const normalized = ids.map(normalizeSteamInput);
+    if (normalized.some((i) => i === null))
+      return "steamIds : identifiant invalide (SteamID64, code ami ou lien de profil Steam).";
+    if (new Set(normalized).size !== normalized.length) return "steamIds : doublons interdits.";
+    body.steamIds = normalized;
   }
   return null;
+}
+
+/** Normalise une saisie (SteamID64, code ami, [U:1:n], lien de profil) en SteamID64, comme le back. */
+function normalizeSteamInput(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const v = raw.trim();
+  const url = /steamcommunity\.com\/profiles\/(\d{17})/i.exec(v);
+  if (url?.[1]) return url[1];
+  const u = /^\[U:1:(\d{1,10})\]$/i.exec(v);
+  const digits = u?.[1] ?? (/^\d{1,10}$/.test(v) ? v : null);
+  if (digits) return String(BigInt(digits) + 76561197960265728n);
+  return /^\d{17}$/.test(v) ? v : null;
 }
 
 const cleanTags = (tags: unknown): string[] =>

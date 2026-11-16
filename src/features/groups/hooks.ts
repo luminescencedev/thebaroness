@@ -32,6 +32,8 @@ export const useGroupCompare = (id: string, period: ComparePeriod) =>
     queryKey: [...key, "compare", id, period],
     queryFn: ({ signal }) => compareGroup(id, period, signal),
     placeholderData: keepPreviousData,
+    refetchInterval: 180_000,
+    refetchOnWindowFocus: true,
   });
 
 export function useCreateGroup() {

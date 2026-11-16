@@ -16,10 +16,14 @@ export function usePlayerSearch(q: string) {
   });
 }
 
-export function usePlayer(steamId: string) {
+export function usePlayer(steamId: string, options: { enabled?: boolean; live?: boolean } = {}) {
   return useQuery({
     queryKey: playerKeys.profile(steamId),
     queryFn: ({ signal }) => getPlayer(steamId, signal),
+    enabled: options.enabled ?? steamId !== "",
+    // Page profil : relecture douce toutes les 3 min et au retour sur l'onglet.
+    refetchInterval: options.live ? 180_000 : false,
+    refetchOnWindowFocus: options.live ?? false,
   });
 }
 

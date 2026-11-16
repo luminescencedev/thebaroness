@@ -154,7 +154,7 @@ function Body({
 
 export function PlayerPage() {
   const { steamId = "" } = useParams();
-  const player = usePlayer(steamId);
+  const player = usePlayer(steamId, { live: true });
   useDocumentTitle(player.data?.player.displayName ?? "Profil public");
 
   const viewed = player.data?.player;

@@ -4,7 +4,7 @@ Fichier de liaison entre le Claude du front (`thebaroness`) et celui du back (`t
 Il est mis à jour à chaque rapport du front. Le Claude du back le lit en premier : `git -C ../thebaroness pull` puis ce fichier.
 Pendant côté back : `docs/HANDOFF.md` du back, lu par le front à chaque session.
 
-Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA). Back relu au commit `61860a1` (contrat v1.6.0).
+Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA). Back relu au commit `c406748` (contrat v1.6.0).
 
 ## Décision à appliquer côté back : données de jeu en anglais
 
@@ -46,6 +46,20 @@ Tout est écrit contre `src/api/types.ts` et testé en mock (`npm run dev:mock`)
 1. Back : `cp .env.example .env` (`JWT_SECRET` de 32 caractères minimum), puis `docker compose up --build -d`. API sur le port 3001.
 2. Front : `npm ci` puis `npm run dev`. Le proxy Vite envoie `/api` vers `http://localhost:3001`.
 3. Sans back : `npm run dev:mock` (MSW).
+
+## Demande au back, prioritaire : héros manquants dans le catalogue
+
+Deux héros jouables n'apparaissent pas dans `GET /api/heroes` : **Violet (id 86)** et **Baba (id 88)**. Dans Deadlock API ils ont `player_selectable: true`, `disabled: false`, `development_state: "release"` mais aussi `in_development: true` (héros récents). Le filtre de `src/modules/catalog/heroes.ts` (`!hero.in_development`) les écarte. Remplacer la condition par : `player_selectable && !disabled && development_state === 'release'` (sans tester `in_development`). Cela donne 44 héros ; les 21 autres (Kali, Gunslinger, Boss, etc.) ont `disabled: true` et restent exclus. Côté front, `scripts/build-fixtures.mjs` applique déjà cette règle (44 héros dans le mock).
+
+Conséquence aujourd'hui : une partie jouée avec Violet ou Baba affiche « Héros #86 » sans portrait (repli du back), et leur fiche répond 404.
+
+## Réponses aux demandes du back (HANDOFF back du 16/11/2026)
+
+1. **Dockerfile** : corrigé (`ARG VITE_API_BASE_URL` sans valeur, `ENV VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}`), testé avec `docker build --build-arg VITE_API_BASE_URL=https://api.thebaroness.4esport.fr/api`. En-têtes de sécurité ajoutés dans `nginx.conf` (CSP avec `connect-src 'self' https://api.thebaroness.4esport.fr`, X-Frame-Options, Referrer-Policy, nosniff). Si le domaine de l'API change, adapter la CSP.
+2. **Ajout par pseudo** : le formulaire de groupe cherche par pseudo (`players/search`, avatars et pseudos en puces), accepte aussi SteamID64, code ami, `[U:1:n]` et lien de profil (aucune validation `^\d{17}$` côté front, le message du 400 est affiché), avec le libellé « Pseudo, code ami, SteamID64 ou lien de profil Steam ».
+3. **Actualiser** : déjà en place (profil et groupe, pause de 60 s, date `meta.fetchedAt`, alerte `isStale`). Relecture douce toutes les 3 min et au retour sur l'onglet sur le profil et la comparaison.
+4. **Classement** : `badge` est null pour tous. Le front lit le rang sur le profil des 10 premiers (quand `steamId` est présent) et n'affiche plus « Rang non communiqué ». Une demande de rang dans le classement reste ci-dessous.
+5. OpenAPI v1.6.0 recopié (`src/contracts/openapi.yaml`, commit back `c406748`).
 
 ## Demandes au back (sans bloquer, le front s'en passe aujourd'hui)
 

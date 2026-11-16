@@ -1,6 +1,13 @@
 import { useState, type FormEvent } from "react";
 import { isApiError, type TrackedPlayer } from "@/api";
-import { Button, Field, Input } from "@/components/ui";
+import { Avatar, Button, Field, Input, Spinner } from "@/components/ui";
+import { usePlayerSearch } from "@/features/players/hooks";
+import { useDebounced } from "@/lib/useDebounced";
+
+interface Known {
+  name: string;
+  avatarUrl: string | null;
+}
 
 interface GroupFormProps {
   tracked: TrackedPlayer[];
@@ -12,9 +19,11 @@ interface GroupFormProps {
   onCancel: () => void;
 }
 
-const STEAM_ID_RE = /^\d{17}$/;
+/** Entrée libre : SteamID64, code ami, [U:1:n] ou lien de profil. Le back valide et normalise. */
+const looksLikeId = (v: string) =>
+  /^\d{5,}$/.test(v) || /steamcommunity\.com\//i.test(v) || /^\[U:1:\d+\]$/i.test(v);
 
-/** Nom + 2 à 20 joueurs : choisis parmi les suivis, ou ajoutés par SteamID. */
+/** Nom + 2 à 20 joueurs : par pseudo (recherche), parmi les suivis, ou par identifiant. */
 export function GroupForm({
   tracked,
   initial,
@@ -26,25 +35,29 @@ export function GroupForm({
 }: GroupFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
   const [selected, setSelected] = useState<string[]>(initial?.steamIds ?? []);
-  const [extra, setExtra] = useState("");
-  const [extraError, setExtraError] = useState<string | null>(null);
+  const [known, setKnown] = useState<Record<string, Known>>(() =>
+    Object.fromEntries(
+      tracked.map((t) => [t.steamId, { name: t.alias || t.steamId, avatarUrl: null }]),
+    ),
+  );
+  const [term, setTerm] = useState("");
   const [errors, setErrors] = useState<{ name?: string; members?: string }>({});
-  const serverMessage = isApiError(error) && error.status === 400 ? error.message : null;
+  const serverMessage =
+    isApiError(error) && [400, 409].includes(error.status) ? error.message : null;
 
-  const trackedIds = new Set(tracked.map((t) => t.steamId));
-  const manual = selected.filter((id) => !trackedIds.has(id));
+  const q = term.trim();
+  const debounced = useDebounced(q);
+  const searching = debounced.length >= 2 && !looksLikeId(debounced);
+  const results = usePlayerSearch(searching ? debounced : "");
 
-  const toggle = (id: string) =>
-    setSelected((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
-
-  const addExtra = () => {
-    const id = extra.trim();
-    if (!STEAM_ID_RE.test(id)) return setExtraError("Un SteamID64 contient 17 chiffres.");
-    if (selected.includes(id)) return setExtraError("Ce joueur est déjà dans le groupe.");
-    setSelected([...selected, id]);
-    setExtra("");
-    setExtraError(null);
+  const add = (id: string, info?: Known) => {
+    if (selected.includes(id)) return;
+    setSelected((cur) => [...cur, id]);
+    if (info) setKnown((cur) => ({ ...cur, [id]: info }));
+    setTerm("");
   };
+  const remove = (id: string) => setSelected((cur) => cur.filter((x) => x !== id));
+  const label = (id: string) => known[id]?.name ?? id;
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -57,6 +70,11 @@ export function GroupForm({
     if (Object.keys(found).length === 0) onSubmit({ name: name.trim(), steamIds: selected });
   };
 
+  const suggestions = (results.data?.items ?? [])
+    .filter((p) => !selected.includes(p.steamId))
+    .slice(0, 6);
+  const trackedLeft = tracked.filter((t) => !selected.includes(t.steamId));
+
   return (
     <form onSubmit={submit} noValidate className="mt-5 space-y-4">
       <Field label="Nom du groupe" error={errors.name}>
@@ -65,44 +83,28 @@ export function GroupForm({
         )}
       </Field>
 
-      <fieldset className="space-y-2">
+      <fieldset className="space-y-3">
         <legend className="text-[13px] font-medium text-muted">
           Joueurs ({selected.length} sélectionnés)
         </legend>
-        {tracked.length === 0 ? (
-          <p className="text-sm text-subtle">
-            Vous ne suivez encore aucun joueur : ajoutez-en par SteamID ci-dessous.
-          </p>
-        ) : (
-          <ul className="max-h-48 space-y-1 overflow-y-auto rounded-control border border-border p-1.5">
-            {tracked.map((t) => (
-              <li key={t.id}>
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-1.5 text-sm hover:bg-surface">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(t.steamId)}
-                    onChange={() => toggle(t.steamId)}
-                    className="size-4 accent-[var(--accent)]"
-                  />
-                  <span className="min-w-0 flex-1 truncate">{t.alias || "Sans alias"}</span>
-                  <span className="mono text-xs text-subtle">{t.steamId}</span>
-                </label>
-              </li>
-            ))}
-          </ul>
-        )}
-        {manual.length > 0 && (
-          <ul className="flex flex-wrap gap-1.5">
-            {manual.map((id) => (
+
+        {selected.length > 0 && (
+          <ul className="flex flex-wrap gap-2" aria-label="Joueurs du groupe">
+            {selected.map((id) => (
               <li
                 key={id}
-                className="mono flex items-center gap-1.5 rounded-full border border-border-strong px-2.5 py-0.5 text-xs text-muted"
+                className="flex items-center gap-2 rounded-full border border-border-strong bg-surface py-1 pr-2 pl-1 text-sm"
               >
-                {id}
+                <Avatar
+                  name={label(id)}
+                  src={known[id]?.avatarUrl}
+                  className="size-6 text-[10px]"
+                />
+                <span className="max-w-[10rem] truncate">{label(id)}</span>
                 <button
                   type="button"
-                  aria-label={`Retirer ${id}`}
-                  onClick={() => toggle(id)}
+                  aria-label={`Retirer ${label(id)}`}
+                  onClick={() => remove(id)}
                   className="text-subtle hover-text"
                 >
                   ×
@@ -111,25 +113,102 @@ export function GroupForm({
             ))}
           </ul>
         )}
-        {errors.members && <p className="text-[13px] text-loss">{errors.members}</p>}
-      </fieldset>
 
-      <Field label="Ajouter par SteamID" error={extraError} hint="17 chiffres, puis Entrée.">
-        {(p) => (
+        <div className="relative">
+          <label className="sr-only" htmlFor="member-search">
+            Ajouter un joueur
+          </label>
           <Input
-            {...p}
-            className="mono"
-            value={extra}
-            onChange={(e) => setExtra(e.target.value)}
+            id="member-search"
+            value={term}
+            placeholder="Pseudo, code ami, SteamID64 ou lien de profil Steam"
+            autoComplete="off"
+            onChange={(e) => setTerm(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
-                addExtra();
+                if (q && looksLikeId(q)) add(q);
+                else if (suggestions[0])
+                  add(suggestions[0].steamId, {
+                    name: suggestions[0].displayName,
+                    avatarUrl: suggestions[0].avatarUrl,
+                  });
               }
             }}
           />
+          {q.length >= 2 && (
+            <ul
+              className="mt-2 overflow-hidden rounded-control border border-border bg-[#0d0e11]"
+              aria-label="Résultats de recherche"
+            >
+              {looksLikeId(q) ? (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => add(q)}
+                    className="hover-text flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-white/[0.05]"
+                  >
+                    Ajouter <span className="mono text-text">{q}</span>
+                  </button>
+                </li>
+              ) : (
+                <>
+                  {(results.isFetching || debounced !== q) && (
+                    <li className="flex items-center gap-2 px-3 py-2.5 text-sm text-subtle">
+                      <Spinner className="size-3.5" /> Recherche en cours
+                    </li>
+                  )}
+                  {results.isError && (
+                    <li className="px-3 py-2.5 text-sm text-loss">Recherche indisponible.</li>
+                  )}
+                  {suggestions.map((p) => (
+                    <li key={p.steamId}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          add(p.steamId, { name: p.displayName, avatarUrl: p.avatarUrl })
+                        }
+                        className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-white/[0.05]"
+                      >
+                        <Avatar
+                          name={p.displayName}
+                          src={p.avatarUrl}
+                          className="size-7 text-[10px]"
+                        />
+                        <span className="min-w-0 flex-1 truncate">{p.displayName}</span>
+                        <span className="mono text-xs text-subtle">{p.steamId}</span>
+                      </button>
+                    </li>
+                  ))}
+                  {results.data && suggestions.length === 0 && !results.isFetching && (
+                    <li className="px-3 py-2.5 text-sm text-subtle">Aucun joueur trouvé.</li>
+                  )}
+                </>
+              )}
+            </ul>
+          )}
+        </div>
+
+        {trackedLeft.length > 0 && (
+          <div>
+            <p className="mb-1.5 text-xs text-subtle">Parmi vos suivis</p>
+            <ul className="flex flex-wrap gap-1.5">
+              {trackedLeft.slice(0, 12).map((t) => (
+                <li key={t.id}>
+                  <button
+                    type="button"
+                    onClick={() => add(t.steamId, { name: t.alias || t.steamId, avatarUrl: null })}
+                    className="pressable hover-text rounded-full border border-border px-3 py-1 text-[13px] text-muted"
+                  >
+                    + {t.alias || t.steamId}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
-      </Field>
+        {errors.members && <p className="text-[13px] text-loss">{errors.members}</p>}
+      </fieldset>
 
       {serverMessage && (
         <p role="alert" className="text-[13px] text-loss">

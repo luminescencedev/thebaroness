@@ -10,6 +10,8 @@ import { RankBadge } from "@/components/media/RankBadge";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState, Skeleton, cn } from "@/components/ui";
 import { useLeaderboard } from "@/features/leaderboard/hooks";
+import { usePlayer } from "@/features/players/hooks";
+import type { LeaderboardEntry } from "@/api";
 
 const REGIONS: { value: LeaderboardRegion; label: string }[] = [
   { value: "Europe", label: "Europe" },
@@ -18,6 +20,33 @@ const REGIONS: { value: LeaderboardRegion; label: string }[] = [
   { value: "Asia", label: "Asie" },
   { value: "Oceania", label: "Océanie" },
 ];
+
+/** Rang du joueur : celui du classement s'il existe, sinon lu sur son profil (10 premiers seulement). */
+function EntryRank({
+  entry,
+  lookup,
+  size = "md",
+}: {
+  entry: LeaderboardEntry;
+  lookup: boolean;
+  size?: "md" | "lg";
+}) {
+  const profile = usePlayer(entry.steamId ?? "", {
+    enabled: lookup && !entry.badge && entry.steamId !== null,
+  });
+  const rank = entry.badge
+    ? { name: `${entry.badge.name} ${entry.badge.subrank}`, imageUrl: entry.badge.imageUrl }
+    : profile.data?.rank.name
+      ? { name: profile.data.rank.name, imageUrl: profile.data.rank.imageUrl }
+      : null;
+  if (!rank) return null;
+  return (
+    <span className="flex items-center gap-2">
+      <RankBadge name={rank.name} imageUrl={rank.imageUrl} size={size === "lg" ? "lg" : "md"} />
+      <span className="text-xs text-muted">{rank.name}</span>
+    </span>
+  );
+}
 
 function Board({ region }: { region: LeaderboardRegion }) {
   const board = useLeaderboard(region);
@@ -63,9 +92,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
             >
               {e.rank}
             </span>
-            {e.badge ? (
-              <RankBadge name={e.badge.name} imageUrl={e.badge.imageUrl} size="lg" />
-            ) : null}
+            <EntryRank entry={e} lookup size="lg" />
             {e.steamId ? (
               <Link
                 to={`/players/${e.steamId}`}
@@ -76,9 +103,6 @@ function Board({ region }: { region: LeaderboardRegion }) {
             ) : (
               <span className="max-w-full truncate text-lg font-semibold">{e.displayName}</span>
             )}
-            <span className="text-xs text-muted">
-              {e.badge ? `${e.badge.name} ${e.badge.subrank}` : "Rang non communiqué"}
-            </span>
             {e.topHeroes.length > 0 && (
               <ul className="mt-1 flex -space-x-2" aria-label="Héros les plus joués">
                 {e.topHeroes.map((h) => (
@@ -111,7 +135,6 @@ function Board({ region }: { region: LeaderboardRegion }) {
               {e.rank}
             </span>
             <span className="flex min-w-0 items-center gap-3">
-              {e.badge && <RankBadge name={e.badge.name} imageUrl={e.badge.imageUrl} size="md" />}
               <span className="min-w-0">
                 {e.steamId ? (
                   <Link
@@ -123,8 +146,8 @@ function Board({ region }: { region: LeaderboardRegion }) {
                 ) : (
                   <span className="block truncate font-medium">{e.displayName}</span>
                 )}
-                <span className="block text-xs text-subtle">
-                  {e.badge ? `${e.badge.name} ${e.badge.subrank}` : "Rang non communiqué"}
+                <span className="mt-0.5 block min-h-4">
+                  <EntryRank entry={e} lookup={e.rank <= 10} />
                 </span>
               </span>
             </span>

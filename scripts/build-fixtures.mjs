@@ -39,9 +39,9 @@ const [heroes, abilities, ranks, map] = await Promise.all([
   get("/map"),
 ]);
 
+// Les héros récents (Violet, Baba) ont encore `in_development: true` mais sont jouables : on les garde.
 const released = heroes.filter(
-  (h) =>
-    h.player_selectable && !h.disabled && !h.in_development && h.development_state === "release",
+  (h) => h.player_selectable && !h.disabled && h.development_state === "release",
 );
 
 const heroOut = released

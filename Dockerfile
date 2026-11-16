@@ -4,9 +4,10 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-# Base de l'API embarquée au build (proxy inverse conseillé : /api).
-ARG VITE_API_BASE_URL=/api
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Base de l'API embarquée au build. Pas de valeur par défaut sur l'ARG : Coolify injecte la sienne.
+# Sans argument (build local), repli sur /api (proxy inverse).
+ARG VITE_API_BASE_URL
+ENV VITE_API_BASE_URL=${VITE_API_BASE_URL:-/api}
 RUN npm run build
 
 # Étape 2 : serveur statique

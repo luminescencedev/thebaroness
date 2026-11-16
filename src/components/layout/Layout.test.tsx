@@ -50,7 +50,7 @@ describe("layout", () => {
   it("ouvre la palette avec Ctrl+K", async () => {
     renderApp("/");
     await userEvent.keyboard("{Control>}k{/Control}");
-    expect(await screen.findByPlaceholderText(/Pseudo, identifiant Steam/)).toBeInTheDocument();
+    expect(await screen.findByPlaceholderText(/Chercher un joueur/)).toBeInTheDocument();
   });
 
   it("affiche la page introuvable pour une route inconnue", async () => {

@@ -49,7 +49,7 @@ test("la palette s'ouvre au clavier et lance une recherche", async ({ page }, in
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.keyboard.press("Control+k");
-  await page.getByPlaceholder(/Pseudo, identifiant Steam/).fill("corvid");
+  await page.getByPlaceholder(/Chercher un joueur/).fill("corvid");
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/search\?q=corvid/);
   await expect(page.getByRole("link", { name: /^Corvid(?! Jr)/ })).toBeVisible();

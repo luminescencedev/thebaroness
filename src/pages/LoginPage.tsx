@@ -1,5 +1,7 @@
-import { PlaceholderPage } from "./PlaceholderPage";
+import { useDocumentTitle } from "@/app/useDocumentTitle";
+import { AuthForm } from "@/features/auth/AuthForm";
 
 export function LoginPage() {
-  return <PlaceholderPage title="Connexion" route="/login" />;
+  useDocumentTitle("Connexion");
+  return <AuthForm mode="login" />;
 }

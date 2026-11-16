@@ -16,7 +16,7 @@ export function EmptyState({ title, description, action, className, ...props }: 
       )}
       {...props}
     >
-      <p className="text-base font-semibold tracking-[-0.02em] text-text">{title}</p>
+      <h2 className="text-base font-semibold tracking-[-0.02em] text-text">{title}</h2>
       {description && <p className="max-w-md text-sm text-muted">{description}</p>}
       {action && <div className="mt-3">{action}</div>}
     </div>

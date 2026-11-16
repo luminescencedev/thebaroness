@@ -7,7 +7,7 @@ import { createTestRouter } from "@/app/router";
 export function renderApp(route = "/") {
   const router = createTestRouter([route]);
   const utils = render(
-    <Providers>
+    <Providers retry={false}>
       <RouterProvider router={router} />
     </Providers>,
   );

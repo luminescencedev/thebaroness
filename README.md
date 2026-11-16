@@ -1,8 +1,8 @@
 # The Baroness, frontend
 
 Frontend de **The Baroness**, site de statistiques pour le jeu Deadlock (projet Full Stack JS, EFREI M1).
-Ce dépôt contient le socle : outillage, design tokens, composants de base, routing, client API et mocks.
-Les écrans sont des placeholders. Le cahier des charges est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md).
+Le dépôt contient aussi l'outillage, les design tokens, le client API et les mocks.
+Écrans P0 implémentés : accueil, recherche, profil, authentification, suivis (CRUD), palette ⌘K. Le cahier des charges est dans [`docs/cahier-des-charges.md`](docs/cahier-des-charges.md).
 
 Le front n'appelle jamais l'API Deadlock directement : il parle uniquement à `baroness-back` (préfixe `/api`).
 
@@ -87,7 +87,7 @@ Avec la valeur par défaut `/api`, placer un reverse proxy devant le front et le
 ```text
 src/
   app/          providers, router, layout racine
-  pages/        une page par route (placeholders)
+  pages/        une page par route
   features/     auth/ players/ matches/ tracked-players/ heroes/
   components/   ui/ (primitives), layout/ (Nav, Footer)
   api/          client HTTP typé, DTO, erreurs, session

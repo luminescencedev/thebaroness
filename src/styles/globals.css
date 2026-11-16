@@ -110,7 +110,7 @@
   }
 }
 
-/* Dialogue (Base UI) : centré, scale(0.96) + opacité, 220 ms entrée, 150 ms sortie. */
+/* Dialogue (Base UI) : centré par le viewport, scale(0.96) + opacité, 220 ms entrée, 150 ms sortie. */
 .dialog-popup {
   transition:
     transform 220ms var(--ease-out),
@@ -118,11 +118,11 @@
 }
 .dialog-popup[data-starting-style] {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.96);
+  transform: scale(0.96);
 }
 .dialog-popup[data-ending-style] {
   opacity: 0;
-  transform: translate(-50%, -50%) scale(0.96);
+  transform: scale(0.96);
   transition-duration: 150ms;
 }
 .dialog-backdrop {
@@ -178,6 +178,6 @@
   }
   .dialog-popup[data-starting-style],
   .dialog-popup[data-ending-style] {
-    transform: translate(-50%, -50%);
+    transform: none;
   }
 }

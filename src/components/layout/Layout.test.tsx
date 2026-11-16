@@ -1,4 +1,5 @@
 import { act, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { sessionStore } from "@/api/session";
 import { renderApp } from "@/test/render";
@@ -9,12 +10,15 @@ describe("layout", () => {
 
     expect(screen.getAllByLabelText("The Baroness, accueil").length).toBeGreaterThan(0);
     const nav = screen.getByRole("navigation", { name: "Navigation principale" });
-    for (const label of ["Joueurs", "Héros", "Classement"]) {
-      expect(within(nav).getByRole("link", { name: label })).toBeInTheDocument();
-    }
+    expect(within(nav).getByRole("link", { name: "Joueurs" })).toBeInTheDocument();
+    expect(within(nav).queryByRole("link", { name: "Mes suivis" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Rechercher un joueur" })).toHaveTextContent("⌘K");
-    expect(screen.getByRole("link", { name: "Connexion" })).toHaveAttribute("href", "/login");
-    expect(screen.getByRole("link", { name: "Créer un compte" })).toHaveAttribute(
+    const header = screen.getByRole("banner");
+    expect(within(header).getByRole("link", { name: "Connexion" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
+    expect(within(header).getByRole("link", { name: "Créer un compte" })).toHaveAttribute(
       "href",
       "/register",
     );
@@ -24,11 +28,16 @@ describe("layout", () => {
     expect(document.title).toBe("Accueil · The Baroness");
   });
 
-  it("affiche l'email de l'utilisateur connecté à la place des liens d'accès", () => {
+  it("affiche l'email et Mes suivis quand l'utilisateur est connecté", () => {
     sessionStore.set({ token: "t", user: { id: "1", email: "alice@example.test" } });
     renderApp("/");
 
     expect(screen.getByText("alice@example.test")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("navigation", { name: "Navigation principale" })).getByRole("link", {
+        name: "Mes suivis",
+      }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Connexion" })).not.toBeInTheDocument();
   });
 
@@ -37,7 +46,13 @@ describe("layout", () => {
     renderApp("/");
     act(() => sessionStore.clear());
 
-    expect(screen.getByRole("link", { name: "Connexion" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Connexion" }).length).toBeGreaterThan(0);
+  });
+
+  it("ouvre la palette avec Ctrl+K", async () => {
+    renderApp("/");
+    await userEvent.keyboard("{Control>}k{/Control}");
+    expect(await screen.findByPlaceholderText(/Pseudo, identifiant Steam/)).toBeInTheDocument();
   });
 
   it("affiche la page introuvable pour une route inconnue", () => {

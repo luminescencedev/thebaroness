@@ -1,5 +1,7 @@
-import { PlaceholderPage } from "./PlaceholderPage";
+import { useDocumentTitle } from "@/app/useDocumentTitle";
+import { AuthForm } from "@/features/auth/AuthForm";
 
 export function RegisterPage() {
-  return <PlaceholderPage title="Créer un compte" route="/register" />;
+  useDocumentTitle("Créer un compte");
+  return <AuthForm mode="register" />;
 }

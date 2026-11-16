@@ -3,8 +3,8 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { createQueryClient } from "./queryClient";
 
-export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(createQueryClient);
+export function Providers({ children, retry = true }: { children: ReactNode; retry?: boolean }) {
+  const [queryClient] = useState(() => createQueryClient({ retry }));
   return (
     <QueryClientProvider client={queryClient}>
       {children}

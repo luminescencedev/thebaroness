@@ -18,7 +18,10 @@ describe("routes privées", () => {
   });
 
   it("affiche la page avec une session et le bon titre d'onglet", async () => {
-    sessionStore.set({ token: "t", user: { id: "1", email: "alice@example.test" } });
+    sessionStore.set({
+      token: "mock.507f1f77bcf86cd799439011.signature",
+      user: { id: "507f1f77bcf86cd799439011", email: "alice@example.test" },
+    });
     renderApp("/tracked");
 
     expect(await screen.findByRole("heading", { name: "Mes suivis" })).toBeInTheDocument();

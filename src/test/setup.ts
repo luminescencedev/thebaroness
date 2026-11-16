@@ -5,6 +5,14 @@ import { sessionStore } from "@/api/session";
 import { server } from "@/mocks/server";
 import { resetMockState } from "@/mocks/state";
 
+// jsdom n'implémente pas ResizeObserver (utilisé par cmdk et Base UI).
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+Element.prototype.scrollIntoView ??= () => {};
+
 beforeAll(() => server.listen({ onUnhandledFrame: "error" }));
 
 afterEach(() => {

@@ -93,7 +93,7 @@ export function GroupForm({
             {selected.map((id) => (
               <li
                 key={id}
-                className="flex items-center gap-2 rounded-full border border-border-strong bg-surface py-1 pr-2 pl-1 text-sm"
+                className="flex items-center gap-2 rounded-full border border-border-strong bg-surface py-0.5 pr-1 pl-0.5 text-sm"
               >
                 <Avatar
                   name={label(id)}
@@ -105,9 +105,19 @@ export function GroupForm({
                   type="button"
                   aria-label={`Retirer ${label(id)}`}
                   onClick={() => remove(id)}
-                  className="text-subtle hover-text"
+                  className="icon-btn pressable grid size-7 place-items-center rounded-full text-subtle"
                 >
-                  ×
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                    className="size-3"
+                  >
+                    <path d="m6 6 12 12M18 6 6 18" />
+                  </svg>
                 </button>
               </li>
             ))}

@@ -39,8 +39,12 @@ function AbilityRow({ ability, color }: { ability: HeroAbility; color: string })
           <span className="mt-1 flex flex-wrap items-center gap-2 text-xs">
             {ability.type === "ultimate" && (
               <span
-                className="rounded-full px-2 py-0.5 font-medium"
-                style={{ background: `color-mix(in srgb, ${color} 22%, transparent)`, color }}
+                className="rounded-full border px-2 py-0.5 font-medium"
+                style={{
+                  background: "rgb(9 10 12 / 0.55)",
+                  borderColor: `color-mix(in srgb, ${color} 55%, transparent)`,
+                  color: `color-mix(in srgb, ${color} 40%, white)`,
+                }}
               >
                 Ultime
               </span>
@@ -57,8 +61,8 @@ function AbilityRow({ ability, color }: { ability: HeroAbility; color: string })
         <span className="text-xs text-subtle">Détails</span>
       </Popover.Trigger>
       <Popover.Portal>
-        <Popover.Positioner sideOffset={8} className="z-50">
-          <Popover.Popup className="surface-solid max-w-sm p-4 text-sm leading-relaxed text-muted outline-none">
+        <Popover.Positioner sideOffset={8} collisionPadding={12} className="z-50">
+          <Popover.Popup className="menu-popup surface-solid max-w-sm p-4 text-sm leading-relaxed text-muted outline-none">
             <p className="mb-1.5 font-semibold text-text">{ability.name}</p>
             {ability.description || "Description indisponible."}
           </Popover.Popup>
@@ -259,8 +263,8 @@ export function HeroPage() {
 
   return (
     <div className="space-y-10" style={{ ["--hc" as string]: hero.color }}>
-      <Link to="/heroes" className="text-sm text-muted underline underline-offset-4 hover-text">
-        Tous les héros
+      <Link to="/heroes" className="hover-text -mb-4 inline-flex w-fit items-center gap-1.5 text-[13px] text-muted">
+        <span aria-hidden="true">←</span> Tous les héros
       </Link>
 
       <header className="card-hero relative min-h-[260px]">
@@ -284,10 +288,11 @@ export function HeroPage() {
           <div className="min-w-0">
             <div className="flex flex-wrap gap-1.5 text-xs font-medium">
               <span
-                className="rounded-full px-2.5 py-1"
+                className="rounded-full border px-2.5 py-1"
                 style={{
-                  background: `color-mix(in srgb, ${hero.color} 24%, transparent)`,
-                  color: hero.color,
+                  background: "rgb(9 10 12 / 0.6)",
+                  borderColor: `color-mix(in srgb, ${hero.color} 55%, transparent)`,
+                  color: `color-mix(in srgb, ${hero.color} 40%, white)`,
                 }}
               >
                 {ROLE_LABELS[hero.role]}
@@ -324,7 +329,7 @@ export function HeroPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="mt-2"
+              className="mt-2 -ml-3"
               onClick={() => setLoreOpen((v) => !v)}
             >
               {loreOpen ? "Réduire" : "Lire la suite"}

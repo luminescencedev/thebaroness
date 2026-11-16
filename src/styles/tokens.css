@@ -1,12 +1,29 @@
+/*
+ * Design tokens de The Baroness.
+ * Échelle de luminance : canvas < panel < surface-1 < surface-2 < surface-3.
+ * Les alias historiques (--bg, --surface, --surface-strong, ...) restent valides.
+ */
 :root {
-  --bg: #060709;
+  /* Surfaces opaques */
+  --canvas: #090a0c;
+  --panel: #121316;
+  --surface-1: #191a1e;
+  --surface-2: #1e2024;
+  --surface-3: #25262b;
+
+  /* Alias historiques, translucides pour s'adapter à la surface qui les porte */
+  --bg: var(--canvas);
   --surface: rgb(255 255 255 / 0.04);
-  --surface-strong: rgb(255 255 255 / 0.06);
+  --surface-strong: rgb(255 255 255 / 0.065);
   --border: rgb(255 255 255 / 0.07);
-  --border-strong: rgb(255 255 255 / 0.09);
+  --border-strong: rgb(255 255 255 / 0.11);
+  --divider: rgb(255 255 255 / 0.055);
+
+  /* Texte : contrastes mesurés sur --panel (AA pour muted et subtle) */
   --text: #f4f5f7;
   --muted: #a1a7b3;
-  --subtle: #848b99;
+  --subtle: #8a91a0;
+
   --accent: #5b4bf0;
   --accent-text: #b4abff;
   --win: #3dd68c;
@@ -14,7 +31,16 @@
   --warning: #f5b14c;
   --focus: #8b7cff;
 
-  /* Séries de données */
+  /* Données (OKLCH) : sens stable d'une page à l'autre */
+  --data-violet: oklch(0.78 0.13 285); /* série principale, progression */
+  --data-cyan: oklch(0.8 0.1 220); /* comparaison */
+  --data-amber: oklch(0.82 0.12 75); /* repères */
+  --data-win: oklch(0.8 0.15 155); /* victoire, évolution positive */
+  --data-loss: oklch(0.72 0.15 20); /* défaite, évolution négative */
+  --data-grid: rgb(255 255 255 / 0.06);
+  --data-axis: var(--subtle);
+
+  /* Séries historiques (graphiques existants) */
   --series-1: #b4abff;
   --series-2: #5b4bf0;
   --series-ref: #d9dbe1;
@@ -27,14 +53,71 @@
   --role-assassin: #ff6b9a;
   --role-healer: #3dd68c;
 
+  /* Typographie */
   --font: "Geist Variable", system-ui, sans-serif;
   --mono: "Geist Mono Variable", ui-monospace, monospace;
-  --radius: 10px;
-  --radius-card: 16px;
 
+  /* Rayons */
+  --radius-xs: 8px; /* petits composants */
+  --radius: 10px; /* contrôles */
+  --radius-md: 14px; /* cartes compactes */
+  --radius-card: 16px; /* cartes */
+  --radius-lg: 20px; /* cartes principales */
+  --radius-panel: 26px; /* panneau central */
+
+  /* Ombres : douces, larges, progressives */
+  --shadow-contact: 0 1px 2px rgb(0 0 0 / 0.28);
+  --shadow-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.035), 0 1px 2px rgb(0 0 0 / 0.2),
+    0 10px 26px rgb(0 0 0 / 0.12);
+  --shadow-raised:
+    inset 0 1px 0 rgb(255 255 255 / 0.05), 0 2px 6px rgb(0 0 0 / 0.25),
+    0 14px 34px rgb(0 0 0 / 0.22);
+  --shadow-panel:
+    0 1px 0 rgb(255 255 255 / 0.03) inset, 0 0 0 1px rgb(0 0 0 / 0.17), 0 2px 6px rgb(0 0 0 / 0.25),
+    0 34px 100px rgb(0 0 0 / 0.55);
+  --shadow-popover:
+    inset 0 1px 0 rgb(255 255 255 / 0.06), 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 4px 12px rgb(0 0 0 / 0.3), 0 20px 60px rgb(0 0 0 / 0.55);
+  --shadow-modal:
+    inset 0 1px 0 rgb(255 255 255 / 0.07), 0 0 0 1px rgb(255 255 255 / 0.05),
+    0 8px 24px rgb(0 0 0 / 0.35), 0 32px 90px rgb(0 0 0 / 0.65);
+
+  /* Double bezel : coque externe, liseré, surface interne. rayon interne = rayon externe - padding. */
+  --bezel-sm-r: 16px;
+  --bezel-sm-p: 3px;
+  --bezel-md-r: 20px;
+  --bezel-md-p: 4px;
+  --bezel-lg-r: 26px;
+  --bezel-lg-p: 5px;
+  --shadow-floating:
+    inset 0 1px 0 rgb(255 255 255 / 0.07), 0 2px 8px rgb(0 0 0 / 0.25), 0 18px 48px rgb(0 0 0 / 0.3);
+  --shadow-overlay: var(--shadow-modal);
+
+  /* Mouvement */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-fast: 150ms; /* hover, pressed */
+  --dur-base: 220ms; /* menus, indicateurs */
+  --dur-slow: 320ms; /* drawers, panneaux */
+
+  /* Shell */
+  --sidebar-w: 248px;
+  --shell-gap: 16px;
+  --topbar-h: 56px;
+  --page-px: 20px;
 
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-px: 28px;
+  }
+}
+@media (min-width: 1440px) {
+  :root {
+    --page-px: 40px;
+  }
 }

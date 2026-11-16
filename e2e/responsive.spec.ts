@@ -15,10 +15,16 @@ for (const path of pages) {
 }
 
 test("le focus clavier est visible sur le champ de recherche", async ({ page }) => {
-  await page.goto("/search");
-  await page.getByLabel("Pseudo ou identifiant Steam").focus();
-  const outline = await page
-    .getByLabel("Pseudo ou identifiant Steam")
-    .evaluate((el) => getComputedStyle(el).outlineStyle);
-  expect(outline).toBe("solid");
+  await page.goto("/");
+  const input = page.getByLabel("Pseudo Steam ou SteamID64");
+  await input.focus();
+  // Anneau de focus : contour natif ou ombre portée sur le champ ou son conteneur immédiat.
+  const visible = await input.evaluate((el) =>
+    [el, el.parentElement, el.parentElement?.parentElement].some((n) => {
+      if (!n) return false;
+      const cs = getComputedStyle(n);
+      return cs.outlineStyle === "solid" || cs.boxShadow !== "none";
+    }),
+  );
+  expect(visible).toBe(true);
 });

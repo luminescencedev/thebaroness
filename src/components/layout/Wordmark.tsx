@@ -1,17 +1,20 @@
 import { Link } from "react-router";
-import { BrandMark } from "@/components/brand";
+import { Emblem } from "@/components/brand/Emblem";
 
-/** Marque animée + « the baroness. » (Geist 600, -4,5 %, minuscules). */
-export function Wordmark({ animated = true }: { animated?: boolean }) {
+/** Emblème + « The Baroness » (Geist 700, -4,5 %) ; `iconOnly` pour le header de la landing. */
+export function Wordmark({ iconOnly = false }: { iconOnly?: boolean }) {
   return (
     <Link
       to="/"
       aria-label="The Baroness, accueil"
-      className="pressable inline-flex items-center gap-2 rounded-md whitespace-nowrap"
+      className="pressable inline-flex items-center gap-2.5 rounded-md whitespace-nowrap"
     >
-      {animated && <BrandMark size={34} />}
-      <span className="text-[19px] leading-none font-semibold tracking-[-0.045em] text-text lowercase">
-        the baroness.
+      <Emblem size={iconOnly ? 40 : 32} aria-hidden="true" />
+      <span
+        hidden={iconOnly}
+        className="text-[19px] leading-none font-bold tracking-[-0.045em] text-text"
+      >
+        The Baroness
       </span>
     </Link>
   );

@@ -23,7 +23,7 @@ export function RadialGauge({
   const v = value === null ? 0 : Math.max(0, Math.min(100, value));
   const angle = (mark / 100) * 2 * Math.PI - Math.PI / 2;
   return (
-    <div className="relative grid place-items-center" style={{ width: size, height: size }}>
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg
         viewBox="0 0 100 100"
         role="img"

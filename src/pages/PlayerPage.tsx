@@ -67,10 +67,10 @@ function Body({
       <DataMetaNotice meta={profile.meta} showDate={false} />
 
       <Tabs.Root value={tab} onValueChange={setTab}>
-        <div className="sticky top-[76px] z-30 -mx-4 bg-bg/80 px-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+        <div className="sticky top-0 z-30 -mx-[var(--page-px)] bg-panel/85 px-[var(--page-px)] backdrop-blur-md">
           <Tabs.List
             aria-label="Sections du profil"
-            className="relative mx-auto flex max-w-6xl gap-1 border-b border-border"
+            className="relative flex gap-1 border-b border-divider"
           >
             {TABS.map((t) => (
               <Tabs.Tab
@@ -91,7 +91,7 @@ function Body({
         <div className="pt-6">
           {loading ? (
             <div className="space-y-3" aria-busy="true" aria-label="Chargement de l'historique">
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
                 {[0, 1, 2, 3, 4].map((i) => (
                   <Skeleton key={i} className="h-36 rounded-card" />
                 ))}

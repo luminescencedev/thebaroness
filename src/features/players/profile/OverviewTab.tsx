@@ -165,9 +165,9 @@ export function OverviewTab({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
         <KpiCard label="Victoires" accent="#3DD68C">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <RadialGauge
               value={stats.winRate}
               mark={50}
@@ -178,7 +178,7 @@ export function OverviewTab({
               </span>
             </RadialGauge>
             <div className="flex flex-col gap-1.5">
-              <span className="text-sm text-text tabular-nums">
+              <span className="text-sm whitespace-nowrap text-text tabular-nums">
                 {stats.wins} V · {stats.losses} D
               </span>
               <DeltaChip
@@ -240,7 +240,7 @@ export function OverviewTab({
         <KpiCard
           label="Série"
           accent={streak.current?.type === "loss" ? "#FF6B6F" : "#3DD68C"}
-          className="col-span-2 md:col-span-1"
+          className="min-[480px]:col-span-2 md:col-span-1"
         >
           <span className={cn(big, streak.current?.type === "loss" ? "text-loss" : "text-win")}>
             {streak.current
@@ -276,6 +276,7 @@ export function OverviewTab({
             <Segmented<Metric>
               ariaLabel="Métrique"
               size="sm"
+              className="w-full sm:w-auto"
               value={metric}
               onChange={setMetric}
               options={[
@@ -313,6 +314,14 @@ export function OverviewTab({
               />
             ))}
           </ul>
+          <div
+            className="mt-1.5 flex justify-between text-[11px] text-subtle"
+            aria-hidden="true"
+            style={{ paddingLeft: 44 }}
+          >
+            <span>Partie la plus ancienne</span>
+            <span>La plus récente</span>
+          </div>
         </ChartFrame>
 
         <ChartFrame
@@ -338,6 +347,7 @@ export function OverviewTab({
             <Segmented<HeroSort>
               ariaLabel="Trier les héros"
               size="sm"
+              className="w-full sm:w-auto"
               value={heroSort}
               onChange={setHeroSort}
               options={[
@@ -353,31 +363,35 @@ export function OverviewTab({
             )}
             {sortedRows.slice(0, 8).map((h) => (
               <li key={h.heroId} className={cn("flex flex-col gap-1.5", h.few && "opacity-60")}>
-                <div className="flex items-center gap-2.5 text-sm">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm">
                   <HeroPortrait
                     name={h.heroName}
                     src={h.heroImageUrl}
                     color={heroById.get(h.heroId)?.color}
                     rounded="lg"
-                    className="size-8"
+                    className="size-8 shrink-0"
                   />
                   <Link to={`/heroes/${h.heroId}`} className="font-medium hover:underline">
                     {h.heroName}
                   </Link>
                   {h.few && (
-                    <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] text-subtle">
+                    <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[11px] whitespace-nowrap text-subtle">
                       peu de parties
                     </span>
                   )}
-                  <span className="ml-auto flex items-center gap-2 text-xs text-muted tabular-nums">
-                    {h.matches} parties · {formatPercent(h.winRate)}
+                  <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted tabular-nums sm:ml-auto">
+                    <span className="whitespace-nowrap">
+                      {h.matches} parties · {formatPercent(h.winRate)}
+                    </span>
                     <DeltaChip
                       value={h.delta}
                       unit=" pts"
                       threshold={0.5}
                       context="face à la méta"
                     />
-                    <span className="hidden sm:inline">KDA {formatDecimal(h.kda)}</span>
+                    <span className="hidden whitespace-nowrap sm:inline">
+                      KDA {formatDecimal(h.kda)}
+                    </span>
                   </span>
                 </div>
                 <BulletBar
@@ -437,18 +451,20 @@ export function OverviewTab({
             {byDuration.map((b) => (
               <li
                 key={b.label}
-                className="grid grid-cols-[110px_1fr_auto] items-center gap-3 text-xs"
+                className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 text-xs min-[420px]:grid-cols-[110px_minmax(0,1fr)_auto]"
               >
                 <span className="text-muted">{b.label}</span>
-                <BulletBar
-                  value={b.winRate}
-                  mark={50}
-                  color={b.winRate !== null && b.winRate >= 50 ? "var(--win)" : "var(--loss)"}
-                  label={`${b.label} : ${formatPercent(b.winRate)}`}
-                />
-                <span className="w-24 text-right text-muted tabular-nums">
+                <span className="order-2 text-right whitespace-nowrap text-muted tabular-nums min-[420px]:order-3 min-[420px]:w-24">
                   {b.winRate === null ? "n/d" : `${Math.round(b.winRate)} %`} · {b.matches} p.
                 </span>
+                <div className="order-3 col-span-2 min-[420px]:order-2 min-[420px]:col-span-1">
+                  <BulletBar
+                    value={b.winRate}
+                    mark={50}
+                    color={b.winRate !== null && b.winRate >= 50 ? "var(--win)" : "var(--loss)"}
+                    label={`${b.label} : ${formatPercent(b.winRate)}`}
+                  />
+                </div>
               </li>
             ))}
           </ul>

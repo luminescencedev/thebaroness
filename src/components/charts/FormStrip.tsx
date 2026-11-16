@@ -23,7 +23,7 @@ export function FormStrip({
           key={m.matchId}
           className={cn(
             "grid place-items-center rounded-md font-semibold",
-            compact ? "size-5 text-[10px]" : "size-7 text-xs",
+            compact ? "size-5 text-[11px]" : "size-7 text-xs",
             m.outcome === "win" ? "bg-win/15 text-win" : "bg-loss/15 text-loss",
           )}
         >

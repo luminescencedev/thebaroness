@@ -42,8 +42,12 @@ export function ChartFrame({
 }: ChartFrameProps) {
   const [showData, setShowData] = useState(false);
   const headingId = useId();
-  const first = !revealed.has(id);
-  if (first) revealed.add(id);
+  // Decided once per mount: a later re-render must not remove the class and cancel the reveal.
+  const [first] = useState(() => {
+    const isFirst = !revealed.has(id);
+    revealed.add(id);
+    return isFirst;
+  });
 
   return (
     <section
@@ -57,7 +61,7 @@ export function ChartFrame({
           </h2>
           {subtitle && <span className="text-xs text-subtle">{subtitle}</span>}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 max-sm:w-full">
           {actions}
           {table && points >= minPoints && (
             <button

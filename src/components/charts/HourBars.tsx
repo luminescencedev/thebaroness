@@ -26,7 +26,7 @@ export function HourBars({ counts, peak }: { counts: number[]; peak: number | nu
           </li>
         ))}
       </ul>
-      <div className="mt-1.5 flex justify-between text-[10px] text-subtle" aria-hidden="true">
+      <div className="mt-1.5 flex justify-between text-[11px] text-subtle" aria-hidden="true">
         {[0, 6, 12, 18, 23].map((h) => (
           <span key={h}>{h} h</span>
         ))}

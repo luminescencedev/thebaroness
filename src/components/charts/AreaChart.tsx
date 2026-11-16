@@ -131,7 +131,7 @@ export function AreaChart({
         {reference && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute right-1 -translate-y-full rounded bg-bg/80 px-1 text-[10px] text-subtle"
+            className="pointer-events-none absolute right-1 -translate-y-full rounded bg-bg/80 px-1 text-[11px] text-subtle"
             style={{ top: `${y(reference.value)}%` }}
           >
             {reference.label}

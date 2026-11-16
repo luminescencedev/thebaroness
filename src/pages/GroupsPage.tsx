@@ -18,7 +18,7 @@ export function GroupsPage() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div>
       <PageHeader
         title="Groupes"
         description="Comparez vos amis : classement, progression de rang et meilleures parties."
@@ -35,16 +35,18 @@ export function GroupsPage() {
         <ErrorState
           error={groups.error}
           title="Groupes indisponibles"
+          reassure={false}
           onRetry={() => void groups.refetch()}
         />
       ) : groups.data.items.length === 0 ? (
         <EmptyState
+          icon="plus"
           title="Aucun groupe"
           description="Créez un groupe avec au moins 2 joueurs pour les comparer."
           action={<Button onClick={() => setOpen(true)}>Nouveau groupe</Button>}
         />
       ) : (
-        <ul className="space-y-2">
+        <ul className="grid gap-3 lg:grid-cols-2">
           {groups.data.items.map((g) => {
             const names = g.steamIds.map(
               (id) => tracked.data?.items.find((t) => t.steamId === id)?.alias || id,
@@ -53,7 +55,7 @@ export function GroupsPage() {
               <li key={g.id}>
                 <Link
                   to={`/groups/${g.id}`}
-                  className="pressable card block p-5 hover:border-border-strong"
+                  className="pressable card block h-full p-5 hover:border-border-strong"
                 >
                   <span className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="text-lg font-semibold tracking-[-0.03em]">{g.name}</span>
@@ -61,8 +63,9 @@ export function GroupsPage() {
                       Modifié le {formatDate(g.updatedAt)}
                     </span>
                   </span>
-                  <span className="mt-1 block text-sm text-muted">
-                    {g.steamIds.length} joueurs : {names.slice(0, 4).join(", ")}
+                  <span className="mt-1 line-clamp-2 text-sm text-muted">
+                    {g.steamIds.length} joueur{g.steamIds.length > 1 ? "s" : ""} :{" "}
+                    {names.slice(0, 4).join(", ")}
                     {names.length > 4 ? "…" : ""}
                   </span>
                 </Link>

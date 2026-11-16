@@ -11,6 +11,8 @@ interface AvatarProps {
 /** Avatar Steam, ou initiales quand avatarUrl est null ou que l'image ne charge pas. */
 export function Avatar({ name, src, className }: AvatarProps) {
   const [failed, setFailed] = useState(false);
+  // cn() ne fusionne pas les utilitaires : la taille par défaut cède si l'appelant en fournit une.
+  const base = className?.includes("size-") ? "" : "size-10";
   if (src && !failed) {
     return (
       <img
@@ -20,7 +22,7 @@ export function Avatar({ name, src, className }: AvatarProps) {
         decoding="async"
         referrerPolicy="no-referrer"
         onError={() => setFailed(true)}
-        className={cn("size-10 shrink-0 rounded-full bg-surface-strong object-cover", className)}
+        className={cn(base, "shrink-0 rounded-full bg-surface-strong object-cover", className)}
       />
     );
   }
@@ -28,7 +30,8 @@ export function Avatar({ name, src, className }: AvatarProps) {
     <span
       aria-hidden="true"
       className={cn(
-        "inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface-strong text-sm font-semibold text-muted",
+        base,
+        "inline-flex shrink-0 items-center justify-center rounded-full border border-border-strong bg-surface-strong text-sm font-semibold text-muted",
         className,
       )}
     >

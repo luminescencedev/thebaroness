@@ -30,9 +30,6 @@ export function PlayerRow({ player, exact = false }: PlayerRowProps) {
         </span>
         <span className="mono text-xs text-subtle">{player.steamId}</span>
       </span>
-      <span className="hidden text-xs text-subtle sm:inline">
-        {player.avatarUrl ? "Profil public" : "Avatar indisponible"}
-      </span>
       <svg
         viewBox="0 0 24 24"
         fill="none"

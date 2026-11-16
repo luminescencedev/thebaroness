@@ -15,6 +15,7 @@ import {
   Skeleton,
   Textarea,
   buttonStyles,
+  cn,
 } from "@/components/ui";
 import { usePlayer } from "@/features/players/hooks";
 import { TagsInput } from "@/features/tracked-players/TagsInput";
@@ -22,11 +23,8 @@ import { useDeleteTracked, useTracked, useUpdateTracked } from "@/features/track
 import { validateTracked, type TrackedValues } from "@/features/tracked-players/validation";
 import { formatDate, formatDateTime, formatDecimal, formatPercent, timeAgo } from "@/lib/format";
 
-const counter = (n: number, max: number) => (
-  <span className="text-xs text-subtle tabular-nums">
-    {n.toLocaleString("fr-FR")} / {max.toLocaleString("fr-FR")}
-  </span>
-);
+const counter = (n: number, max: number) =>
+  `${n.toLocaleString("fr-FR")} / ${max.toLocaleString("fr-FR")}`;
 
 /** Formulaire d'édition : une barre « modifications non enregistrées » apparaît dès qu'un champ change. */
 function EditForm({ tracked }: { tracked: TrackedPlayer }) {
@@ -54,65 +52,48 @@ function EditForm({ tracked }: { tracked: TrackedPlayer }) {
 
   return (
     <form onSubmit={submit} noValidate className="space-y-5">
-      {dirty && (
-        <div
-          role="status"
-          className="flex flex-wrap items-center gap-3 rounded-xl bg-accent/10 px-4 py-2.5 text-[13px] shadow-[inset_0_0_0_1px_rgb(180_171_255/0.25)]"
-        >
-          <span className="flex-1 text-[#d2ccff]">Modifications non enregistrées</span>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setValues(initial);
-              setErrors({});
-              update.reset();
-            }}
-          >
-            Annuler
-          </Button>
-          <Button type="submit" size="sm" loading={update.isPending}>
-            Enregistrer
-          </Button>
-        </div>
-      )}
-
-      <Field label="Alias" error={errors.alias} hint="Le nom qui s'affiche dans votre liste.">
+      <Field
+        label="Alias"
+        error={errors.alias}
+        hint="Le nom qui s'affiche dans votre liste."
+        aside={counter(values.alias.length, 80)}
+      >
         {(p) => (
-          <div className="space-y-1.5">
-            <Input
-              {...p}
-              value={values.alias}
-              onChange={(e) => setValues({ ...values, alias: e.target.value })}
-            />
-            <div className="text-right">{counter(values.alias.length, 80)}</div>
-          </div>
+          <Input
+            {...p}
+            value={values.alias}
+            onChange={(e) => setValues({ ...values, alias: e.target.value })}
+          />
         )}
       </Field>
-      <Field label="Note" error={errors.note} hint="Habitudes, héros favoris, disponibilités.">
+      <Field
+        label="Note"
+        error={errors.note}
+        hint="Habitudes, héros favoris, disponibilités."
+        aside={counter(values.note.length, 1000)}
+      >
         {(p) => (
-          <div className="space-y-1.5">
-            <Textarea
-              {...p}
-              value={values.note}
-              onChange={(e) => setValues({ ...values, note: e.target.value })}
-            />
-            <div className="text-right">{counter(values.note.length, 1000)}</div>
-          </div>
+          <Textarea
+            {...p}
+            value={values.note}
+            onChange={(e) => setValues({ ...values, note: e.target.value })}
+          />
         )}
       </Field>
-      <Field label="Tags" error={errors.tags} hint="10 maximum, 24 caractères chacun.">
+      <Field
+        label="Tags"
+        error={errors.tags}
+        hint="10 maximum, 24 caractères chacun."
+        aside={counter(values.tags.length, 10)}
+      >
         {(p) => (
-          <div className="space-y-1.5">
-            <TagsInput
-              id={p.id}
-              invalid={p.invalid}
-              aria-describedby={p["aria-describedby"]}
-              value={values.tags}
-              onChange={(tags) => setValues({ ...values, tags })}
-            />
-            <div className="text-right">{counter(values.tags.length, 10)}</div>
-          </div>
+          <TagsInput
+            id={p.id}
+            invalid={p.invalid}
+            aria-describedby={p["aria-describedby"]}
+            value={values.tags}
+            onChange={(tags) => setValues({ ...values, tags })}
+          />
         )}
       </Field>
       <Field label="SteamID64" hint="Fixé à la création du suivi.">
@@ -123,6 +104,32 @@ function EditForm({ tracked }: { tracked: TrackedPlayer }) {
           {serverMessage}
         </p>
       )}
+      <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-2 border-t border-divider pt-4">
+        <span
+          role="status"
+          className={cn(
+            "basis-full text-[13px] transition-colors duration-150 sm:mr-auto sm:basis-auto",
+            dirty ? "text-[#d2ccff]" : "text-subtle",
+          )}
+        >
+          {dirty ? "Modifications non enregistrées" : "Aucune modification"}
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          disabled={!dirty || update.isPending}
+          onClick={() => {
+            setValues(initial);
+            setErrors({});
+            update.reset();
+          }}
+        >
+          Annuler
+        </Button>
+        <Button type="submit" size="sm" disabled={!dirty} loading={update.isPending}>
+          Enregistrer
+        </Button>
+      </div>
     </form>
   );
 }
@@ -166,17 +173,13 @@ export function TrackedDetailPage() {
 
   return (
     <div className="mx-auto max-w-[1100px] space-y-6">
-      <nav aria-label="Fil d'Ariane" className="flex items-center gap-2 text-[13px] text-muted">
-        <Link to="/tracked" className="hover-text underline-offset-4 hover:underline">
-          Mes suivis
-        </Link>
-        <span aria-hidden="true" className="text-subtle">
-          /
-        </span>
-        <span aria-current="page" className="text-text">
-          {title}
-        </span>
-      </nav>
+      {/* Le fil d'Ariane du header masque le parent sous 640 px : lien de retour équivalent. */}
+      <Link
+        to="/tracked"
+        className="hover-text pressable -mb-2 inline-flex items-center gap-1 rounded-md text-[13px] text-muted sm:hidden"
+      >
+        <span aria-hidden="true">‹</span> Mes suivis
+      </Link>
 
       <header className="flex flex-wrap items-center gap-4">
         <Avatar

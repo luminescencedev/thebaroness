@@ -21,7 +21,7 @@ function CopyIcon() {
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
-      className="size-3.5"
+      className="size-3.5 shrink-0"
     >
       <rect x="9" y="9" width="11" height="11" rx="2" />
       <path d="M5 15V6a2 2 0 0 1 2-2h9" />
@@ -71,7 +71,7 @@ export function ProfileBanner({
       className="card-hero p-5 sm:p-7"
       style={{ ["--hc" as string]: heroColor ?? "var(--accent)" }}
     >
-      <div className="flex flex-wrap items-center gap-5">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-4 sm:gap-5">
         <span
           className="rounded-full p-[3px]"
           style={{
@@ -81,16 +81,18 @@ export function ProfileBanner({
           <Avatar
             name={player.displayName}
             src={player.avatarUrl}
-            className="size-[72px] border-2 border-bg text-2xl sm:size-20"
+            className="size-14 border-2 border-bg text-xl min-[400px]:size-[72px] min-[400px]:text-2xl sm:size-20"
           />
         </span>
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-4xl sm:text-[44px]">{player.displayName}</h1>
+        <div className="min-w-0 flex-1 sm:basis-[17rem]">
+          <h1 className="truncate text-3xl min-[400px]:text-4xl sm:text-[44px]">
+            {player.displayName}
+          </h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-muted">
             <button
               type="button"
               onClick={() => void copyText(player.steamId, "SteamID copié")}
-              className="mono hover-text pressable inline-flex items-center gap-1.5 rounded-md text-subtle"
+              className="mono hover-text pressable inline-flex max-w-full items-center gap-1.5 rounded-md text-left text-[11px] whitespace-nowrap text-subtle min-[400px]:text-xs"
               aria-label={`Copier le SteamID ${player.steamId}`}
             >
               {player.steamId}
@@ -109,7 +111,7 @@ export function ProfileBanner({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-2 [&>*]:max-w-full [&>*]:whitespace-normal">
           <Button
             variant="secondary"
             onClick={onRefresh}

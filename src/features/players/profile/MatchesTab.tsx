@@ -242,7 +242,7 @@ export function MatchesTab({
                       </Menu.Trigger>
                       <Menu.Portal>
                         <Menu.Positioner sideOffset={6} align="end" className="z-50">
-                          <Menu.Popup className="surface-solid w-56 p-1.5 outline-none">
+                          <Menu.Popup className="menu-popup surface-solid w-56 p-1.5 outline-none">
                             <Menu.Item
                               className={item}
                               onClick={() => void navigate(`/matches/${m.matchId}`)}

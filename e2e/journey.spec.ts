@@ -7,14 +7,15 @@ test("parcours complet : connexion, suivi, modification, suppression", async ({ 
     "Parcours couvert en desktop, le mobile a son propre test.",
   );
   await page.goto("/");
-  await page.getByRole("banner").getByRole("link", { name: "Connexion Steam" }).click();
-  await expect(page.getByRole("heading", { name: "Mes suivis" })).toBeVisible();
-  await expect(page.getByRole("banner").getByText("Corvid")).toBeVisible();
+  await page
+    .getByRole("navigation", { name: "Navigation principale" })
+    .getByRole("link", { name: "Connexion Steam" })
+    .click();
+  await expect(page.getByRole("button", { name: /Compte de Corvid/ })).toBeVisible();
 
   // Rechercher puis suivre un joueur.
   // Navigation interne : un rechargement complet (goto) ferait perdre la session en mémoire.
-  await page.getByRole("banner").getByRole("link", { name: "Joueurs" }).click();
-  await page.getByLabel("Pseudo ou identifiant Steam").fill("corvid jr");
+  await page.getByLabel("Pseudo Steam ou SteamID64").fill("corvid jr");
   await page.getByRole("button", { name: "Rechercher", exact: true }).click();
   await page.getByRole("link", { name: /Corvid Jr/ }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Corvid Jr" })).toBeVisible();
@@ -26,15 +27,17 @@ test("parcours complet : connexion, suivi, modification, suppression", async ({ 
   await expect(page.getByRole("link", { name: "Voir le suivi" })).toBeVisible();
 
   // Lire, modifier, recharger l'état, supprimer.
-  await page.getByRole("banner").getByRole("link", { name: "Mes suivis" }).click();
+  await page.getByRole("complementary").getByRole("link", { name: "Mes suivis" }).click();
   await page.getByRole("link", { name: /Petit frère/ }).click();
-  await page.getByRole("button", { name: "Modifier" }).click();
   await page.getByLabel("Note").fill("Analyse mise à jour");
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Analyse mise à jour")).toBeVisible();
 
-  await page.getByRole("button", { name: "Supprimer" }).click();
-  await page.getByRole("dialog").getByRole("button", { name: "Supprimer" }).click();
+  await page.getByRole("button", { name: /^Ne plus suivre/ }).click();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Ne plus suivre", exact: true })
+    .click();
   await expect(page.getByRole("link", { name: /Petit frère/ })).toHaveCount(0);
 });
 
@@ -50,7 +53,8 @@ test("la palette s'ouvre au clavier et lance une recherche", async ({ page }, in
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   await page.keyboard.press("Control+k");
   await page.getByPlaceholder(/Chercher un joueur/).fill("corvid");
-  await page.keyboard.press("Enter");
+  await expect(page.getByText("Tous les résultats pour")).toBeVisible();
+  await page.getByText("Tous les résultats pour").click();
   await expect(page).toHaveURL(/\/search\?q=corvid/);
   await expect(page.getByRole("link", { name: /^Corvid(?! Jr)/ })).toBeVisible();
 });

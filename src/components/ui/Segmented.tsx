@@ -26,6 +26,22 @@ export function Segmented<T extends string>({
     <div
       role="radiogroup"
       aria-label={ariaLabel}
+      onKeyDown={(e) => {
+        const step =
+          e.key === "ArrowRight" || e.key === "ArrowDown"
+            ? 1
+            : e.key === "ArrowLeft" || e.key === "ArrowUp"
+              ? -1
+              : 0;
+        if (!step) return;
+        e.preventDefault();
+        const next = options[(index + step + options.length) % options.length];
+        if (!next) return;
+        onChange(next.value);
+        // Le focus suit la sélection (flèches) : aucune animation propre au clavier.
+        const radios = e.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]');
+        radios[options.indexOf(next)]?.focus();
+      }}
       className={cn(
         "relative inline-grid auto-cols-fr grid-flow-col rounded-[10px] bg-surface p-[3px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.06)]",
         className,
@@ -47,9 +63,10 @@ export function Segmented<T extends string>({
           type="button"
           role="radio"
           aria-checked={o.value === value}
+          tabIndex={o.value === value ? 0 : -1}
           onClick={() => onChange(o.value)}
           className={cn(
-            "pressable hover-text relative z-10 rounded-[7px] px-3 font-medium whitespace-nowrap",
+            "pressable hover-text relative z-10 min-w-0 rounded-[7px] px-2.5 font-medium whitespace-nowrap",
             size === "sm" ? "h-7 text-xs" : "h-[30px] text-[13px]",
             o.value === value ? "text-text" : "text-subtle",
           )}

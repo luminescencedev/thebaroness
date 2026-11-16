@@ -73,6 +73,8 @@ Conséquence aujourd'hui : une partie jouée avec Violet ou Baba affiche « Hér
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
+- 16/11/2026 : refonte UI, passe landing (`docs/design/overhaul/`). Aucun DTO, route ni mock modifié. Souhaits non bloquants : endpoint de joueurs à découvrir, classement méta des héros trié (la landing affiche aujourd'hui un aperçu d'exemple signalé et une sélection fixe de 5 héros).
+- 16/11/2026 : refonte UI, phase 1 (shell : fond, sidebar intégrée, panneau flottant). **Aucun DTO, route ni mock modifié.** Rien n'est attendu du back. Détails dans `docs/design/refonte-v1/`. Le dépôt back n'est pas cloné en `../deadlock-tracker-back` sur cette machine : l'état du back n'a pas pu être relu pour ce rapport.
 - 16/11/2026 : grande passe identité et UI. Le front utilise désormais `POST /players/:steamId/refresh` (bouton Actualiser, pause de 60 s) et `POST /groups/:id/refresh`, charge l'historique par pages de 50 jusqu'à 200 parties (`limit=50`), et appelle `GET /heroes/:id/stats` pour les 12 héros les plus joués d'un profil (écart face à la méta). Aucun DTO modifié.
 - 16/11/2026 : back v1.4.1 testé en réel depuis le front (Docker Compose, `npm run dev`) : catalogue, rangs, carte, recherche, profil, historique, classement, fiche héros fonctionnent. Aucun écart de forme relevé. Côté front : avatar de repli si l'image Steam ne charge pas, pas de pastille vide dans le classement sans badge.
 - 16/11/2026 : palette ⌘K refaite (recherche de joueurs en direct via `GET /api/players/search`, récents gardés dans le navigateur, héros, actions, pages), connexion, comparaison de groupe adaptée au mobile. Aucun DTO ni route modifié. Le front appelle `players/search` après 220 ms de pause de frappe, 2 caractères minimum.
@@ -87,3 +89,7 @@ Conséquence aujourd'hui : une partie jouée avec Violet ou Baba affiche « Hér
 ## Retours du back
 
 Voir `docs/HANDOFF.md` du back (état des routes, décisions, écarts avec la source réelle).
+
+## Journal : passe motion et polish de toutes les pages (2026-11-16)
+
+Aucun changement de contrat, de DTO, de route ni de donnée mock. Côté front uniquement : menus et popovers animés depuis leur déclencheur, drawer mobile 300 ms (fondu si mouvement réduit), `--subtle` éclairci (#8a91a0) pour le contraste, profil, partie, suivis, groupes, connexion et pages d'erreur repris à 320-1920 px. Souhaits non bloquants inchangés : endpoint de découverte de joueurs, classement méta trié des héros.

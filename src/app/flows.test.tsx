@@ -14,23 +14,20 @@ describe("recherche et profil", () => {
 
     expect(await screen.findByRole("heading", { name: "Corvid", level: 1 })).toBeInTheDocument();
     expect((await screen.findAllByText("Oracle 4")).length).toBeGreaterThan(0);
-    expect(await screen.findByText(/24 V · 18 D/)).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("tab", { name: "Parties" }));
+    expect(await screen.findByText(/24 V · 18 D/, {}, { timeout: 4000 })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("tab", { name: /Parties/ }));
     expect((await screen.findAllByText("Victoire")).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Défaite").length).toBeGreaterThan(0);
   });
 
-  it("charge plus de parties avec le curseur", async () => {
-    renderApp(`/players/${SCENARIOS.steamIdFull}`);
-    await userEvent.click(await screen.findByRole("tab", { name: "Parties" }));
-    // 42 parties, pages de 20 : deux clics pour tout charger.
-    const more = /Charger \d+ parties de plus/;
-    await userEvent.click(await screen.findByRole("button", { name: more }));
-    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(30));
-    await userEvent.click(await screen.findByRole("button", { name: more }));
-    await waitFor(() =>
-      expect(screen.queryByRole("button", { name: more })).not.toBeInTheDocument(),
-    );
+  it("l'onglet vit dans l'URL et la liste des parties se déroule", async () => {
+    renderApp(`/players/${SCENARIOS.steamIdFull}?tab=matches`);
+    expect(await screen.findByRole("tab", { name: /Parties/, selected: true })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(20), {
+      timeout: 4000,
+    });
+    await userEvent.click(await screen.findByRole("button", { name: "Afficher 30 de plus" }));
+    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(40));
   });
 
   it("gère zéro résultat et service indisponible", async () => {
@@ -46,8 +43,7 @@ describe("recherche et profil", () => {
     expect(
       await screen.findByText(/Données partielles/, {}, { timeout: 3000 }),
     ).toBeInTheDocument();
-    expect((await screen.findAllByText("n/d")).length).toBeGreaterThan(1);
-    expect(await screen.findByText("Pas assez de parties")).toBeInTheDocument();
+    expect(await screen.findByText("Aucune partie disponible")).toBeInTheDocument();
   });
 
   it("affiche joueur introuvable en 404", async () => {

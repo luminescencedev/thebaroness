@@ -5,6 +5,7 @@ import type { Group, MatchSummary, PlayerProfile, PublicUser, TrackedPlayer } fr
 import {
   CORVID_STEAM_ID,
   GROUP_PLAYERS,
+  SCENARIO_PLAYERS,
   rankFor,
   statsFromMatches,
   syntheticMatches,
@@ -72,7 +73,7 @@ export const playerFixtures: Fixture[] = [
         }
       : p,
   ),
-  ...GROUP_PLAYERS.map((g) => ({
+  ...[...GROUP_PLAYERS, ...SCENARIO_PLAYERS].map((g) => ({
     player: identity(g.steamId, g.accountId, g.displayName),
     stats: statsFromMatches(syntheticMatches[g.steamId] ?? []),
     rank: rankFor(g.tier, g.subrank),

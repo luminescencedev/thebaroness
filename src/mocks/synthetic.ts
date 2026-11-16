@@ -139,6 +139,32 @@ export const GROUP_PLAYERS: SyntheticPlayer[] = [
   },
 ].map((p) => ({ ...p, accountId: accountOf(p.steamId) }));
 
+/** Scénarios d'affichage : très peu de parties, et très actif (200 parties). */
+export const SCENARIO_PLAYERS: SyntheticPlayer[] = [
+  {
+    steamId: "76561198000000020",
+    accountId: accountOf("76561198000000020"),
+    displayName: "PeuDeParties",
+    tier: 3,
+    subrank: 2,
+    matches: 8,
+    wins: 4,
+    seed: 21,
+    heroPool: [2, 11, 15],
+  },
+  {
+    steamId: "76561198000000021",
+    accountId: accountOf("76561198000000021"),
+    displayName: "TresActif",
+    tier: 10,
+    subrank: 5,
+    matches: 200,
+    wins: 112,
+    seed: 22,
+    heroPool: [1, 2, 3, 4, 6, 7, 10, 13, 17, 27],
+  },
+];
+
 export const CORVID: SyntheticPlayer = {
   steamId: CORVID_STEAM_ID,
   accountId: 39734272,
@@ -169,7 +195,9 @@ export function buildMatches(p: SyntheticPlayer): MatchSummary[] {
     const duration = r.int(1500, 2700);
     return {
       matchId: String(p.seed * 10_000_000 + 123456789 - i),
-      playedAt: new Date(base - i * 86400000 * 0.75).toISOString(),
+      playedAt: new Date(
+        base - i * 86400000 * 0.75 - r.int(0, 5) * 3600000 + r.int(-2, 3) * 3600000,
+      ).toISOString(),
       heroId: hero.id,
       heroName: hero.name,
       heroImageUrl: hero.images.small,
@@ -186,7 +214,7 @@ export function buildMatches(p: SyntheticPlayer): MatchSummary[] {
 export const corvidMatches = buildMatches(CORVID);
 /** Parties de tous les joueurs synthétiques, par SteamID. */
 export const syntheticMatches: Record<string, MatchSummary[]> = Object.fromEntries(
-  [CORVID, ...GROUP_PLAYERS].map((p) => [p.steamId, buildMatches(p)]),
+  [CORVID, ...GROUP_PLAYERS, ...SCENARIO_PLAYERS].map((p) => [p.steamId, buildMatches(p)]),
 );
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -426,4 +454,4 @@ export function memberStats(
   };
 }
 
-export const allSyntheticPlayers = [CORVID, ...GROUP_PLAYERS];
+export const allSyntheticPlayers = [CORVID, ...GROUP_PLAYERS, ...SCENARIO_PLAYERS];

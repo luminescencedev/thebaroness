@@ -22,3 +22,7 @@ export const getPlayerMatches = (
     query: { limit: params.limit, cursor: params.cursor },
     signal,
   });
+
+/** Relit profil et historique auprès de la source (délai minimum de 60 s par joueur côté back). */
+export const refreshPlayer = (steamId: SteamId) =>
+  request<PlayerProfile>(`/players/${encodeURIComponent(steamId)}/refresh`, { method: "POST" });

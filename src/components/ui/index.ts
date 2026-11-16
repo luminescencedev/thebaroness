@@ -9,6 +9,7 @@ export { Field } from "./Field";
 export { Input, type InputProps } from "./Input";
 export { Kbd } from "./Kbd";
 export { Label } from "./Label";
+export { Segmented } from "./Segmented";
 export { Skeleton } from "./Skeleton";
 export { Spinner } from "./Spinner";
 export { Tag } from "./Tag";

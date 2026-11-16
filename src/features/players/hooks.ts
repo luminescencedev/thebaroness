@@ -1,5 +1,6 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getPlayer, getPlayerMatches, searchPlayers } from "@/api";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { getPlayer, getPlayerMatches, refreshPlayer, searchPlayers } from "@/api";
 
 export const playerKeys = {
   search: (q: string) => ["players", "search", q] as const,
@@ -26,8 +27,37 @@ export function usePlayerMatches(steamId: string) {
   return useInfiniteQuery({
     queryKey: playerKeys.matches(steamId),
     queryFn: ({ pageParam, signal }) =>
-      getPlayerMatches(steamId, { limit: 20, cursor: pageParam }, signal),
+      getPlayerMatches(steamId, { limit: 50, cursor: pageParam }, signal),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.nextCursor ?? undefined,
+  });
+}
+
+/** Borne de l'historique chargé automatiquement ; au-delà, bouton « Charger plus ». */
+export const HISTORY_CAP = 200;
+
+/** Historique complet jusqu'à HISTORY_CAP parties, chargé page après page en arrière-plan. */
+export function usePlayerHistory(steamId: string) {
+  const query = usePlayerMatches(steamId);
+  const loaded = query.data?.pages.reduce((n, p) => n + p.items.length, 0) ?? 0;
+  const { hasNextPage, isFetchingNextPage, fetchNextPage, isError } = query;
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage && !isError && loaded < HISTORY_CAP)
+      void fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, isError, loaded, fetchNextPage]);
+  const matches = query.data?.pages.flatMap((p) => p.items) ?? [];
+  return { ...query, matches, loaded, capped: loaded >= HISTORY_CAP && Boolean(hasNextPage) };
+}
+
+/** Actualisation forcée : remplace le profil affiché et relit historique et héros. */
+export function useRefreshPlayer(steamId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => refreshPlayer(steamId),
+    onSuccess: (profile) => {
+      qc.setQueryData(playerKeys.profile(steamId), profile);
+      void qc.invalidateQueries({ queryKey: playerKeys.matches(steamId) });
+      void qc.invalidateQueries({ queryKey: ["players", steamId, "heroes"] });
+    },
   });
 }

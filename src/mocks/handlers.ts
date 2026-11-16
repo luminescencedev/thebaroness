@@ -211,6 +211,34 @@ export const handlers = [
       : notFound("Partie introuvable.");
   }),
 
+  http.post(`${API}/players/:steamId/refresh`, async ({ params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    const { partial, ...profile } = fixture;
+    return HttpResponse.json({ ...profile, meta: meta(partial === true) });
+  }),
+
+  http.post(`${API}/groups/:id/refresh`, async ({ request, params }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const id = String(params.id);
+    if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
+    const group = state.groups.get(owner)?.find((g) => g.id === id);
+    if (!group) return notFound("Groupe introuvable.");
+    const period = (new URL(request.url).searchParams.get("period") ?? "30d") as ComparePeriod;
+    if (!["7d", "30d", "season"].includes(period)) return invalid("Période invalide.");
+    const members = group.steamIds.flatMap((steamId) => {
+      const p = allSyntheticPlayers.find((x) => x.steamId === steamId);
+      return p ? [memberStats(p, syntheticMatches[steamId] ?? [], period)] : [];
+    });
+    if (members.length === 0) return unavailable();
+    return HttpResponse.json({ group, period, members, meta: meta() });
+  }),
+
   http.get(`${API}/players/:steamId/heroes`, async ({ params }) => {
     await latency();
     const steamId = String(params.steamId);

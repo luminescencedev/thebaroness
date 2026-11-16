@@ -1,87 +1,143 @@
 import { Tabs } from "@base-ui/react/tabs";
+import { Link, useParams, useSearchParams } from "react-router";
 import { useEffect } from "react";
-import { Link, useParams } from "react-router";
 import { isApiError } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { BrandLoader } from "@/components/brand";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
-import { RankBadge } from "@/components/media/RankBadge";
-import { Avatar, Button, EmptyState, Skeleton, buttonStyles } from "@/components/ui";
-import { MatchesTable } from "@/features/matches/MatchesTable";
-import { HeroesTab } from "@/features/players/HeroesTab";
-import { PlayerOverview } from "@/features/players/PlayerOverview";
-import { usePlayer, usePlayerMatches } from "@/features/players/hooks";
+import { EmptyState, Skeleton, buttonStyles } from "@/components/ui";
+import { usePlayer } from "@/features/players/hooks";
+import { HeroesTab } from "@/features/players/profile/HeroesTab";
+import { MatchesTab } from "@/features/players/profile/MatchesTab";
+import { OverviewTab } from "@/features/players/profile/OverviewTab";
+import { ProfileBanner } from "@/features/players/profile/ProfileBanner";
+import { useProfileData } from "@/features/players/profile/useProfileData";
 import { rememberPlayer } from "@/features/search/recents";
 import { FollowButton } from "@/features/tracked-players/FollowButton";
-import { formatRegion, timeAgo } from "@/lib/format";
 
 const TABS = [
   { value: "overview", label: "Aperçu" },
-  { value: "heroes", label: "Héros" },
   { value: "matches", label: "Parties" },
-];
+  { value: "heroes", label: "Héros" },
+] as const;
+type TabValue = (typeof TABS)[number]["value"];
 
-function MatchesTab({ steamId }: { steamId: string }) {
-  const q = usePlayerMatches(steamId);
-  if (q.isPending) {
-    return (
-      <div className="space-y-2" aria-busy="true" aria-label="Chargement des parties">
-        {[0, 1, 2, 3].map((i) => (
-          <Skeleton key={i} className="h-12 rounded-card" />
-        ))}
-      </div>
-    );
-  }
-  if (!q.data)
-    return (
-      <ErrorState
-        error={q.error}
-        title="Historique indisponible"
-        onRetry={() => void q.refetch()}
-      />
-    );
-  const matches = q.data.pages.flatMap((p) => p.items);
-  const meta = q.data.pages[0]?.meta;
-  if (matches.length === 0) {
-    return (
-      <EmptyState
-        title="Aucune partie disponible"
-        description="Aucune partie n'est disponible pour ce joueur pour le moment."
-      />
-    );
-  }
-  return (
-    <div className="space-y-4">
-      <MatchesTable matches={matches} />
-      {q.hasNextPage && (
-        <div className="text-center">
-          <Button
-            variant="secondary"
-            onClick={() => void q.fetchNextPage()}
-            loading={q.isFetchingNextPage}
-          >
-            Charger {q.data.pages.at(-1)?.items.length ?? 20} parties de plus
-          </Button>
-        </div>
-      )}
-      {q.isFetchNextPageError && <ErrorState error={q.error} title="Chargement impossible" />}
-      {meta && <DataMetaNotice meta={meta} onRetry={() => void q.refetch()} />}
-    </div>
-  );
-}
-
-function OverviewTab({
+function Body({
   steamId,
   profile,
 }: {
   steamId: string;
   profile: NonNullable<ReturnType<typeof usePlayer>["data"]>;
 }) {
-  const q = usePlayerMatches(steamId);
-  const matches = q.data?.pages.flatMap((p) => p.items) ?? [];
-  if (q.isPending) return <Skeleton className="h-72 rounded-card" aria-busy="true" />;
-  return <PlayerOverview profile={profile} matches={matches} steamId={steamId} />;
+  const [params, setParams] = useSearchParams();
+  const tab = (TABS.find((t) => t.value === params.get("tab"))?.value ?? "overview") as TabValue;
+  const setTab = (value: string) =>
+    setParams(
+      (cur) => {
+        const next = new URLSearchParams(cur);
+        if (value === "overview") next.delete("tab");
+        else next.set("tab", value);
+        return next;
+      },
+      { replace: true },
+    );
+
+  const data = useProfileData(steamId);
+  const { history, stats } = data;
+  const heroColor = data.mainHero?.color;
+  const coverage = `Calculé sur ${history.loaded} partie${history.loaded > 1 ? "s" : ""} disponible${history.loaded > 1 ? "s" : ""} via Deadlock API, projet communautaire indépendant de Valve.${profile.meta.isPartial ? " Données partielles : l'historique peut être incomplet." : " L'historique peut être incomplet."} KDA = (éliminations + assistances) / max(morts, 1), calculé sur les sommes. Valeur nette par minute = valeur nette / durée.`;
+
+  const loading = history.isPending;
+  return (
+    <div className="space-y-6 pb-24 sm:pb-0">
+      <ProfileBanner profile={profile} heroColor={heroColor} />
+      <DataMetaNotice meta={profile.meta} showDate={false} />
+
+      <Tabs.Root value={tab} onValueChange={setTab}>
+        <div className="sticky top-[76px] z-30 -mx-4 bg-bg/80 px-4 backdrop-blur-md sm:-mx-6 sm:px-6">
+          <Tabs.List
+            aria-label="Sections du profil"
+            className="relative mx-auto flex max-w-6xl gap-1 border-b border-border"
+          >
+            {TABS.map((t) => (
+              <Tabs.Tab
+                key={t.value}
+                value={t.value}
+                className="pressable hover-text h-11 px-3.5 text-sm font-medium text-subtle data-[selected]:text-text"
+              >
+                {t.label}
+                {t.value === "matches" && history.loaded > 0 && (
+                  <span className="ml-1.5 text-xs text-subtle tabular-nums">{history.loaded}</span>
+                )}
+              </Tabs.Tab>
+            ))}
+            <Tabs.Indicator className="absolute -bottom-px left-0 h-0.5 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-sm bg-text transition-[translate,width] duration-[220ms] ease-[var(--ease-in-out)] motion-reduce:transition-none" />
+          </Tabs.List>
+        </div>
+
+        <div className="pt-6">
+          {loading ? (
+            <div className="space-y-3" aria-busy="true" aria-label="Chargement de l'historique">
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-36 rounded-card" />
+                ))}
+              </div>
+              <Skeleton className="h-72 rounded-card" />
+            </div>
+          ) : history.isError && history.matches.length === 0 ? (
+            <ErrorState
+              error={history.error}
+              title="Historique indisponible"
+              onRetry={() => void history.refetch()}
+            />
+          ) : (
+            <>
+              <Tabs.Panel value="overview">
+                {history.matches.length === 0 ? (
+                  <EmptyState
+                    title="Aucune partie disponible"
+                    description="Aucune partie n'est disponible pour ce joueur pour le moment."
+                  />
+                ) : (
+                  <OverviewTab
+                    profile={profile}
+                    matches={history.matches}
+                    stats={stats}
+                    roles={data.roles}
+                    rows={data.rows}
+                    heroById={data.heroById}
+                    coverage={coverage}
+                    onSeeMatches={() => setTab("matches")}
+                  />
+                )}
+              </Tabs.Panel>
+              <Tabs.Panel value="matches">
+                <MatchesTab
+                  matches={history.matches}
+                  heroById={data.heroById}
+                  capped={history.capped}
+                  hasMore={Boolean(history.hasNextPage)}
+                  loading={history.isFetchingNextPage}
+                  onMore={() => void history.fetchNextPage()}
+                />
+              </Tabs.Panel>
+              <Tabs.Panel value="heroes">
+                <HeroesTab rows={data.rows} heroById={data.heroById} />
+              </Tabs.Panel>
+            </>
+          )}
+        </div>
+      </Tabs.Root>
+
+      {tab !== "overview" && <p className="text-xs text-subtle">{coverage}</p>}
+
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-b from-transparent to-bg to-30% px-4 pt-3 pb-6 sm:hidden">
+        <FollowButton steamId={profile.player.steamId} name={profile.player.displayName} block />
+      </div>
+    </div>
+  );
 }
 
 export function PlayerPage() {
@@ -99,9 +155,7 @@ export function PlayerPage() {
       });
   }, [viewed]);
 
-  if (player.isPending) {
-    return <BrandLoader message="Le Doorman monte les parties du joueur" />;
-  }
+  if (player.isPending) return <BrandLoader message="Le Doorman monte les parties du joueur" />;
 
   if (player.isError) {
     if (isApiError(player.error) && player.error.status === 404) {
@@ -132,74 +186,5 @@ export function PlayerPage() {
     );
   }
 
-  const { player: p, stats, rank, meta } = player.data;
-
-  return (
-    <div className="space-y-6 pb-24 sm:pb-0">
-      <header className="flex flex-wrap items-center gap-4">
-        <Avatar
-          name={p.displayName}
-          src={p.avatarUrl}
-          className="size-[60px] rounded-2xl text-2xl"
-        />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-3xl sm:text-4xl">{p.displayName}</h1>
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-            <span className="mono text-subtle">{p.steamId}</span>
-            {p.region && <span>{formatRegion(p.region)}</span>}
-            <span>Collecté {timeAgo(meta.fetchedAt)}</span>
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {rank.name && (
-            <span className="flex items-center gap-2 rounded-full bg-accent/15 py-1 pr-3 pl-1.5 text-sm text-[#d2ccff]">
-              <RankBadge name={rank.name} imageUrl={rank.imageUrl} size="sm" />
-              {rank.name}
-            </span>
-          )}
-          <div className="hidden sm:block">
-            <FollowButton steamId={p.steamId} name={p.displayName} />
-          </div>
-        </div>
-      </header>
-
-      <DataMetaNotice meta={meta} showDate={false} onRetry={() => void player.refetch()} />
-
-      <Tabs.Root defaultValue="overview">
-        <Tabs.List
-          aria-label="Sections du profil"
-          className="relative mb-6 flex gap-1 border-b border-border"
-        >
-          {TABS.map((t) => (
-            <Tabs.Tab
-              key={t.value}
-              value={t.value}
-              className="pressable hover-text h-11 px-3.5 text-sm font-medium text-subtle data-[selected]:text-text"
-            >
-              {t.label}
-            </Tabs.Tab>
-          ))}
-          <Tabs.Indicator className="absolute -bottom-px left-0 h-0.5 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-sm bg-text transition-[translate,width] duration-[220ms] ease-[var(--ease-in-out)] motion-reduce:transition-none" />
-        </Tabs.List>
-        <Tabs.Panel value="overview">
-          <OverviewTab steamId={p.steamId} profile={player.data} />
-        </Tabs.Panel>
-        <Tabs.Panel value="heroes">
-          <HeroesTab steamId={p.steamId} />
-        </Tabs.Panel>
-        <Tabs.Panel value="matches">
-          <MatchesTab steamId={p.steamId} />
-        </Tabs.Panel>
-      </Tabs.Root>
-
-      <p className="text-xs text-subtle">
-        Calculé sur les {stats.matchesPlayed ?? "n/d"} parties disponibles via Deadlock API, projet
-        communautaire indépendant de Valve. L&apos;historique peut être incomplet.
-      </p>
-
-      <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-b from-transparent to-bg to-30% px-4 pt-3 pb-6 sm:hidden">
-        <FollowButton steamId={p.steamId} name={p.displayName} block />
-      </div>
-    </div>
-  );
+  return <Body steamId={steamId} profile={player.data} />;
 }

@@ -14,6 +14,19 @@
   --warning: #f5b14c;
   --focus: #8b7cff;
 
+  /* Séries de données */
+  --series-1: #b4abff;
+  --series-2: #5b4bf0;
+  --series-ref: #d9dbe1;
+  --k: #b4abff;
+  --d: rgb(255 107 111 / 0.85);
+  --a: #5b4bf0;
+  --role-mystic: #8b7cff;
+  --role-marksman: #6fb7ff;
+  --role-brawler: #f5b14c;
+  --role-assassin: #ff6b9a;
+  --role-healer: #3dd68c;
+
   --font: "Geist Variable", system-ui, sans-serif;
   --mono: "Geist Mono Variable", ui-monospace, monospace;
   --radius: 10px;

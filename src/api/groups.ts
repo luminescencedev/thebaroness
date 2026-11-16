@@ -30,3 +30,10 @@ export const compareGroup = (id: string, period: ComparePeriod, signal?: AbortSi
     auth: true,
     signal,
   });
+
+export const refreshGroup = (id: string, period: ComparePeriod) =>
+  request<GroupCompareResponse>(`${base}/${encodeURIComponent(id)}/refresh`, {
+    method: "POST",
+    query: { period },
+    auth: true,
+  });

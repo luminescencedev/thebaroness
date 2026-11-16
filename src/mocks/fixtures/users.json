@@ -1,0 +1,10 @@
+{
+  "_note": "Compte fictif de demonstration, valable uniquement en mode mock.",
+  "users": [
+    {
+      "id": "507f1f77bcf86cd799439011",
+      "email": "alice@example.test",
+      "password": "MotDePasse123!"
+    }
+  ]
+}

@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-win: var(--win);
+  --color-loss: var(--loss);
+  --color-warning: var(--warning);
+  --color-focus: var(--focus);
+
+  --font-sans: var(--font);
+  --font-mono: var(--mono);
+  --radius-control: var(--radius);
+  --radius-card: var(--radius-card);
+
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+  --ease-drawer: var(--ease-drawer);
+}
+
+@layer base {
+  html {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-height: 100dvh;
+    margin: 0;
+    background: var(--bg);
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 600;
+    letter-spacing: -0.04em;
+  }
+
+  code,
+  kbd,
+  samp,
+  .mono {
+    font-family: var(--mono);
+  }
+
+  ::selection {
+    background: color-mix(in srgb, var(--accent) 45%, transparent);
+  }
+
+  :where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Carte : dégradé léger, liseré interne, rayon 16 px. */
+.card {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.015));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+}
+
+/* Élément pressable : retour d'appui sur transform seulement, jamais transition: all. */
+.pressable {
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms,
+    opacity 150ms;
+}
+
+.pressable:active:not(:disabled, [aria-disabled="true"]) {
+  transform: scale(0.97);
+}
+
+/* Survols : couleur uniquement, appareils à pointeur précis. */
+@media (hover: hover) and (pointer: fine) {
+  .hover-text:hover {
+    color: var(--text);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-color: #ffffff;
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background-color: rgb(255 255 255 / 0.09);
+    border-color: rgb(255 255 255 / 0.14);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background-color: var(--surface);
+    color: var(--text);
+  }
+  .btn-danger:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--loss) 22%, transparent);
+  }
+}
+
+/* Dialogue (Base UI) : centré, scale(0.96) + opacité, 220 ms entrée, 150 ms sortie. */
+.dialog-popup {
+  transition:
+    transform 220ms var(--ease-out),
+    opacity 220ms var(--ease-out);
+}
+.dialog-popup[data-starting-style] {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.96);
+}
+.dialog-popup[data-ending-style] {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.96);
+  transition-duration: 150ms;
+}
+.dialog-backdrop {
+  transition: opacity 220ms var(--ease-out);
+}
+.dialog-backdrop[data-starting-style],
+.dialog-backdrop[data-ending-style] {
+  opacity: 0;
+}
+.dialog-backdrop[data-ending-style] {
+  transition-duration: 150ms;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.skeleton {
+  background: var(--surface-strong);
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spinner-fade {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.spinner {
+  animation: spin 800ms linear infinite;
+}
+
+/* Mouvement réduit : on garde les fondus, on retire tout déplacement. */
+@media (prefers-reduced-motion: reduce) {
+  .pressable:active:not(:disabled, [aria-disabled="true"]) {
+    transform: none;
+  }
+  .spinner {
+    animation: spinner-fade 1.2s ease-in-out infinite;
+  }
+  .dialog-popup[data-starting-style],
+  .dialog-popup[data-ending-style] {
+    transform: translate(-50%, -50%);
+  }
+}

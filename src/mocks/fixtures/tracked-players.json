@@ -1,0 +1,14 @@
+{
+  "_note": "Suivis de depart du compte fictif. Etat en memoire, remis a zero au rechargement.",
+  "507f1f77bcf86cd799439011": [
+    {
+      "id": "507f1f77bcf86cd799439012",
+      "steamId": "76561198000000000",
+      "alias": "Duo régulier",
+      "note": "Joue souvent en classé",
+      "tags": ["duo", "ranked"],
+      "createdAt": "2026-11-16T09:00:00.000Z",
+      "updatedAt": "2026-11-16T09:00:00.000Z"
+    }
+  ]
+}

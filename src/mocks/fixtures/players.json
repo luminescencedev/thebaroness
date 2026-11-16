@@ -1,0 +1,46 @@
+{
+  "_note": "Donnees SYNTHETIQUES pour le developpement et les tests. Ne representent aucun joueur reel.",
+  "players": [
+    {
+      "player": {
+        "steamId": "76561198000000000",
+        "accountId": 39734272,
+        "displayName": "Corvid",
+        "avatarUrl": null,
+        "region": "Europe"
+      },
+      "stats": {
+        "matchesPlayed": 42,
+        "wins": 24,
+        "losses": 18,
+        "winRate": 57.14,
+        "kills": 376,
+        "deaths": 259,
+        "assists": 533,
+        "kda": 3.51
+      },
+      "rank": { "badgeId": null, "name": "Oracle 4" }
+    },
+    {
+      "player": {
+        "steamId": "76561198000000001",
+        "accountId": 39734273,
+        "displayName": "Corvid Jr",
+        "avatarUrl": null,
+        "region": null
+      },
+      "stats": {
+        "matchesPlayed": null,
+        "wins": null,
+        "losses": null,
+        "winRate": null,
+        "kills": null,
+        "deaths": null,
+        "assists": null,
+        "kda": null
+      },
+      "rank": { "badgeId": null, "name": null },
+      "partial": true
+    }
+  ]
+}

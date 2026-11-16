@@ -50,3 +50,12 @@ Contrat à implémenter côté `baroness-back` :
 - Chromium doit être installé une fois : `npx playwright install chromium`.
 - Un `goto` complet recharge la page et efface la session en mémoire : les parcours connectés utilisent la navigation interne.
 - Pages chargées à la demande (une par chunk) : le bundle initial passe sous 500 kB.
+
+## Écrans P1 et visuels du catalogue
+
+- Livrés en mock : catalogue des héros (filtres, fiche avec capacités, statistiques de base et de méta), classement par région, détail d'une partie (deux équipes), héros les plus joués et courbes de progression sur le profil, page d'accueil refondue.
+- Contrat des routes P1 proposé dans `docs/back-p1-contract.md`, à valider avec le back.
+- Visuels réels : portraits de héros, icônes de capacités, icônes de rang et visuel de carte viennent de Deadlock API (`npm run` non requis, voir `scripts/build-fixtures.mjs`, à relancer pour rafraîchir les fixtures). Ils sont affichés depuis le CDN du catalogue, avec repli (initiales, pastille) si l'image échoue.
+- Les images, noms et textes de héros appartiennent à Valve : attribution dans le pied de page. À valider pour la remise (risque identifié dans le cahier, section 22).
+- Joueurs, parties, classements et statistiques de méta des fixtures sont synthétiques et déterministes (`src/mocks/synthetic.ts`). Aucun joueur réel.
+- Les courbes de progression s'appuient sur les parties chargées (20 par page) : le libellé le dit.

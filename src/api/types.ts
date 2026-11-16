@@ -45,11 +45,6 @@ export interface PlayerStats {
   kda: number | null;
 }
 
-export interface PlayerRank {
-  badgeId: number | null;
-  name: string | null;
-}
-
 export interface PlayerProfile {
   /** `region` est un ajout rétrocompatible au contrat v1 (voir docs/decisions.md). */
   player: PlayerSummary & { region?: string | null };
@@ -65,6 +60,8 @@ export interface MatchSummary {
   playedAt: string;
   heroId: number;
   heroName: string;
+  /** Ajout optionnel : portrait du héros fourni par le back. */
+  heroImageUrl?: string | null;
   outcome: MatchOutcome;
   durationSeconds: number | null;
   kills: number | null;
@@ -115,4 +112,175 @@ export interface UpdateTrackedPlayerInput {
 
 export interface ApiErrorBody {
   error: { code: string; message: string };
+}
+
+/* ---------- P1 : catalogue, classement, détail de match ---------- */
+/* Contrat proposé par le front (voir docs/back-p1-contract.md). Les images viennent du
+   catalogue Deadlock normalisé par le back : le front ne les construit jamais lui-même. */
+
+export type HeroRole = "assassin" | "brawler" | "marksman" | "mystic" | "healer";
+
+export interface HeroImages {
+  card: string;
+  small: string;
+  vertical: string;
+  background: string;
+  name: string | null;
+}
+
+export interface HeroAbility {
+  id: number;
+  name: string;
+  imageUrl: string | null;
+  type: "signature" | "ultimate";
+  description: string;
+  cooldownSeconds: number | null;
+}
+
+export interface HeroStatLine {
+  key: string;
+  label: string;
+  value: number;
+}
+
+export interface HeroSummary {
+  id: number;
+  name: string;
+  role: HeroRole;
+  gunTag: string | null;
+  complexity: number | null;
+  tags: string[];
+  /** Couleur d'accent du héros, hexadécimale. */
+  color: string;
+  images: HeroImages;
+}
+
+export interface HeroDetail extends HeroSummary {
+  lore: string;
+  stats: HeroStatLine[];
+  abilities: HeroAbility[];
+}
+
+export interface HeroListResponse {
+  items: HeroSummary[];
+  meta: DataMeta;
+}
+
+export interface HeroDetailResponse {
+  hero: HeroDetail;
+  meta: DataMeta;
+}
+
+export interface HeroMetaStats {
+  heroId: number;
+  matches: number | null;
+  winRate: number | null;
+  pickRate: number | null;
+  avgKills: number | null;
+  avgDeaths: number | null;
+  avgAssists: number | null;
+  /** Taux de victoire par palier de rang (0 à 11), null si l'échantillon est trop faible. */
+  winRateByTier: { tier: number; winRate: number | null; matches: number | null }[];
+}
+
+export interface HeroStatsResponse {
+  stats: HeroMetaStats;
+  meta: DataMeta;
+}
+
+export interface RankTier {
+  tier: number;
+  name: string;
+  color: string;
+  imageUrl: string;
+  /** Images des 6 sous-rangs (index 0 = sous-rang 1), null si indisponible. */
+  subranks: (string | null)[];
+}
+
+export interface RankListResponse {
+  items: RankTier[];
+}
+
+/** Rang d'un joueur : `badgeId` et `name` sont inchangés, le reste est un ajout optionnel. */
+export interface PlayerRank {
+  badgeId: number | null;
+  name: string | null;
+  tier?: number | null;
+  subrank?: number | null;
+  imageUrl?: string | null;
+  color?: string | null;
+}
+
+export interface PlayerHeroStat {
+  heroId: number;
+  heroName: string;
+  heroImageUrl: string | null;
+  matches: number;
+  wins: number;
+  winRate: number | null;
+  kda: number | null;
+}
+
+export interface PlayerHeroesResponse {
+  items: PlayerHeroStat[];
+  meta: DataMeta;
+}
+
+export type LeaderboardRegion = "Europe" | "Asia" | "NAmerica" | "SAmerica" | "Oceania";
+
+export interface LeaderboardEntry {
+  rank: number;
+  displayName: string;
+  /** null quand le classement ne permet pas de relier le compte à un SteamID. */
+  steamId: SteamId | null;
+  badge: { tier: number; subrank: number; name: string; imageUrl: string | null };
+  topHeroes: { heroId: number; name: string; imageUrl: string | null }[];
+}
+
+export interface LeaderboardResponse {
+  region: LeaderboardRegion;
+  items: LeaderboardEntry[];
+  meta: DataMeta;
+}
+
+export type TeamSide = "amber" | "sapphire";
+
+export interface MatchPlayer {
+  steamId: SteamId | null;
+  displayName: string;
+  heroId: number;
+  heroName: string;
+  heroImageUrl: string | null;
+  level: number | null;
+  kills: number | null;
+  deaths: number | null;
+  assists: number | null;
+  netWorth: number | null;
+  lastHits: number | null;
+  denies: number | null;
+}
+
+export interface MatchTeam {
+  side: TeamSide;
+  outcome: MatchOutcome;
+  players: MatchPlayer[];
+}
+
+export interface MatchDetail {
+  matchId: string;
+  playedAt: string;
+  durationSeconds: number | null;
+  winningSide: TeamSide;
+  teams: MatchTeam[];
+}
+
+export interface MatchDetailResponse {
+  match: MatchDetail;
+  meta: DataMeta;
+}
+
+export interface MapAssets {
+  minimap: string;
+  tunnels: string | null;
+  frame: string | null;
 }

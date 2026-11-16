@@ -13,7 +13,7 @@ describe("recherche et profil", () => {
     await userEvent.click(link);
 
     expect(await screen.findByRole("heading", { name: "Corvid", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("Rang : Oracle 4")).toBeInTheDocument();
+    expect(screen.getByText("Oracle 4")).toBeInTheDocument();
     expect(screen.getByText("Victoires").nextSibling).toHaveTextContent("24");
     expect(screen.getByText("Défaites").nextSibling).toHaveTextContent("18");
     expect((await screen.findAllByText("Victoire")).length).toBeGreaterThan(0);
@@ -85,7 +85,8 @@ describe("connexion Steam", () => {
   it("garde la déconnexion en mémoire seulement", async () => {
     signIn();
     renderApp("/");
-    await userEvent.click(screen.getByRole("button", { name: "Déconnexion" }));
+    await userEvent.click(screen.getByRole("button", { name: /Compte de Corvid/ }));
+    await userEvent.click(await screen.findByRole("menuitem", { name: "Déconnexion" }));
     expect(sessionStore.get()).toBeNull();
   });
 });

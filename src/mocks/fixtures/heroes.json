@@ -1,0 +1,3908 @@
+[
+  {
+    "id": 6,
+    "name": "Abrams",
+    "role": "brawler",
+    "gunTag": "Fusil à pompe",
+    "complexity": 1,
+    "tags": ["Tank", "Bagarreur", "Têtu"],
+    "color": "#2092AE",
+    "lore": "Brut de décoffrage, têtu et imbibé d'alcool, le détective Abrams est une figure incontournable de la scène des enquêtes new-yorkaises depuis bien des années. Qu'il s'agisse d'œuvres d'art volées, de personnes disparues ou de rituels meurtriers, Abrams ne s'est pas contenté de mener n'importe quelle affaire qui échouait sur son bureau. Il les a résolues. Mais ses nuits de filature à traquer les conjoints infidèles ont pris fin le jour où le Tome fit son apparition sur son bureau. Aucune explication ne lui avait été donnée, à l'exception d'une brève note griffonnée avec du sang couleur d'onyx sur laquelle on pouvait lire « Ne les laissez pas mettre la main dessus ». Abrams ne sait pas d'où vient ce bouquin. Mais comme sa maison a été cambriolée, son bureau détruit à trois reprises et sa voiture brulée, il a tout intérêt à faire la lumière sur cette affaire.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bull_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bull_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bull_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/abrams_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/abrams.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 800
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.4
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 4072270083,
+        "name": "Siphonnage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bull_drain.webp",
+        "type": "signature",
+        "description": "Abrams draine la vie des unités ennemies proches. Inflige des dégâts spirituels au fil du temps et soigne à hauteur d'une partie des dégâts infligés.",
+        "cooldownSeconds": 42
+      },
+      {
+        "id": 2824119765,
+        "name": "Charge taurine",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bull_charge.webp",
+        "type": "signature",
+        "description": "Abrams charge vers l'avant et entraine ses adversaires avec lui. Plaquer une unité occultiste contre un mur applique un étourdissement. Entrer en collision avec une unité occultiste augmente la vitesse de charge.",
+        "cooldownSeconds": 33
+      },
+      {
+        "id": 715762406,
+        "name": "Résilience infernale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bull_beef.webp",
+        "type": "signature",
+        "description": "Abrams obtient un bonus de défense. Quand il subit des dégâts, confère temporairement de la régénération en fonction des dégâts subis.",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 509856396,
+        "name": "Impact sismique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bull_jump.webp",
+        "type": "ultimate",
+        "description": "Abrams s'élance dans les airs avant de s'écraser au sol, ce qui inflige des dégâts spirituels et provoque un étourdissement.",
+        "cooldownSeconds": 215
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "name": "Apollon",
+    "role": "assassin",
+    "gunTag": "Tirs en éventail",
+    "complexity": 2,
+    "tags": ["Élégant", "Mobile", "Tranchant"],
+    "color": "#FF3333",
+    "lore": "Pays alliant beauté, tradition et conflits, l'Ixia du Nord connait la violence politique aveugle. Alors, quand Apollon apprit qu'il allait être envoyé dans une école de New York pour sa sécurité, il comprit que la situation était sérieuse. Il eut du mal à s'adapter à la vie de l'Académie Blackmore. Son école était censée éduquer l'élite de la jeunesse de la Pomme perdue, mais il n'y vit qu'un océan de médiocrité agressive, à quelques exceptions près. Il choisit donc de ne pas perdre son temps en frivolités, et au lieu de faire la fête et de danser, il consacra son énergie à un autre genre de piste. En tant que capitaine de l'équipe d'escrime de Blackmore, il s'entraine rigoureusement. En fin de compte, la monotonie de sa vie à New York ne lui pèse pas plus que cela. Il sait qu'un jour viendra où son père le rappellera à la maison et qu'il pourra enfin montrer qu'il mérite de manier l'épée ancestrale de la famille.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/fencer_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/fencer_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/fencer_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/fencer_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/fencer.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 770
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 63
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 725153709,
+        "name": "Sceau de désengagement",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/fencer/fencer_sigil.webp",
+        "type": "signature",
+        "description": "Apollon trace un sceau magique en face de lui puis bat en retraite avant qu'il n'explose. Les adversaires dans la zone subissent des dégâts et un ralentissement.",
+        "cooldownSeconds": 12
+      },
+      {
+        "id": 2006773718,
+        "name": "Riposte",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/fencer/fencer_riposte.webp",
+        "type": "signature",
+        "description": "Apollon se prépare à dévier la prochaine attaque dont il est la cible. Quand il y parvient, il devient brièvement invulnérable puis il bondit vers une cible occultiste ennemie pour l'immobiliser, la désarmer, l'empêcher de parer et réduire sa résistance aux at",
+        "cooldownSeconds": 22
+      },
+      {
+        "id": 147493976,
+        "name": "Attaque en flèche",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/fencer/fencer_lungingstab.webp",
+        "type": "signature",
+        "description": "Apollon effectue une série d'estocades devant lui. Maintenez la touche de la capacité pour synchroniser les attaques et infliger des dégâts plus importants en fonction de la durée d'appui sur la touche. Si la touche est relâchée pendant l'intervalle parfait, l",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 494112189,
+        "name": "Itani Lo Sahn",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/fencer/fencer_ult.webp",
+        "type": "ultimate",
+        "description": "Apollon charge son attaque puis donne un grand coup d'épée loin devant lui. Les unités ennemies touchées ne peuvent ni agir ni se soigner et sont ralenties. À l'expiration de l'effet, elles subissent des dégâts dévastateurs et les unités qui avaient moins de l",
+        "cooldownSeconds": 145
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Bebop",
+    "role": "brawler",
+    "gunTag": "Arme laser",
+    "complexity": 2,
+    "tags": ["Crochet", "Bombe", "Cogneur"],
+    "color": "#9F4734",
+    "lore": "Fabriqué de toutes pièces par une employée de la casse, Bebop était bien plus qu'un simple golem de ferraille… Il était le fils qu'elle, veuve, n'avait jamais pu avoir. Ils passaient leurs journées à travailler dans l'entrepôt et quand venait le soir, à écouter du jazz. C'était une routine prévisible, voire réconfortante. Seulement voilà, la créatrice de Bebop est tombée malade. Pour financer son traitement, Bebop a dû se résoudre à des activités nocturnes secrètes que Miss Shelly n'aurait pas approuvées. Mais ce qu'elle ne sait pas ne peut pas lui faire de mal.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bebop_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bebop_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bebop_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/bebop_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/bebop.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 880
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.45
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 4
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 63
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3089858203,
+        "name": "Uppercut explosif",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bebop/bebop_uppercut.webp",
+        "type": "signature",
+        "description": "Bebop repousse et inflige des dégâts de mêlée aux adversaires à proximité et inflige du recul. À l'atterrissage, les cibles infligent des dégâts spirituels et appliquent une cadence de tir diminuée aux autres adversaires proches. Uppercut explosif peut être la",
+        "cooldownSeconds": 22
+      },
+      {
+        "id": 2521902222,
+        "name": "Bombe collante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bebop/bebop_sticky_bomb.webp",
+        "type": "signature",
+        "description": "Bebop colle une bombe à retardement. L'explosion inflige des dégâts spirituels aux adversaires à proximité. Si la bombe touche ou tue une unité occultiste, Bombe collante obtient un bonus permanent de dégâts. Les charges sont réduites de moitié après 60 attaqu",
+        "cooldownSeconds": 18
+      },
+      {
+        "id": 1928108461,
+        "name": "Bras mécanique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bebop/bebop_hook.webp",
+        "type": "signature",
+        "description": "Bebop lance une main mécanique qui entraine la première cible sur sa trajectoire et la ramène. Bras mécanique peut être utilisé sur les unités alliées.",
+        "cooldownSeconds": 23
+      },
+      {
+        "id": 3832675871,
+        "name": "Hyperlaser",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bebop/bebop_hyper_beam.webp",
+        "type": "ultimate",
+        "description": "Bebop canalise un puissant flux d'énergie qui inflige des dégâts spirituels et applique un ralentissement.",
+        "cooldownSeconds": 120
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "name": "Billy",
+    "role": "brawler",
+    "gunTag": "Portée restreinte",
+    "complexity": 3,
+    "tags": ["Punk", "Chaotique", "G.O.A.T."],
+    "color": "#D4AD0E",
+    "lore": "Billy est une boule de rage incandescente, furieux à l'idée même… d'un truc. Possible que ce soit les flics. Possible que ce soit les règlementations magiques. Possible que ce soit le service au resto grec en ville. (Non, pas celui-là, l'autre.)Ne lui demandez jamais d'où vient sa tête de bouc.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/punkgoat_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/punkgoat_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/punkgoat_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/billy_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/billy.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 820
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1841661392,
+        "name": "Matraquage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/punkgoat/goat_sigilslam.webp",
+        "type": "signature",
+        "description": "Billy frappe sa batte au sol et entraine l'adversaire à terre, infligeant des dégâts de mêlée. L'impact crée une onde de choc qui inflige des dégâts spirituels et applique une projection aérienne.",
+        "cooldownSeconds": 35
+      },
+      {
+        "id": 1792773251,
+        "name": "Bélier de tête",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/punkgoat/goat_risingram.webp",
+        "type": "signature",
+        "description": "Billy fonce tête la première sur une unité ennemie. Billy et sa cible sont projetées dans les airs. Réduit de moitié le temps de récupération à l'impact.",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 3296031213,
+        "name": "Cul sec",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/punkgoat/goat_blasted.webp",
+        "type": "signature",
+        "description": "Effet passif : les attaques de mêlée restaurent des munitions et infligent Démolition sur l'unité ciblée pendant 7.0 s.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 3762861984,
+        "name": "Chaine de forçats",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/punkgoat/goat_chaingang.webp",
+        "type": "ultimate",
+        "description": "Billy enchaine les adversaires à proximité. Les unités enchainées ne peuvent pas utiliser leurs capacités de déplacement et reçoivent un ralentissement considérable lorsqu'elles tirent sur la chaine. Après un certain temps, tire tout le monde vers Billy et inf",
+        "cooldownSeconds": 175
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Calico",
+    "role": "assassin",
+    "gunTag": "Tirs en éventail",
+    "complexity": 2,
+    "tags": ["Agile", "Insaisissable", "Dégâts en rafale"],
+    "color": "#572798",
+    "lore": "Autrefois membre décorée de la « Baxter Society », Calico quitta l'ordre prestigieux lorsqu'elle prit conscience du fait qu'il était moins rentable de tuer des monstres gratuitement que de tuer des gens pour de l'argent. Calico vit désormais sa meilleure vie de tueuse à gages réputée en mettant fin à celles des autres.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nano_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nano_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nano_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/calico_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/calico.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.8
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 63
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 4131517918,
+        "name": "Bombes moroses",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nano/nano_clustergrenade.webp",
+        "type": "signature",
+        "description": "Calico lance une grappe de bombes qui explosent après un certain temps et infligent des dégâts spirituels. Les cibles touchées par plusieurs bombes subissent 65 % de dégâts.",
+        "cooldownSeconds": 14
+      },
+      {
+        "id": 1426567660,
+        "name": "Bond lacérant",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nano/nano_dash.webp",
+        "type": "signature",
+        "description": "Calico fonce vers l'avant puis lacère les adversaires autour d'elle, infligeant des dégâts de mêlée. Si la compétence touche au moins une unité occultiste, elle obtient un faible montant de soins.",
+        "cooldownSeconds": 13
+      },
+      {
+        "id": 1009029159,
+        "name": "Ava",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nano/nano_catform.webp",
+        "type": "signature",
+        "description": "Calico rejoint le royaume des ombres et prend possession d'Ava. Elle gagne en bonus move speed qui augmente avec le temps, et devient invisible sur la minicarte. Après avoir subi des dégâts d'une unité occultiste ennemie, Calico perd son bonus de vitesse de dé",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 2054144742,
+        "name": "Retour aux ombres",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nano/nano_shadow_pulse.webp",
+        "type": "ultimate",
+        "description": "Calico rejoint le royaume des ombres. Elle devient intouchable, gagne de la bonus move speed, et inflige des dégâts spirituels. Après un délai, elle reprend sa forme humaine et inflige à nouveau des dégâts spirituels.",
+        "cooldownSeconds": 115
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "name": "Céleste",
+    "role": "mystic",
+    "gunTag": "Rafale",
+    "complexity": 2,
+    "tags": ["Artiste", "Turbulente", "Éblouissante"],
+    "color": "#BBA9E1",
+    "lore": "Même dans un monde imprégné de magie, certaines choses demeurent rares, presque incongrues. C'est notamment le cas des licornes. Quels choix se présentaient à elle ? Proclamer son existence au grand jour, au risque d'attirer des braconniers prêts à lui scier la corne ? Ou se fondre dans le décor, à la vue de tous, au sein d'un spectacle de curiosités de Coney Island, où le public prendrait son apparence pour une illusion soigneusement mise en scène ? Au fil des années, « L'étincelante Céleste » est devenue l'une des attractions les plus populaires de Coney. Si elle savoure les applaudissements d'un public en liesse, ce qui la fait vraiment se lever chaque matin, c'est la famille qu'elle s'est choisie au travail. Keruba la sirène. Lenny le cracheur de clous. Aile-de-Poulet. Ted. Cette troupe, c'était sa véritable famille. Alors, lorsqu'elle a découvert que l'un d'entre eux avait été contraint de vendre une partie de son âme pour éponger une dette de jeu, Céleste a su qu'il était temps de sortir de l'ombre et de tout faire pour la récupérer. Prend-elle un risque en révélant sa véritable puissance aux Mécènes ? Oui. Mais qui ne risque rien n'a rien, et sa famille passe avant tout.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/unicorn_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/unicorn_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/unicorn_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/unicorn_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/unicorn.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 690
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 4
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3443575800,
+        "name": "Luminophage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/unicorn/unicorn_flare.webp",
+        "type": "signature",
+        "description": "Céleste aveugle les adversaires dans une zone conique en face d'elle. Céleste inflige des dégâts spirituels dès qu'elle les attaque et reçoit du vol de vie spirituel.",
+        "cooldownSeconds": 20
+      },
+      {
+        "id": 1950738949,
+        "name": "Prisme cristallin",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/unicorn/unicorn_shield.webp",
+        "type": "signature",
+        "description": "Céleste s'entoure d'un prisme protecteur. Si la protection est détruite, elle réduit au silence les adversaires les plus proches et leur inflige une partie de la quantité de protection sous forme de dégâts.",
+        "cooldownSeconds": 38
+      },
+      {
+        "id": 1011349580,
+        "name": "Dagues rayonnantes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/unicorn/unicorn_luminousflux.webp",
+        "type": "signature",
+        "description": "Un faisceau de lumière tombe du ciel. Après un court laps de temps, le faisceau se forme complètement et provoque une explosion qui inflige des dégâts spirituels à toutes les cibles de la zone. Céleste reçoit un bonus cumulable de dégâts spirituels à chaque fo",
+        "cooldownSeconds": 33
+      },
+      {
+        "id": 2590796390,
+        "name": "Astre prodigieux",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/unicorn/unicorn_orb.webp",
+        "type": "ultimate",
+        "description": "Céleste lance un globe de lumière mortel qui inflige des dégâts spirituels, applique un ralentissement et réduit la distance d'élan à l'impact. Le globe rebondit ensuite sur les unités ennemies proches. En l'absence de cible, le globe persistera un instant en ",
+        "cooldownSeconds": 170
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "name": "Cravache",
+    "role": "assassin",
+    "gunTag": "Rafale",
+    "complexity": 3,
+    "tags": ["Initiateur", "Voltigeur", "Arrogant"],
+    "color": "#4174BB",
+    "lore": "Cravache est un salaud.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/lash_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/lash_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/lash_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/lash_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/lash.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 2.1
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3561817145,
+        "name": "Frappe au sol",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/lash/lash_death_slam.webp",
+        "type": "signature",
+        "description": "Cravache frappe le sol et inflige des dégâts aux unités ennemies devant lui. Si Cravache lance Frappe au sol en l'air, il plonge rapidement vers le sol. Les dégâts par mètre sont réduits après 25 m.",
+        "cooldownSeconds": 18
+      },
+      {
+        "id": 2670099061,
+        "name": "Grappin",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/lash/lash_lash.webp",
+        "type": "signature",
+        "description": "Cravache s'élance dans les airs en direction d'une cible. Grappin réinitialise également la limite de sauts aériens et élancés.",
+        "cooldownSeconds": 35
+      },
+      {
+        "id": 519124136,
+        "name": "Flagellation",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/lash/lash_flog.webp",
+        "type": "signature",
+        "description": "Cravache fouette les adversaires devant lui, ce qui le soigne à hauteur d'une partie des dégâts infligés.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 397010810,
+        "name": "Placage mortel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/lash/lash_counter_lash.webp",
+        "type": "ultimate",
+        "description": "Cravache se concentre pour lier les unités ennemies avec son fouet. Après la canalisation, les unités ennemies liées sont soulevées et étourdies, puis jetées au sol. Les cibles et toute unité ennemie dans la zone d'atterrissage sont ralenties et subissent des ",
+        "cooldownSeconds": 170
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Dame Geist",
+    "role": "mystic",
+    "gunTag": "Pistolet",
+    "complexity": 2,
+    "tags": ["Vol de vie", "Dégâts autoinfligés", "Fatale"],
+    "color": "#218440",
+    "lore": "Il fut un temps où Lady Jeanne Geist avait toute la ville à ses pieds. Mais la beauté finit par faner, et la nostalgie de ces jours où la haute société n'avait d'yeux que pour elle finit par l'envahir. Dans sa maison de retraite, la vieille femme frêle radotait les histoires de son passé glorieux. C'est alors que le Gardien du serment se révéla. Esprit puissant provenant d'un autre plan, le Gardien lui proposa de nouer un pacte pour retrouver sa gloire passée… Il pouvait lui rendre sa jeunesse, en échange de quoi elle devrait se sustenter de l'essence des vivants. Choix difficile pour Lady Geist, qui ne faisait pas confiance à ce Gardien du serment et répugnait à l'idée de devoir tuer pour vivre… mais tout de même, avoir une deuxième chance de revivre sa jeunesse, elle n'allait pas laisser passer ça ! Elle concocta donc un plan : après avoir conclu le pacte avec le Gardien du serment, elle le neutralisa et lui jeta un sort de restriction afin de limiter son emprise sur elle. Le Gardien du serment serait certes nourri, mais à ses conditions à elle. Cependant, les années sont devenues des décennies, le sort s'est affaibli, et la faim du Gardien du serment est plus dévorante que jamais…",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/spectre_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/spectre_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/spectre_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/geist_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/lady_geist.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 880
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.3
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 2.4
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 715325746,
+        "name": "Bombe de quintessence",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/spectre/blood_bomb.webp",
+        "type": "signature",
+        "description": "Dame Geist sacrifie une partie de ses PV pour lancer une bombe qui inflige des dégâts après un bref délai d'amorçage. Les dégâts autoinfligés sont spirituels et peuvent être réduits.",
+        "cooldownSeconds": 14
+      },
+      {
+        "id": 218284420,
+        "name": "Transfert vital",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/spectre/life_drain.webp",
+        "type": "signature",
+        "description": "Crée un lien qui draine les PV d'une cible ennemie au fil du temps et soigne Dame Geist. La cible doit être dans le champ de vision et à portée pour que le vol de vie fonctionne. Dame Geist peut tirer et utiliser ses autres capacités pendant ce temps, mais sa ",
+        "cooldownSeconds": 34
+      },
+      {
+        "id": 3230530872,
+        "name": "Malice",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/spectre/geist_dagger.webp",
+        "type": "signature",
+        "description": "Dame Geist sacrifie une partie de ses PV pour lancer des éclats de sang qui appliquent une charge de Malice. Chaque charge ralentit la cible et augmente les dégâts infligés par Dame Geist. Le ralentissement s'estompe graduellement.",
+        "cooldownSeconds": 6
+      },
+      {
+        "id": 1307289689,
+        "name": "Échange d'âmes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/spectre/blood_exchange.webp",
+        "type": "ultimate",
+        "description": "Dame Geist échange ses PV avec une unité occultiste ennemie. Les PV de la cible ne peuvent être réduits en dessous d'un pourcentage minimum, et Dame Geist recevra toujours un nombre de PV minimums en fonction des PV actuels de la cible.",
+        "cooldownSeconds": 220
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "name": "Danny la Dépouille",
+    "role": "marksman",
+    "gunTag": null,
+    "complexity": 2,
+    "tags": ["Casse-cou", "Voltigeur", "Explosif"],
+    "color": "#CE8D2A",
+    "lore": "« Mesdames et Messieurs, je vais vous révéler un secret choquant : chez Fairfax Industries, nous ne connaissons rien à la sécurité. Ensuite, laissez-moi vous dire quelque chose d'encore PLUS choquant… c'est une bonne chose ! Au cours de ma carrière ici, j'ai été abattu, poignardé, empalé, défenestré, explosé, atomisé et décapité… pas une fois. Pas deux fois. Pas trois fois. Mais au moins… quatre fois ! Si mon oreille interne fonctionnait encore, un tel chiffre me donnerait le tournis. Mais, si je me suis infligé un tel enfer, au sens figuré comme au sens propre, c'est parce qu'il ne suffit pas de SE DEMANDER comment les choses peuvent mal tourner, il s'agit de SAVOIR comment elles tournent mal. La démonstration à laquelle vous allez assister est extrêmement dangereuse. Installez-vous donc confortablement. Enfilez vos lunettes de protection. Et assistez au miracle du vol, présenté par Fairfax Industries et la Chimère 1ʳᵉ génération. » Transcription des propos d'ouverture de Danny lors de l'Exposition des technologies militaires fournie par Fairfax Industries",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/deadpack_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/deadpack_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/deadpack_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/deadpack_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/deadpack.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 3.25
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.4
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 2603013853,
+        "name": "Salve Strix",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/deadpack/deadpack_salvo.webp",
+        "type": "signature",
+        "description": "Danny la Dépouille lance une salve de missiles spirituels qui se logent dans le sol le long d'une ligne. Les missiles explosent après un délai ou dès qu'ils détectent une cible ennemie. L'explosion inflige des dégâts spirituels et marque la cible. Faire un tir",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 1904698842,
+        "name": "Chimère 1ʳᵉ gén.",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/deadpack/deadpack_chimera.webp",
+        "type": "signature",
+        "description": "Maintenez Sauter/grimper pour voler, ce qui emmagasine la chaleur. Lorsque la chaleur maximale est atteinte, le jetpack commence à surchauffer. Surchauffe : après un court délai, Danny la Dépouille plonge vers le sol. Lors de l'impact, il crée une explosion qu",
+        "cooldownSeconds": 21
+      },
+      {
+        "id": 374042410,
+        "name": "Largage de kérosène",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/deadpack/deadpack_thermalmass.webp",
+        "type": "signature",
+        "description": "Danny la Dépouille pulvérise du kérosène qui inflige des dégâts des armes au fil du temps et réduit la résistance aux balles, jusqu'à déclencher un énorme souffle arrière qui inflige des dégâts spirituels et le projette en arrière. Purge le jetpack lorsqu'il i",
+        "cooldownSeconds": 22
+      },
+      {
+        "id": 1026127931,
+        "name": "Affaire conclue",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/deadpack/deadpack_flight.webp",
+        "type": "ultimate",
+        "description": "Danny la Dépouille attrape une unité ennemie et lui offre un baptême de l'air. Ils gagnent rapidement en altitude avant de s'écraser au sol. Danny la Dépouille et sa cible subissent des dégâts spirituels au fil du temps pendant la chute et des dégâts spirituel",
+        "cooldownSeconds": 135
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Dynamo",
+    "role": "healer",
+    "gunTag": "Pistolet",
+    "complexity": 2,
+    "tags": ["Collectif", "Initiateur", "Décisif"],
+    "color": "#D0B945",
+    "lore": "En tant que scientifique, le professeur Dynamo a toujours eu un esprit curieux. Ainsi, lorsqu'une faille dans l'espace-temps s'est ouverte en plein Central Park, il était le premier sur les lieux à enquêter. Il s'attendait certes à ce qu'une telle découverte change sa vie, mais ce, d'une manière métaphorique, pas d'une manière atomique qui réduirait son corps à une minuscule étoile mourante comme ce fut le cas. Toutefois, si son corps s'est volatilisé, son esprit et sa soif de connaissances perdurent. Professeur titulaire au Columbia College, Dynamo cherche à en apprendre davantage sur son état de santé tout en poursuivant ses cours. La future génération ne va pas s'éduquer toute seule !",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/sumo_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/sumo_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/sumo_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/dynamo_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/dynamo.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 880
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1.75
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3760705623,
+        "name": "Impulsion cinétique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/sumo/sumo_stomp.webp",
+        "type": "signature",
+        "description": "Dynamo libère un choc énergétique. La cible subit des dégâts spirituels ainsi qu'une projection aérienne.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 2031714424,
+        "name": "Intrication quantique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/sumo/sumo_quantum.webp",
+        "type": "signature",
+        "description": "Dynamo devient brièvement intouchable et se téléporte vers l'endroit ciblé. Son endurance est restaurée. : téléporte également les unités alliées proches.",
+        "cooldownSeconds": 20
+      },
+      {
+        "id": 492030745,
+        "name": "Aurore curative",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/sumo/sumo_pork_bun.webp",
+        "type": "signature",
+        "description": "Pendant la canalisation, Dynamo restaure progressivement ses PV et ceux des occultistes de l'équipe à proximité. Les élans et les attaques de mêlée n'interrompent pas la canalisation.",
+        "cooldownSeconds": 48
+      },
+      {
+        "id": 249410288,
+        "name": "Singularité",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/sumo/sumo_vacuum.webp",
+        "type": "ultimate",
+        "description": "Dynamo génère une singularité dans ses mains, ce qui inflige des dégâts spirituels au fil du temps, applique un étourdissement et attire les unités ennemies à proximité.",
+        "cooldownSeconds": 250
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "Holliday",
+    "role": "marksman",
+    "gunTag": "Pistolet",
+    "complexity": 3,
+    "tags": ["Fine gâchette", "Explosive", "Justicière"],
+    "color": "#A35A1B",
+    "lore": "Il y a des gens qui passent leur vie à rêver de déménager à New York. Ce n'est pas le cas d'Holliday. Elle était tout à fait satisfaite de son poste de shérif dans une petite ville, et de n'avoir eu à dégainer son arme qu'une seule fois dans sa carrière pour faire montre de ses talents au stand de tir à la foire du comté… Puis les meurtres ont commencé. Ils étaient macabres et inhumains. Les corps avaient été retrouvés avec leurs cages thoraciques déchirées, leurs entrailles éviscérées comme si quelques charognards étaient venus se repaitre. Holliday retrouva le tueur, un musicien de folk itinérant que les médias avaient surnommé « Le Troubadour ». Lorsqu'elle le confronta, il explosa en une nuée de corbeaux et s'envola. C'était il y a six mois. Les meurtres dans le centre de l'Illinois ont depuis cessé, mais l'enquête d'Holliday continue. Elle pense que Le Troubadour est à New York, et quand elle le trouvera, elle tuera ce maudit salopard.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/astro_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/astro_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/astro_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/astro_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/holliday.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 8.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1235098866,
+        "name": "Baril de poudre",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/astro/holliday_powder_keg.webp",
+        "type": "signature",
+        "description": "Holliday lance un baril qui explose après un certain temps et inflige des dégâts spirituels, met le feu aux adversaires et applique une projection aérienne. Le baril peut exploser prématurément s'il reçoit une balle, une attaque de mêlée, ou un autre baril. Le",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 2240607294,
+        "name": "Trampoline",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/astro/holliday_bounce_pad.webp",
+        "type": "signature",
+        "description": "Holliday déploie un trampoline qui propulse les occultistes dans les airs. L'atterrissage provoque une explosion qui inflige des dégâts aux adversaires à proximité. Il ne peut y avoir qu'une explosion par personne et par trampoline.",
+        "cooldownSeconds": 41
+      },
+      {
+        "id": 4179229681,
+        "name": "As de la gâchette",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/astro/holliday_crackshot.webp",
+        "type": "signature",
+        "description": "Les tirs en pleine tête de Holliday infligent des dégâts bonus et appliquent un ralentissement qui s'estompe. Cet effet n'est appliqué que quand la capacité n'est pas en cours de récupération. Le temps de récupération est réduit de 50 % par PNJ touché. As de l",
+        "cooldownSeconds": 20
+      },
+      {
+        "id": 3190606822,
+        "name": "Lasso spirituel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/astro/holliday_spirit_lasso.webp",
+        "type": "ultimate",
+        "description": "Holliday lance son lasso. Il inflige des dégâts spirituels, entraine sa cible et applique un étourdissementL'utilisation du Trampoline prolonge la durée du Lasso spirituel.",
+        "cooldownSeconds": 130
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "name": "Infernus",
+    "role": "mystic",
+    "gunTag": "Tirs en rafale",
+    "complexity": 1,
+    "tags": ["Pyromane", "Explosion", "Véloce"],
+    "color": "#C93C26",
+    "lore": "Comme la plupart des adolescents, Infernus était rebelle, impétueux et sauvage. Pourtant, contrairement à la plupart d'entre eux, il provient d'un autre plan et est doté d'une maitrise du feu surnaturelle. Il va sans dire que sa jeunesse ne fut qu'une suite d'incendies, de meurtres et d'éliminations de preuves. Depuis, Infernus a pris de l'âge et s'est considérablement adouci. Derrière le bar où il travaille, il se plait à discuter avec la clientèle et à profiter des concerts qui y sont organisés. Toutefois, si quelqu'un a le malheur de semer la zizanie dans son établissement, il n'hésite pas à user des talents qu'il a perfectionnés par le passé.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/inferno_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/inferno_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/inferno_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/infernus_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/infernus.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 830
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 491391007,
+        "name": "Napalm",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/inferno_molotov.webp",
+        "type": "signature",
+        "description": "Infernus crache une mixture incendiaire, qui inflige des dégâts spirituels, applique un ralentissement, et recouvre les cibles de napalm.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 3516947824,
+        "name": "Élanflammé",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/inferno_dash.webp",
+        "type": "signature",
+        "description": "Infernus s'élance vers l'avant, obtient de la slow resistance et laisse une trainée de flammes qui inflige des dégâts spirituels au fil du temps. Maintenez [W] pendant l'élan pour augmenter la distance parcourue.",
+        "cooldownSeconds": 38
+      },
+      {
+        "id": 1593133799,
+        "name": "Ignition persistante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/inferno_deflect.webp",
+        "type": "signature",
+        "description": "Les impacts des balles accumulent de la brulure et infligent des dégâts spirituels au fil du temps. Les capacités réinitialisent la durée de la brulure à sa durée de base, et les tirs la prolongent.",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 1142270357,
+        "name": "Combustion explosive",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/inferno_bomb.webp",
+        "type": "ultimate",
+        "description": "Infernus se transforme en bombe humaine qui inflige des dégâts spirituels et applique un étourdissement à toutes les unités ennemies proches après un délai. Une fois lancée, Combustion explosive ne peut pas être interrompue.",
+        "cooldownSeconds": 190
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "name": "Infirmière Harrow",
+    "role": "healer",
+    "gunTag": "Projectile",
+    "complexity": 1,
+    "tags": ["Sévère", "Terrifiante", "Salvatrice"],
+    "color": "#55C9BA",
+    "lore": "Pilier respecté du service possession de Marble Hill, l'infirmière Harrow a consacré sa vie à lutter contre les atrocités de la possession surnaturelle. Alliant bienveillance, sévérité et pragmatisme détaché, Harrow a été qualifiée de sainte par une partie des malades sous son aile, et de gouvernante cruelle par d'autres. Il y a probablement du vrai des deux côtés. Toutefois, si on peut très raisonnablement se demander comment et pourquoi Harrow conserve la souffrance de ses malades dans sa sacoche médicale, personne ne remet en question les résultats de son programme de traitement… aussi cruel soit-il.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nurse_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nurse_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/nurse_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/nurse_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/nurse.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 0
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.8
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 2.5
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 267712790,
+        "name": "Saignée salutaire",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nurse/leech.webp",
+        "type": "signature",
+        "description": "Infirmière Harrow jette un bocal de sangsues qui s'attachent aux adversaires pour leur infliger des dégâts spirituels au fil du temps et réduire la durée de leurs effets positifs.",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 3621314027,
+        "name": "Vapeurs abjectes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nurse/nurse_vapors.webp",
+        "type": "signature",
+        "description": "Infirmière Harrow brise une fiole pour libérer une vapeur éthérée sur elle-même ou sur une unité alliée, provoquant une euphorie, puis une rechute. Euphorie spectrale : pendant sa durée, augmente la vitesse de toutes les actions et fait apparaitre des spectres",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 683490631,
+        "name": "Seringues vivifiantes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nurse/needle.webp",
+        "type": "signature",
+        "description": "Infirmière Harrow recharge son arme avec un chargeur complet de seringues qui accorde des soins aux unités alliées. Quand Infirmière Harrow inflige des dégâts, elle récupère des charges et chaque sangsue ramassée les restaure lentement. Recharger l'arme consom",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 3427093887,
+        "name": "Terreurs enfouies",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/nurse/medicine_bag.webp",
+        "type": "ultimate",
+        "description": "Infirmière Harrow ouvre son sac et révèle les horreurs qu'il contient pour infliger des dégâts spirituels au fil du temps aux unités adverses devant elle. Pendant qu'elles regardent Infirmière Harrow, leur terreur se renforce, ce qui les empêche d'utiliser leu",
+        "cooldownSeconds": 200
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Kelvin",
+    "role": "healer",
+    "gunTag": "Dégâts lourds",
+    "complexity": 2,
+    "tags": ["Protecteur", "Explorateur", "Glacial"],
+    "color": "#74ABBC",
+    "lore": "Scientifique aventurier reconnu, Kelvin s'était donné comme mission dans la vie d'explorer et de comprendre l'insondable. Alors naturellement, quand des rumeurs sur un 8ᵉ portail astral caché dans l'Arctique remontèrent jusqu'à lui, Kelvin monta une équipe d'expédition en un temps record. S'entourant des esprits les plus brillants de sa génération, Kelvin se mit en route avec toute son équipe sous des tonnerres d'applaudissements. Personne n'en revint jamais. Un an et demi plus tard, l'équipage d'un chalutier repêcha le corps congelé de Kelvin qui tenait dans ses mains une pierre gravée de runes luisantes. Les marins brisèrent la glace pour mieux l'observer et furent choqués quand Kelvin ouvrit les yeux. Ils vérifièrent ses signes vitaux… son pouls était inexistant. Ils voulurent bander ses blessures ouvertes… il ne saignait pas. Et pourtant, bien que ce fût impossible, Kelvin était « vivant ». Ayant perdu tout souvenir des évènements de l'expédition, Kelvin se mit en quête de réponses.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kelvin_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kelvin_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kelvin_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/kelvin_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/kelvin.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 880
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.1
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 18921423,
+        "name": "Grenade de givre",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/kelvin/freezing_grenade.webp",
+        "type": "signature",
+        "description": "Kelvin lance une grenade qui explose dans un nuage de glace qui soigne les unités alliées et inflige des dégâts spirituels et un ralentissement aux adversaires.",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 1963397252,
+        "name": "Voie glacée",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/kelvin/ice_path.webp",
+        "type": "signature",
+        "description": "Kelvin crée une voie flottante faite de glace et de neige qui augmente sa vitesse de déplacement et celles des unités alliées. Pendant la durée de la capacité, Kelvin gagne 60 % de résistance aux ralentissements. Les unités ennemies peuvent aussi marcher sur l",
+        "cooldownSeconds": 50
+      },
+      {
+        "id": 2351041382,
+        "name": "Rayon arctique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/kelvin/ice_beam.webp",
+        "type": "signature",
+        "description": "Kelvin projette de l'énergie glaciale devant lui. Les cibles subissent des dégâts et leur vitesse de déplacement et leur cadence de tir sont réduites. Plus elles sont ciblées longtemps par le rayon, plus la réduction est importante. La vitesse de déplacement d",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 3826390464,
+        "name": "Dôme gelé",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/kelvin/frozen_shelter.webp",
+        "type": "ultimate",
+        "description": "Kelvin se cible lui-même ou une unité occultiste et crée un dôme impénétrable. Les unités alliées sous le dôme bénéficient d'une régénération rapide, tandis que les unités ennemies sont ralenties. Les objectifs deviennent invulnérables et gèlent sous le Dôme g",
+        "cooldownSeconds": 190
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "Le Portier",
+    "role": "mystic",
+    "gunTag": "Pistolet",
+    "complexity": 1,
+    "tags": ["Déroutant", "Contrôle de la carte", "Jeux psychologiques"],
+    "color": "#B77528",
+    "lore": "Il est correct, il est poli, mais l'humble Portier du Baroness Hotel, est plus intéressant qu'il n'y parait. Initialement il n'avait prévu de ne passer que quelques semaines dans ce monde, mais le Portier a rapidement découvert que le secteur tertiaire new-yorkais était un excellent moyen de comprendre les demandes étranges des humains.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/doorman_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/doorman_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/doorman_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/doorman_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/doorman.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 755
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.9
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 103496908,
+        "name": "Sonnette",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/doorman/doorman_bell.webp",
+        "type": "signature",
+        "description": "Le Portier lance une sonnette qui inflige des dégâts spirituels à l'impact et qui explose après un court délai, infligeant des dégâts spirituels supplémentaires, un ralentissement des déplacements et réduisant temporairement la précision de l'arme des unités e",
+        "cooldownSeconds": 18
+      },
+      {
+        "id": 109766091,
+        "name": "Porte dérobée",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/doorman/doorman_doorway.webp",
+        "type": "signature",
+        "description": "Le Portier place deux portes connectées sur la carte. Les occultistes et la plupart des projectiles entrant par une porte sortiront par l'autre. Les portes se fermeront à la fin de la durée. Les deux portes peuvent être placées jusqu'à une certaine distance l'",
+        "cooldownSeconds": 45
+      },
+      {
+        "id": 1719512318,
+        "name": "Charriot à bagages",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/doorman/doorman_luggagetrolley.webp",
+        "type": "signature",
+        "description": "Le Portier envoie un charriot à bagages qui inflige des dégâts spirituels, et entraine les occultistes adverses sur son chemin. Peut être lancé avec en faveur des occultistes de son équipe.",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 1703045691,
+        "name": "Clientèle de l'hôtel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/doorman/doorman_elevator.webp",
+        "type": "ultimate",
+        "description": "Le Portier envoie l'enveloppe corporelle de la cible en séjour au Baroness Hotel. La cible doit se rendre rapidement à l'ascenseur de sortie qui le ramènera à sa position d'origine. Un séjour au Baroness Hotel est réglé en dégâts spirituels. Si la cible ne par",
+        "cooldownSeconds": 140
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "Lyanne",
+    "role": "healer",
+    "gunTag": "Tirs en rafale",
+    "complexity": 3,
+    "tags": ["Collaborative", "Perturbatrice", "Solide"],
+    "color": "#9D8CA9",
+    "lore": "Quand elle revint à la vie, la gargouille n'avait aucune idée d'où elle se trouvait… seulement que deux humains, un petit et un grand, souffraient. Alors la gargouille s'anima impétueusement et fit fuir les agresseurs terrifiés. La petite humaine la remercia et lui demanda comment elle s'appelait. La gargouille ne le savait pas. Alors la petite lui dit « Je vais t'appeler Lyanne, comme le lierre ». La gargouille qui était recouverte de lierre à ce moment-là, trouvait le nom un peu trop évident, mais décida de l'accepter pour lui faire plaisir. Les humains lui demandèrent si elle accepterait d'aller chez eux pour qu'ils puissent la remercier convenablement, alors Lyanne les accompagna. Elle apprit beaucoup de choses ce soir-là : leur nom de famille était Arroyo, la petite s'appelait Sophia, ce plat délicieux s'appelait Mofongo… Mais surtout, les méchants s'appelaient le « Syndicat Mendoza » et ils faisaient du mal aux gentils comme les Arroyo. Dix-huit ans ont passé depuis le jour où les Arroyo ont amené Lyanne chez eux… et elle a passé toutes ces années à démanteler le Syndicat Mendoza et à libérer le Barrio d'Harlem de son emprise. Le problème quand on consacre presque vingt ans de sa vie à une seule et même poursuite, c'est qu'on ne sait pas quoi faire une fois l'objectif accompli. Pour la première fois de sa vie, Lyanne est prête à s'aventurer à l'extérieur d'Harlem et à voir si le monde peut lui offrir d'autres rôles que celui de justicière.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/tengu_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/tengu_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/tengu_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/ivy_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/ivy.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 755
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 4
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 4111222521,
+        "name": "Épines enchevêtrantes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/tengu/tengu_storm_flask.webp",
+        "type": "signature",
+        "description": "Lyanne invoque un fouillis d'épines qui infligent des dégâts et ralentissent les unités ennemies dans la zone.",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 1531378655,
+        "name": "Liaison épineuse",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/tengu/tengu_tether.webp",
+        "type": "signature",
+        "description": "Lyanne se lie à une unité alliée proche. Elle obtient des bonus, des soins répliqués, et ignore la pénalité de vitesse de déplacement quand elle tire. Lyanne reçoit 50 % des bonus sans liaison. La liaison ne fonctionne que si l'unité est dans le champ de visio",
+        "cooldownSeconds": 37
+      },
+      {
+        "id": 3642273386,
+        "name": "Pétrification",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/tengu/tengu_stone_form.webp",
+        "type": "signature",
+        "description": "Transforme Lyanne en pierre et la rend invulnérable. Elle tombe au sol, et étourdit et inflige des dégâts aux adversaires proches. Lyanne est soignée selon un pourcentage de ses PV max.",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 1247583368,
+        "name": "Largage aérien",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/tengu/tengu_lightning_crash.webp",
+        "type": "ultimate",
+        "description": "Lyanne attrape une unité alliée et s'envole avec elle. Quand l'unité alliée est lâchée, elle provoque une explosion qui inflige des dégâts spirituels. Lyanne et l'unité alliée infligent des dégâts supplémentaires à la fin du vol. Le temps de récupération est r",
+        "cooldownSeconds": 100
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Marshal",
+    "role": "brawler",
+    "gunTag": "Dégâts lourds",
+    "complexity": 2,
+    "tags": ["Initiateur", "Intrépide", "Commando"],
+    "color": "#4D68A3",
+    "lore": "La plupart des gens pensent que le surnaturel est apparu il y a 50 ans. Erreur grossière. Le folklore en atteste depuis des générations. Et depuis que la peur du noir existe, il y a eu ceux et celles qui ont consacré leur vie à combattre les ténèbres. Issue d'une lignée d'alchimistes militants, la famille de Marshal s'est toujours dévouée à la préparation d'une apocalypse mystique. Mais au fil du temps, l'importance des enseignements ancestraux perdit en conséquence. Ce qui était autrefois considéré comme un avertissement sincère se transforma lentement en quelques amusantes anecdotes, racontées par de superstitieux grands-parents. Lorsque le portail s'ouvrit à Central Park, les parents de Marshal réalisèrent non seulement la véracité de ces vieux contes, mais pire, qu'ils n'étaient pas prêts à les affronter. Voulant s'assurer que la prochaine génération ferait sa part de travail, ils entrainèrent Marshal dès sa naissance pour devenir une machine à tuer le surnaturel avec un seul objectif : empêcher les Mécènes d'entrer dans notre monde.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/warden_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/warden_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/warden_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/warden_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/warden.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 805
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.3
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 2656490109,
+        "name": "Flasque alchimique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/warden/warden_crowd_control.webp",
+        "type": "signature",
+        "description": "Marshal lance une flasque qui inflige des dégâts et réduit les dégâts des armes et la vitesse de déplacement des cibles touchées.",
+        "cooldownSeconds": 12
+      },
+      {
+        "id": 2751689917,
+        "name": "Bravoure",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/warden/warden_high_alert.webp",
+        "type": "signature",
+        "description": "Marshal gagne une protection et de la vitesse de déplacement.",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 1656913918,
+        "name": "Mitard",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/warden/warden_lock_down.webp",
+        "type": "signature",
+        "description": "Marshal maudit l'occultiste adverse. Si la cible ne sort pas de la zone pendant le temps d'évasion, elle subira des dégâts et sera immobilisée.",
+        "cooldownSeconds": 34
+      },
+      {
+        "id": 2702908623,
+        "name": "Charge ultime",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/warden/warden_riot_protocol.webp",
+        "type": "ultimate",
+        "description": "Après 2 s de canalisation, Marshal émet des impulsions qui infligent des dégâts et le soignent en fonction des dégâts infligés. Durant la canalisation de Charge ultime, Marshal bénéficie d'une meilleure résistance spirituelle et aux balles. Accorde l'immunité ",
+        "cooldownSeconds": 180
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "McGinnis",
+    "role": "mystic",
+    "gunTag": "Artillerie lourde",
+    "complexity": 1,
+    "tags": ["Inventrice", "Soutien", "Interruptions"],
+    "color": "#23549D",
+    "lore": "Maggie McGinnis a toujours eu un don pour la construction. À 4 ans, elle utilisait des buchettes pour recréer des merveilles architecturales. À 10 ans, elle a construit et recâblé un luminaire personnalisé pour l'anniversaire de mariage de ses parents. À 15 ans, elle a conçu une machine qui raffinait les âmes des morts… cette dernière a reçu un peu plus d'attention que ses constructions en bois enfantines. Aujourd'hui à la tête du département de recherche et développement militaire de Fairfax Industries, McGinnis passe le plus clair de son temps dans l'atelier d'usinage au lieu d'un laboratoire. La théorie ne l'intéresse pas, pour elle, la science est une magie que l'on peut toucher du doigt.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/engineer_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/engineer_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/engineer_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/mcginnis_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/mcginnis.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3133377790,
+        "name": "Minitourelle",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/engineer_turret.webp",
+        "type": "signature",
+        "description": "McGinnis déploie une tourelle qui tire sur les adversaires et leur inflige des dégâts spirituels au fil du temps. La tourelle disparait après un certain temps. Les tourelles infligent des dégâts réduits aux troupiers et aux objectifs.",
+        "cooldownSeconds": 18
+      },
+      {
+        "id": 2142734020,
+        "name": "Vaporisateur médicinal",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/engineer_resupply.webp",
+        "type": "signature",
+        "description": "McGinnis conjure un esprit qui soigne les unités alliées proches.",
+        "cooldownSeconds": 50
+      },
+      {
+        "id": 1725685134,
+        "name": "Mur spectral",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/engineer_fissure_2.webp",
+        "type": "signature",
+        "description": "McGinnis crée un mur qui applique un ralentissement aux adversaires sur son passage. McGinnis fait exploser le mur pour diviser le terrain en deux et infliger des dégâts aux unités ennemies à proximité. Après l'incantation, le mur explosera prématurément quand",
+        "cooldownSeconds": 50
+      },
+      {
+        "id": 3503044146,
+        "name": "Tir de barrage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/engineer_rockets.webp",
+        "type": "ultimate",
+        "description": "McGinnis déploie une volée de roquettes à tête chercheuse sur la zone ciblée. McGinnis est ralentie, mais elle peut toujours utiliser de l'endurance.",
+        "cooldownSeconds": 200
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "name": "Mina",
+    "role": "mystic",
+    "gunTag": "Pistolet",
+    "complexity": 3,
+    "tags": ["Tourmenteuse", "Agile", "Irritante"],
+    "color": "#A9171E",
+    "lore": "Mina Ha avait tout pour être comblée… des parents riches, une éducation d'élite et un mariage arrangé qui lui a permis de passer de la classe supérieure ordinaire à la royauté américaine. Elle était heureuse. Puis son fiancé a été assassiné. Mina a pleuré, non pas la vie de son fiancé, mais l'avenir qui lui a été volé. Pourquoi le tueur n'avai-t-il pas pu attendre la fin du mariage ? Elle aurait alors porté le nom de famille dont elle a toujours rêvé et il n'y aurait même pas eu besoin de faire semblant de s'aimer. Cela aurait pu être parfait, mais la vie n'était pas juste… Mina a donc fait ce qu'elle fait toujours quand les choses ne se passent pas comme prévu : elle a demandé à ses parents d'y remédier. M. et Mme Ha savaient que le seul moyen d'apaiser leur fille était de lui offrir quelque chose de plus grand que ce qu'elle avait perdu… Et un mariage dans l'une des familles les plus auréolées du monde était un défi de taille. Ils ont dû voir les choses en grand. Ils ont dû sortir des sentiers battus. Ils ont dû promettre l'immortalité à leur fille. Il leur a fallu une petite fortune, mais ils ont fini par trouver un vampire prêt à la transformer. Comme on pouvait s'y attendre, Mina a trouvé que l'idée d'une jeunesse éternelle et d'un fonds fiduciaire était un plan B acceptable et a accepté la proposition avec joie. Devenue vampire en herbe, Mina découvre rapidement que l'influence qu'elle avait en tant qu'humaine n'a aucun poids dans la haute société des vampires… Elle a d'abord été agacée, mais s'il y a une chose pour laquelle Mina est douée, c'est d'apprendre les règles pour pouvoir les contourner. Elle sera vicomtesse de New York un jour, toujours à l'insu de ses compères vampires.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/vampirebat_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/vampirebat_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/vampirebat_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/mina_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/mina.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 660
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.5
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 193508101,
+        "name": "Ratissage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/vampirebat/vampirebat_rake.webp",
+        "type": "signature",
+        "description": "",
+        "cooldownSeconds": 16
+      },
+      {
+        "id": 2398133749,
+        "name": "Retraite sanguine",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/vampirebat/vampirebat_sanguine_retreat.webp",
+        "type": "signature",
+        "description": "Mina se disperse brièvement, elle devient intouchable et s'envole vers l'emplacement ciblé. La capacité peut être relancée pendant un bref laps de temps.",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 1233782561,
+        "name": "Morsures passionnelles",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/vampirebat/vampirebat_love_bites.webp",
+        "type": "signature",
+        "description": "Vos balles infligent des dégâts spirituels supplémentaires. Les dégâts infligés par vos capacités s'accumulent jusqu'à déclencher une vilaine morsure qui inflige une explosion de dégâts spirituels bonus. Le temps de récupération de Morsures passionnelles est u",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 3379486147,
+        "name": "Nox Nostra",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/vampirebat/vampirebat_nox_nostra.webp",
+        "type": "ultimate",
+        "description": "Effet actif : Mina libère une nuée importante de chauvesouris, chacune infligeant des dégâts spirituels et appliquant Silence. Passive : lancer Morsures passionnelles sur une unité occultiste augmente de manière permanente le nombre de chauvesouris libérées.",
+        "cooldownSeconds": 150
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Mirage",
+    "role": "assassin",
+    "gunTag": "Pistolet",
+    "complexity": 2,
+    "tags": ["Garde du corps", "Voyageur", "Vigilant"],
+    "color": "#6A2E68",
+    "lore": "Les djinns comptent parmi les individus les plus étranges du monde moderne. Doués d'une grande puissance à doses contrôlées, les djinns sont incapables de conserver leur forme incarnée pendant plus de 48 minutes sans recourir à un quelconque vaisseau corporel. La plupart des djinns emploient donc des gardes du corps humains pour leur transport, leur protection et un peu de compagnie. Mirage est l'un de ces gardes du corps. Employé par l'ambassadrice djinn Nashala Dion, Mirage est en mission diplomatique à New York. Les djinns espèrent pouvoir négocier avec le gouvernement américain la vente d'une partie du Wyoming afin d'établir une nation souveraine pour leur peuple.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/mirage_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/mirage_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/mirage_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/mirage_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/mirage.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3733594387,
+        "name": "Scarabées de feu",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/mirage/mirage_fire_beetles.webp",
+        "type": "signature",
+        "description": "Mirage infeste une unité ennemie de scarabées de feu. Les scarabées volent les PV de la cible et réduisent les dégâts qu'elle inflige.",
+        "cooldownSeconds": 35
+      },
+      {
+        "id": 1336069669,
+        "name": "Diable de sable",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/mirage/mirage_tornado.webp",
+        "type": "signature",
+        "description": "Mirage se transforme en un tourbillon qui se déplace vers l'avant,ce qui inflige des dégâts aux unités ennemies, ralentit leur vitesse de déplacement et les soulève dans les airs. Après avoir émergé de la tornade, Mirage bénéficie d'une meilleure esquive des b",
+        "cooldownSeconds": 36
+      },
+      {
+        "id": 2221949202,
+        "name": "Marque de Djinn",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/mirage/mirage_sand_phantom.webp",
+        "type": "signature",
+        "description": "Capacité active : consomme toutes les Marques de Djinn pour infliger les dégâts immédiatement.",
+        "cooldownSeconds": 2.75
+      },
+      {
+        "id": 2604653402,
+        "name": "Voyage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/mirage/mirage_teleport.webp",
+        "type": "ultimate",
+        "description": "Ciblez un endroit sur la minicarte. Après une brève attente, Mirage se téléporte vers l'endroit choisi. La téléportation est interrompue s'il subit des dégâts, s'il est étourdi, immobilisé, endormi ou réduit au silence pendant le délai d'attente. Après la télé",
+        "cooldownSeconds": 140
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Miro et Minus",
+    "role": "brawler",
+    "gunTag": "Tirs en éventail",
+    "complexity": 3,
+    "tags": ["Duo", "Initiateurs", "Fouisseurs"],
+    "color": "#C58428",
+    "lore": "Mo et Krill sont membres des Rats des Tunnels, une organisation qui facilite le commerce illicite entre les différents quartiers grâce à un réseau de tunnels souterrains. Mais si la plupart des truands de la pègre new-yorkaise respectent le travail des Rats, de temps à autre, un gang tente d'exploiter le système de tunnels pour régler ses comptes… C'est alors que Mo et Krill interviennent et rappellent à la ville ce qui arrive quand on manque de respect à leur hospitalité.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/digger_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/digger_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/digger_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/krill_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/mo_krill.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 930
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 8
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1454278799,
+        "name": "Intimidation",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/grappler/grappler_regen.webp",
+        "type": "signature",
+        "description": "Miro et Minus infligent des dégâts aux adversaires à proximité et se soignent en fonction des dégâts infligés. Les soins sont amplifiés pour les dégâts infligés aux occultistes adverses.",
+        "cooldownSeconds": 13
+      },
+      {
+        "id": 2406758797,
+        "name": "Forage",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/grappler/grappler_spin.webp",
+        "type": "signature",
+        "description": "Miro et Minus creusent une galerie souterraine qui augmente leur vitesse de déplacement et leurs protections spirituelle et balistique. Les dégâts infligés par les occultistes adverses diminuent le bonus de vitesse. Quand Miro et Minus sortent de terre, ils in",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 1914797280,
+        "name": "Jet de sable",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/grappler/grappler_throw_sand.webp",
+        "type": "signature",
+        "description": "Miro et Minus jettent du sable qui désarme les unités ennemies en face d'eux et leur inflige des dégâts.",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 1917840730,
+        "name": "Dérouillée",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/grappler/grappler_combo.webp",
+        "type": "ultimate",
+        "description": "Miro et Minus immobilisent l'occultiste adverse, l'étourdissent et lui infligent des dégâts pendant toute la durée de la canalisation. En cas de victime pendant la capacité ou dans les 3 secondes qui suivent, accorde un bonus permanent de PV max.",
+        "cooldownSeconds": 150
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "Myxo",
+    "role": "brawler",
+    "gunTag": "Projectile",
+    "complexity": 2,
+    "tags": ["Insaisissable", "Perturbateur", "Gluant"],
+    "color": "#319826",
+    "lore": "Le triangle des Bermudes était bien plus qu'un simple mythe, c'était un réseau d'ombres situé sous le fond de l'océan Atlantique. Si la plupart des créatures qui s'échappèrent de ce portail astral étaient inoffensives (Nessie, par exemple), l'une d'entre elles, un sombre prédateur connu seulement sous le nom de l'Antagoniste, a fait des océans son terrain de chasse… et les créatures marines en sont terrifiées. Parmi elles, une anémone de mer douée de clairvoyance est prête à se dresser contre lui. Myxo, corps ectoplasmique tout gluant, a traversé la surface et tente désespérément d'invoquer le Mécène afin de protéger les profondeurs marines de l'horreur qu'elles abritent en leur sein.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/viscous_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/viscous_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/viscous_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/viscous_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/viscous.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 63
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3247040238,
+        "name": "Explosion gluante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viscous/viscous_goo_ball.webp",
+        "type": "signature",
+        "description": "Lance une boule visqueuse qui inflige des dégâts et laisse une flaque gluante qui ralentit les adversaires dans la zone.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 3788152387,
+        "name": "Cube gélatineux",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viscous/viscous_restorative_goo.webp",
+        "type": "signature",
+        "description": "Myxo enveloppe la cible dans un cube de gelée curative qui protège des dégâts et augmente la régénération de PV. La cible ne peut pas agir dans le cube. Myxo peut utiliser la capacité sur lui-même. Appuyez sur Sauter/grimper pour sortir du cube prématurément.",
+        "cooldownSeconds": 42
+      },
+      {
+        "id": 1020817390,
+        "name": "Poing poisseux",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viscous/viscous_goo_punch.webp",
+        "type": "signature",
+        "description": "Myxo fait apparaitre un poing qui frappe toutes les unités ennemies dans la zone, et applique une projection aérienne. Les cibles frappées subissent des dégâts de mêlée et un ralentissement. Les adversaires peuvent parer cette attaque. Myxo et ses partenaires}",
+        "cooldownSeconds": 24
+      },
+      {
+        "id": 4206531918,
+        "name": "Boule visqueuse",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viscous/viscous_goo_sphere.webp",
+        "type": "ultimate",
+        "description": "Transforme Myxo en une boule visqueuse qui inflige des dégâts et étourdit les unités ennemies à l'impact. La boule augmente considérablement la résistance aux balles et la résistance spirituelle de Myxo. La boule rebondit contre les murs. Pendant qu'il est tra",
+        "cooldownSeconds": 150
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "Nébula",
+    "role": "assassin",
+    "gunTag": "Tirs en rafale",
+    "complexity": 1,
+    "tags": ["Assassin", "Furtive", "Mortelle"],
+    "color": "#AC6133",
+    "lore": "L'OSIC, l'Occult Security and Investigation Commission (ou « Commission d'Investigation et de Sécurité sur l'Occultisme ») est un organisme gouvernemental si opaque qu'à côté d'elle, la CIA semble transparente. Il incombe aux hommes, femmes et entités de l'OSIC de protéger le pays de forces sinistres dépassant les capacités des agences de police classiques. En tant que membre de la célèbre division Sandman, Haze est régulièrement chargée d'infiltrer les rêves des personnes soupçonnées, d'évaluer leur dangerosité et si besoin… de leur accorder un repos éternel.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/haze_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/haze_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/haze_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/haze_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/haze.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 8.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 2948410412,
+        "name": "Dague de sommeil",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/haze/haze_sleep_dagger.webp",
+        "type": "signature",
+        "description": "Lance une dague qui inflige des dégâts et endort la cible ennemie. Les cibles endormies se réveillent peu après avoir subi des dégâts. Lancer une dague ne met pas fin à l'effet d'invisibilité. La dague n'interrompt pas les capacités canalisées des cibles ennem",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 2414191464,
+        "name": "Fumibombe",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/haze/haze_smoke_bomb.webp",
+        "type": "signature",
+        "description": "Disparait du champ de bataille. Devient invisible et gagne de la vitesse de course. L'invisibilité prend fin après avoir attaqué, mais pas si des objets sont utilisés. Même invisible, Nébula est visible des unités ennemies proches.",
+        "cooldownSeconds": 33
+      },
+      {
+        "id": 1080948381,
+        "name": "Fixation",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/haze/haze_fixation.webp",
+        "type": "signature",
+        "description": "Tirer sur une cible augmente les dégâts balistiques contre celle-ci. Accorde une charge par tir réussi (trois s'il s'agit d'un tir en pleine tête).",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 731943444,
+        "name": "Danse balistique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/haze/haze_bullet_flurry.webp",
+        "type": "ultimate",
+        "description": "Tire une salve de balles sur les unités ennemies proches avec une précision parfaite et inflige des dégâts balistiques supplémentaires",
+        "cooldownSeconds": 165
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Paige",
+    "role": "healer",
+    "gunTag": "Projectile",
+    "complexity": 1,
+    "tags": ["Utile", "Protectrice", "Érudite"],
+    "color": "#258F63",
+    "lore": "Fille d'un marchand de livres rares, Paige a grandi dans une famille aimante où régnaient la gentillesse, la magie et les contes. Mais si Paige a naturellement adopté les valeurs de ses parents, son petit frère Bryce n'en a pas fait de même. Adolescent rebelle, Bryce reprochait à sa famille non seulement sa disposition mièvre, mais aussi son refus de lui permettre de s'adonner à des magies plus dangereuses. Paige a tout essayé pour lui éviter des ennuis, mais comme la plupart des jeunes de son âge, plus sa grande sœur essayait de lui donner des conseils, plus il s'en détournait. Paige ne sait pas ce que Bryce a bien pu faire pour être chassé de chez lui… elle sait seulement qu'à son retour de la bibliothèque, son frère était parti et ses parents étaient en larmes. Les jours sont devenus des semaines, des mois, puis des années. Paige a grandi et est devenue une bibliomancienne talentueuse, gagnant sa vie en tant que conteuse dans les bibliothèques des cinq arrondissements. Ses parents ont gardé le silence sur les raisons du départ de Bryce, mais l'idée de le retrouver obsède Paige de plus en plus. Elle va découvrir ce qui est arrivé à son frère… et aucun être ne l'en empêchera, qu'il soit humain ou divin.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bookworm_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bookworm_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/bookworm_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/patience_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/paige.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 680
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.9
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 3.5
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 42
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 120
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 604448162,
+        "name": "Vouivre savante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bookworm/bookworm_dragon.webp",
+        "type": "signature",
+        "description": "Paige invoque un dragon qui apparait à l'endroit ciblé et qui s'envole vers l'avant en infligeant des dégâts spirituels et en laissant derrière lui une trainée de flammes.",
+        "cooldownSeconds": 33
+      },
+      {
+        "id": 3553292912,
+        "name": "Immunité narrative",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bookworm/bookworm_defendandfight.webp",
+        "type": "signature",
+        "description": "Paige confère une protection à une unité alliée. Tant que la protection est active, l'occultiste inflige des dégâts des armes bonus.",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 3054993162,
+        "name": "Récit captivant",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bookworm/bookworm_blindinglight.webp",
+        "type": "signature",
+        "description": "Paige ensorcelle une zone, infligeant un ralentissement. Les particules de magie explosent après un certain temps, ce qui inflige des dégâts spirituels et une immobilisation.",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 1841901343,
+        "name": "Charge de ralliement",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/bookworm/bookworm_charge.webp",
+        "type": "ultimate",
+        "description": "Paige libère une vague de chevaliers spectraux qui chargent sur l'ensemble de la carte. La capacité soigne les unités alliées et inflige des dégâts spirituels aux adversaires. L'efficacité des soins et des dégâts spirituels augmente en fonction de la distance ",
+        "cooldownSeconds": 210
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Paradox",
+    "role": "marksman",
+    "gunTag": "Rafale",
+    "complexity": 3,
+    "tags": ["Calculatrice", "Perturbatrice", "Tactique"],
+    "color": "#983952",
+    "lore": "Paradox. Un artéfact du temps, et le nom d'une guilde de cambrioleurs célèbres. Guilde qui se targue de monter des casses élaborés ciblant les individus et institutions réputés intouchables. Que fait Paradox de tous ces artéfacts, secrets d'État et autres tests de paternité de célébrité volés ? La guilde les expose dans des installations éphémères, afin de prouver au monde que personne n'est à l'abri d'un coup d'éclat de Paradox. S'enveloppant de mystère, chaque membre de la guilde porte un masque et prend le nom de l'organisation. Ils sont partout et nulle part à la fois. Et s'ils veulent quelque chose, ils l'auront.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chrono_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chrono_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chrono_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/paradox_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/paradox.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 58655583,
+        "name": "Grenade à impulsion",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chrono/chrono_time_bomb.webp",
+        "type": "signature",
+        "description": "Paradox lance une grenade qui émet des impulsions à l'impact. Chaque impulsion agrandit le rayon et inflige des dégâts spirituels, ralentit le temps et inflige des dégâts augmentés qui se cumulent pour Paradox contre la cible.",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 1366719170,
+        "name": "Écran temporel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chrono/chrono_time_wall.webp",
+        "type": "signature",
+        "description": "Paradox érige un écran de distorsion temporelle qui arrête le temps pour tous les projectiles et balles ennemis qui la touchent et augmente la vitesse et les dégâts des balles tirées par votre équipe. Les unités ennemies qui touchent le mur sont brièvement ral",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 1128670012,
+        "name": "Carabine cinétique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/duo/duo_attack.webp",
+        "type": "signature",
+        "description": "Paradox charge un puissant tir d'énergie temporelle, qui inflige des dégâts spirituels et arrête le temps pour les unités ennemies touchées. Les dégâts infligés augmentent avec les dégâts des armes. La vitesse de déplacement est augmentée pendant la charge. Pe",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 2917891787,
+        "name": "Permutation paradoxale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chrono/chrono_swap.webp",
+        "type": "ultimate",
+        "description": "Paradox lance un projectile qui échange sa position avec celle de la cible.",
+        "cooldownSeconds": 95
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "name": "Pocket",
+    "role": "assassin",
+    "gunTag": "Tirs en éventail",
+    "complexity": 2,
+    "tags": ["Dupeur", "Dégâts en rafale", "Grenouilles"],
+    "color": "#858617",
+    "lore": "Arin Fairfax, l'héritier ainé de Fairfax Industries, vit dans la clandestinité depuis cinq ans, après avoir été abattu et laissé pour mort le jour de ses 18 ans. Arin ne sait pas qui essaie de l'empêcher de prendre le contrôle de l'entreprise de sa mère… mais au sein du nid de vipères nourries d'avarice qu'est Fairfax Industries, il pourrait s'agir de n'importe quiSous le nom de « Pocket », Arin veut désespérément garder secrète sa véritable identité… pour sa propre protection, mais aussi pour forger sa propre identité indépendamment de celle de ses parents.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/synth_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/synth_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/synth_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/pocket_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/pocket.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 60
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 938149308,
+        "name": "Tirs de couverture",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/synth/synth_barrage.webp",
+        "type": "signature",
+        "description": "Capacité canalisée. Pocket lance des projectiles qui infligent des dégâts spirituels et appliquent un ralentissement près de leur point d'impact. Les projectiles qui touchent une unité occultiste accordent à Pocket des dégâts augmentés cumulables. Pocket peut ",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 1976701714,
+        "name": "Redingote volante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/synth/synth_plasma_flux.webp",
+        "type": "signature",
+        "description": "Pocket lance une redingote ensorcelée vers l'avant qui inflige des dégâts aux unités ennemies. Appuyez sur Capacité 2 pour vous téléporter vers son emplacement.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 3747867012,
+        "name": "Mallette de passepasse",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/synth/synth_pulse.webp",
+        "type": "signature",
+        "description": "Pocket se réfugie dans sa mallette. Quand la capacité prend fin, il inflige des dégâts spirituels aux adversaires à proximité. La capacité peut être interrompue en effectuant n'importe quelle action.",
+        "cooldownSeconds": 17
+      },
+      {
+        "id": 2954330093,
+        "name": "Fléau",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/synth/synth_affliction.webp",
+        "type": "ultimate",
+        "description": "Pocket inflige des dégâts au fil du temps aux adversaires à proximité. Les dégâts de Fléau ne sont pas mortels et ne déclenchent pas les effets d'objets.",
+        "cooldownSeconds": 170
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "name": "Rem",
+    "role": "healer",
+    "gunTag": null,
+    "complexity": 3,
+    "tags": ["Utile", "Miniature", "zZzzZ"],
+    "color": "#5383D1",
+    "lore": "Rem, passager clandestin tout droit venu du monde des rêves, se retrouve coincé dans la ville qui ne dort jamais. Curieux de nature, Rem et ses assistants miniatures ont été aperçus errants à travers les cinq arrondissements à la recherche d'un moyen de rentrer chez eux. Ainsi, si jamais vous piquez du nez sur la tyrolienne bleue en rentrant chez vous un soir, c'est peut-être signe que vous venez de croiser le chemin de l'un des nouveaux habitants de la Pomme perdue.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/familiar_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/familiar_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/familiar_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/familiar_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/familiar.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 680
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 4
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 58
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3692321247,
+        "name": "Bataille de polochons",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/familiar/familiar_pillow.webp",
+        "type": "signature",
+        "description": "Rem lance son fidèle oreiller pour infliger des dégâts spirituels et un recul considérable. Chaque coup qui touche sa cible réduit les temps de récupération des autres capacités de Rem.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 1568845221,
+        "name": "Sieste ambulante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/familiar/familiar_tag_along.webp",
+        "type": "signature",
+        "description": "Rem bondit vers une unité alliée et fait une sieste à ses côtés. Rem et l'unité reçoivent des soins instantanés en fonction de leur PV manquants, suivis d'une régénération qui persiste. Rem passe d'une unité alliée à l'autre avec Capacité 2 pour leur prodiguer",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 536278136,
+        "name": "Petites mains",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/familiar/familiar_helpers.webp",
+        "type": "signature",
+        "description": "Rem délègue ses tâches à l'un de ses assistants. Ils peuvent détruire des caisses, utiliser le distributeur d'âmes et accompagner les occultistes et troupiers alliés. Suivi d'occultiste : confère un bref bonus de résistance spirituelle et de la vitesse de dépl",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 2396527575,
+        "name": "Mauvais rêves",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/familiar/familiar_sleep.webp",
+        "type": "ultimate",
+        "description": "Le regard de Rem transperce les murs et le sol. Les unités ennemies dans son champ de vision sont ralenties, y compris dans leurs élans, et ne peuvent plus utiliser leurs capacités de déplacement. Une fois la canalisation terminée, elles s'endorment avant de s",
+        "cooldownSeconds": 200
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "name": "Rôdeur",
+    "role": "assassin",
+    "gunTag": "Tirs en éventail",
+    "complexity": 3,
+    "tags": ["Rôdeur", "Sanguinaire", "Cruel"],
+    "color": "#9D2C2B",
+    "lore": "Ancien vampire errant sur le continent américain, la terreur connue seulement sous le nom de Rôdeur s'en prend aux vivants depuis des générations. Contrairement à la plupart des vampires, Rôdeur n'apprécie ni parure, ni titre, et n'a que mépris pour les lois et les traditions vampiriques. Ce refus de toute contrainte a fait de lui un homme exilé des baronnages d'Amérique du Nord… pourtant, tandis que les vicomtes et les anciens réclament son exécution à cor et à cri, Rôdeur continue de faire ce qu'il lui plait…",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/drifter_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/drifter_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/drifter_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/drifter_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/drifter.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 755
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 3.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.9
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 51.5
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 120
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3120550633,
+        "name": "Déchirure",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/drifter/drifter_claw.webp",
+        "type": "signature",
+        "description": "Rôdeur frappe les adversaires dans une zone conique devant lui, leur infligeant des dégâts spirituels. Si la cible se trouve à bout portant, il inflige des dégâts de mêlée supplémentaires.",
+        "cooldownSeconds": 16
+      },
+      {
+        "id": 1264175662,
+        "name": "Marque du rôdeur",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/drifter/drifter_stalkersmark.webp",
+        "type": "signature",
+        "description": "Rôdeur envoie une marque qui fait saigner la première cible touchée, infligeant des dégâts spirituels au fil du temps. Tant que l'unité adverse saigne, vous pouvez réactiver la Marque du rôdeur pour apparaitre instantanément derrière elle.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 1033019133,
+        "name": "Odeur du sang",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/drifter/drifter_thehunger.webp",
+        "type": "signature",
+        "description": "",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 1168182161,
+        "name": "Nuit éternelle",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/drifter/darkness.webp",
+        "type": "ultimate",
+        "description": "Rôdeur plonge les unités ennemies proches dans l'obscurité, réduisant considérablement leur champ de vision. Les unités affectées sont brièvement révélées à Rôdeur et sont considérées comme étant isolées pendant la durée de la capacité. Rôdeur reçoit de la bon",
+        "cooldownSeconds": 145
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "name": "Roi des rats",
+    "role": "brawler",
+    "gunTag": "Tirs en éventail",
+    "complexity": 3,
+    "tags": ["Bagarreur", "Royal", "Tenace"],
+    "color": "#733033",
+    "lore": "Souverain cryptide des terriers de New York, le Roi des rats domine ses sujets par sa taille, sa force et son ambition. Ne se contentant plus de se cacher sous terre, le roi a révélé sa vision audacieuse d'un avenir où lui et ses sujets pourraient arpenter la surface sans craindre les camions de dératisation qui sillonnent les rues de New York (ou, comme les rats les appellent : les escadrons de la mort des humains). Première étape : conquérir Long Island. Deuxième étape : proclamer l'indépendance de Long Island en tant que nouvelle nation de Ratannie. Troisième étape : exécuter toute personne humaine refusant de quitter cette nouvelle utopie des rats. Mais, aussi solide que soit ce plan, le Roi des rats ne veut rien laisser au hasard. Il a donc décidé d'invoquer le mécène pour mettre toutes les chances de son côté.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/ratking_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/ratking_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/ratking_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/ratking_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/ratking.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 800
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.8
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3002308408,
+        "name": "Grenade de ferraille",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/ratking/ratking_grenade.webp",
+        "type": "signature",
+        "description": "Roi des rats lance une grenade de ferraille qui explose à plusieurs reprises, elle inflige des dégâts balistiques et applique un ralentissement. Une attaque de mêlée permet de dévier la grenade.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 3681399397,
+        "name": "Horde de rats",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/ratking/ratking_swarm.webp",
+        "type": "signature",
+        "description": "Roi des rats invoque une horde de rats qui bondissent sur les adversaires à proximité pour les mordre. Chaque morsure inflige des dégâts spirituels au fil du temps et réduit la résistance aux balles des cibles. Plus il y a de rats accrochés, plus les morsures ",
+        "cooldownSeconds": 24
+      },
+      {
+        "id": 690412829,
+        "name": "Apparat royal",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/ratking/ratking_shield.webp",
+        "type": "signature",
+        "description": "Roi des rats se pare de son armure de fortune, qui lui accorde une protection basée sur ses PV max. Tant que l'armure résiste, les balles ont une chance d'être renvoyées vers l'adversaire. Les résistances n'améliorent pas la protection.",
+        "cooldownSeconds": 22
+      },
+      {
+        "id": 1627989937,
+        "name": "Gloire à la Ratannie !",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/ratking/ratking_flag.webp",
+        "type": "ultimate",
+        "description": "Roi des rats charge au cœur de la bataille et invoque la bannière de la Ratannie. Les unités occultistes alliées à proximité bénéficient d'une vitesse de déplacement accrue, sont invulnérables aux ralentissements et subissent des dégâts réduits tant qu'elles s",
+        "cooldownSeconds": 180
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "name": "Salomon",
+    "role": "mystic",
+    "gunTag": "Projectile",
+    "complexity": 1,
+    "tags": ["Stratège", "Concentré", "Échec et mat"],
+    "color": "#AA9E7E",
+    "lore": "Dans un monde qui va trop vite, Salomon apprécie de prendre le temps et d'écouter. Doté d'une oreille complaisante et de bons conseils à prodiguer, Salomon s'est déjà retrouvé assis à la table d'échecs face à des touristes, des criminels et des titans de l'industrie. Mais, quel que soit son adversaire, Salomon reste imperturbable… car, pour lui, les échecs sont bien plus qu'un simple jeu. Ils forment un outil d'égalisation, une façon pour lui de rencontrer des gens de tous horizons sur un pied d'égalité.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chessmaster_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chessmaster_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/chessmaster_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/chessmaster_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/solomon.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 3.25
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 4011110259,
+        "name": "Placement du fou",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chess/chessmaster_bishop.webp",
+        "type": "signature",
+        "description": "Salomon crée un fou qui reste en place indéfiniment. Déplacement ( ) : déplace le fou, en appliquant un ralentissement dégressif et en infligeant des dégâts spirituels aux adversaires qu'il traverse. Après un délai, active des cases diagonales qui infligent de",
+        "cooldownSeconds": 12
+      },
+      {
+        "id": 4180486641,
+        "name": "Cavalier du roi",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chess/chessmaster_knight.webp",
+        "type": "signature",
+        "description": "Salomon promeut une unité alliée en cavalier. Elle bénéficie alors d'un bonus d'endurance et d'une protection pendant un certain temps. Si Salomon lance la capacité sur lui-même, il se promeut roi et obtient le double de la protection, mais pas d'endurance. Dé",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 2424652896,
+        "name": "Batterie de tours",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chess/chessmaster_rook.webp",
+        "type": "signature",
+        "description": "Salomon crée deux tours qui avancent et infligent des dégâts spirituels et appliquent une immobilisation. Si les tours touchent un mur, elles repartent dans la direction opposée. Réactivation : sépare les tours perpendiculairement.",
+        "cooldownSeconds": 33
+      },
+      {
+        "id": 1389230689,
+        "name": "Développement de la dame",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/chess/chessmaster_queen.webp",
+        "type": "ultimate",
+        "description": "",
+        "cooldownSeconds": 240
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Scopa",
+    "role": "marksman",
+    "gunTag": "Tirs en rafale",
+    "complexity": 1,
+    "tags": ["Duelliste", "Isolation", "Psychokinétique"],
+    "color": "#944D78",
+    "lore": "Bien que tenue secrète, l'organisation de Wraith, grâce à sa réputation de pierre angulaire du monde du jeu à New York, est connue de l'ensemble de la pègre. Cependant, l'abondance de pots-de-vin, de racket et de chantage aura suffi à placer Wraith au-dessus des lois.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/wraith_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/wraith_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/wraith_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/wraith_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/wraith.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1999680326,
+        "name": "Tour de cartes",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/wraith_card_trick.webp",
+        "type": "signature",
+        "description": "Quand Scopa inflige des dégâts des armes, elle invoque des cartes d'une couleur aléatoire qui peuvent être lancées. Les cartes lancées sont projetées vers les cibles ou le point visé. L'utilisation secondaire permet de lancer la première carte.",
+        "cooldownSeconds": 0.6
+      },
+      {
+        "id": 4147641675,
+        "name": "Projection mentale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/wraith_teleport.webp",
+        "type": "signature",
+        "description": "Téléporte Scopa à l'endroit ciblé.",
+        "cooldownSeconds": 50
+      },
+      {
+        "id": 1842576017,
+        "name": "Salve automatique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/wraith_aura.webp",
+        "type": "signature",
+        "description": "Scopa obtient un bonus temporaire de cadence de tir et inflige des dégâts spirituels bonus.",
+        "cooldownSeconds": 45
+      },
+      {
+        "id": 2981692841,
+        "name": "Psychokinésie",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/wraith_lift.webp",
+        "type": "ultimate",
+        "description": "Scopa soulève une unité occultiste ennemie dans les airs et la projette vers l'emplacement ciblé.",
+        "cooldownSeconds": 150
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "Serregrise",
+    "role": "mystic",
+    "gunTag": "Arc",
+    "complexity": 2,
+    "tags": ["Précis", "Chasseur", "Déni de zones"],
+    "color": "#5EB083",
+    "lore": "Membre fondateur de la « Baxter Society », Wesley Serregrise passa près de 40 ans à pourchasser les monstres mangeurs d'hommes avant de trouver quelqu'un pour le remplacer et de raccrocher enfin son arc. Les obligations de Serregrise l'avaient empêché de passer du temps avec sa femme et son fils. Lorsque ce dernier fonda sa propre famille, Wesley réalisa que c'était là sa dernière chance de rétablir le lien avec les êtres qui lui étaient chers. La retraite réussissait à Wesley. Il rattrapait le temps perdu avec sa femme. Il gâtait ses petits-enfants. Il cuisinait pour toute la famille chaque mercredi. Il était heureux. Et puis, le téléphone sonna. Les autorités prétendirent qu'il s'agissait d'un malheureux accident… que le feu avait dévoré la maison de son fils avant que quiconque n'ait eu le temps de s'enfuir, mais Wesley n'était pas dupe. La femme de son fils était ixienne et pouvait éteindre une flamme rien que par la pensée. Si leurs corps avaient été retrouvés brulés, c'était qu'ils étaient morts bien avant l'incendie. Serregrise a depuis reprit son arc, et quand il trouvera les responsables, sa justice sera sanglante.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/archer_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/archer_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/archer_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/grey_talon_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/grey_talon.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.3
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 4
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 548943648,
+        "name": "Tir chargé",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/archer/archer_charged_shot.webp",
+        "type": "signature",
+        "description": "Serregrise charge un tir puissant qui transperce les unités ennemies. Maintenez Capacité 1 ou pour retenir le tir.",
+        "cooldownSeconds": 17
+      },
+      {
+        "id": 3452399392,
+        "name": "Pluie de flèches",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/archer/archer_power_jump.webp",
+        "type": "signature",
+        "description": "Serregrise saute dans les airs et plane lentement. Tant qu'il est dans les airs, il gagne des dégâts des armes et des tirs multiples. permet de réduire la hauteur du saut. Appuyez sur Sauter/grimper pour arrêter de planer.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 512733154,
+        "name": "Collet spirituel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/archer/imobolize_trap.webp",
+        "type": "signature",
+        "description": "Lance un piège qui s'amorce seul. Une fois prêt, le piège se referme dès qu'une unité ennemie entre dans son rayon. Elle est alors ralentie et se voit infligée une malédiction qui l'interrompt, la réduit au silence, la désarme et l'empêche d'utiliser ses objet",
+        "cooldownSeconds": 34
+      },
+      {
+        "id": 3242902780,
+        "name": "Hibou guidé",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/archer/archer_guided_arrow.webp",
+        "type": "ultimate",
+        "description": "Après une incantation de 1.5 s, Serregrise lance un hibou et le contrôle. À l'impact, le hibou explose, inflige des dégâts et étourdit les unités ennemies. Maintenez [W] pour augmenter la vitesse du hibou. Appuyez sur Sauter/grimper pour le faire exploser. Ser",
+        "cooldownSeconds": 125
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Seven",
+    "role": "mystic",
+    "gunTag": "Rafale",
+    "complexity": 1,
+    "tags": ["Haute tension", "Impitoyable", "Déni de zones"],
+    "color": "#CC861E",
+    "lore": "Lorsque l'énergie mystique se réveilla sur Terre, la face du monde changea… et tout devint possible. Cependant, tous les possibles ne devaient pas l'être pour autant. Le gouvernement édicta donc des règles. Des lois qui permettraient aux citoyennes et citoyens américains de profiter des avantages du monde surnaturel sans s'y bruler les ailes. Mais les règles et les lois c'étaient pour les faibles. Les êtres limités. Seven, lui, n'était pas de ceux-là. Les rumeurs vont bon train sur ce qui a mené Seven au Murmure perdu, une oubliette réservée aux occultistes les plus dangereux. Mais il n'y a aucun mystère sur la nuit de son exécution. Les protections placées par les plus puissants ritualistes de sept nations… des protections conçues non seulement pour empêcher toute interférence mystique avec l'exécution, mais aussi pour oblitérer l'âme de Seven afin qu'elle ne puisse jamais être contactée, ressuscitée ni utilisée par toute personne cherchant à suivre ses traces… Ces protections ont failli. Dans une scène macabre aux nombreux témoins, la tête du mentaliste le plus fort recruté par l'armée américaine éclata comme un ballon. Des hurlements accompagnèrent le premier inspecteur occulte de Scotland Yard, celui qui avait prétendument capturé Seven, lorsqu'il fut réduit en cendres. Le corps de Seven se déformait et se tordait sous ses entraves, sa peau brulait sous les décharges électriques… pourtant, il ne finit pas par en mourir… mais par en rire. Il rit en se libérant de ses liens. Il rit des tremblements de peur de ses ravisseurs. Il rit en massacrant ses bourreaux. Il rit en goutant l'air vivifiant qui lui avait été refusé toutes ces années. Et il rit de plus belle en songeant aux actes qu'il allait commettre une fois arrivé à New York.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/gigawatt_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/gigawatt_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/gigawatt_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/seven_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/seven.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.8
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1065103387,
+        "name": "Boule de foudre",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/giga_ball.webp",
+        "type": "signature",
+        "description": "Lance une boule de foudre qui se déplace en ligne droite. Inflige des dégâts à toutes les cibles dans son rayon. La boule ralentit sa course lorsqu'elle inflige des dégâts à des unités ennemies et s'arrête si elle rencontre un obstacle.",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 1074714947,
+        "name": "Charge statique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/giga_static.webp",
+        "type": "signature",
+        "description": "Applique une charge à une unité occultiste ciblée. Après une courte durée, la charge statique étourdit et inflige des dégâts aux unités ennemies dans son rayon.",
+        "cooldownSeconds": 42
+      },
+      {
+        "id": 539192269,
+        "name": "Surtension",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/giga_chain.webp",
+        "type": "signature",
+        "description": "Seven électrise son arme. Ses balles infligent des dégâts de choc à ses cibles. Ce choc rebondit sur les unités ennemies proches de la cible. Se produit une fois pour chaque rafale de tirs.",
+        "cooldownSeconds": 50
+      },
+      {
+        "id": 2061574352,
+        "name": "Orage magnétique",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/giga_storm.webp",
+        "type": "ultimate",
+        "description": "Canalise un orage magnétique grandissant autour de Seven qui inflige des dégâts à toutes les unités ennemies dans son rayon. Ces dernières ne subissent pas de dégâts si elles sont hors du champ de vision.",
+        "cooldownSeconds": 205
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "name": "Silver",
+    "role": "brawler",
+    "gunTag": "Longue portée",
+    "complexity": 1,
+    "tags": ["Féroce", "Chaotique", "Métamorphe"],
+    "color": "#BFBC9F",
+    "lore": "Lilah Silver est un désastre ambulant. Elle boit trop, elle fume trop, et mieux vaut ne pas s'étendre sur sa vie privée. Malgré ses défauts, elle a réussi à se forger une réputation de chasseuse de primes respectée. Même si elle attribue sa réussite seulement à son intuition hors du commun, le fait qu'elle soit une louve-garou y est certainement pour quelque chose.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/werewolf_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/werewolf_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/werewolf_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/werewolf_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/werewolf.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 830
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 3
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 2.5
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 1385849824,
+        "name": "Rafale éclair",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/werewolf/werewolf_slamfire.webp",
+        "type": "signature",
+        "description": "Silver recharge son arme instantanément. Elle gagne un bonus de cadence de tir et inflige des dégâts des armes bonus en fonction des PV de la cible pendant un nombre limité de tirs dont la précision est réduite. Inflige des dégâts bonus aux troupiers et aux cr",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 2717130900,
+        "name": "Coup de botte",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/werewolf/werewolf_jumpback.webp",
+        "type": "signature",
+        "description": "",
+        "cooldownSeconds": 21
+      },
+      {
+        "id": 3983754897,
+        "name": "Bola entravant",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/werewolf/werewolf_bola.webp",
+        "type": "signature",
+        "description": "Silver lance un bola qui inflige des dégâts spirituels, ce qui applique un ralentissement et entrave les capacités de déplacement et l'utilisation de l'endurance.",
+        "cooldownSeconds": 23
+      },
+      {
+        "id": 515791019,
+        "name": "Lycanthropie",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/werewolf/werewolf_lycancurse.webp",
+        "type": "ultimate",
+        "description": "Effet passif : les dégâts infligés génèrent de la soif de sang qui est augmentée en cas de PV faibles. Au paroxysme de sa soif de sang, Silver lance automatiquement Lycanthropie. Effet actif : Silver se transforme instantanément et obtient un bonus de PV max. ",
+        "cooldownSeconds": 60
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Sinclair",
+    "role": "mystic",
+    "gunTag": "Rafale",
+    "complexity": 4,
+    "tags": ["Prestidigitateur", "Copieur", "Polyvalent"],
+    "color": "#6B6B6B",
+    "lore": "Plutôt que de lui faire cadeau d'un coffret de magie, trop dangereux pour un enfant espiègle de son âge, les parents du petit Henry lui offrirent un jeu de cartes. Les tours de passe-passe lui vinrent naturellement et bientôt, ses fantastiques prouesses d'illusions réalisées sans artéfacts mystiques ni incantations éblouissaient l'ensemble de ses camarades de classe. Au lycée, il rencontra Savannah, et leur amour mutuel pour la magie sur scène donna naissance à une romance éclair et à un numéro qu'ils montèrent ensemble. Ils étaient faits l'un pour l'autre, alors, au bal de fin d'année, Henry fit sa demande en mariage et ils se marièrent peu après l'obtention de leur diplôme. Leurs parents respectifs n'étaient cependant pas particulièrement enthousiasmés, mais Henry et Savannah en étaient persuadés : ils étaient deux âmes sœurs. Pour sceller leur union, ils entreprirent un rituel mystique de sang qui lia leurs âmes pour l'éternité. Quand un accident leur couta la vie sur scène, il fut difficile de déterminer à qui la faute revenait. Selon Henry, Savannah ne se tenait pas au bon endroit. Selon Savannah, Henry n'avait pas attendu le signal convenu. Mais une chose est sure, puisque leurs âmes sont liées l'une à l'autre, il ne leur est pas possible de rompre. Devenus deux fantômes chamailleurs, Henry et Savannah n'ont d'autre choix que de coopérer pour peut-être un jour mettre fin à leur union éternelle.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/magician_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/magician_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/magician_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/magician_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/sinclair.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3156905386,
+        "name": "Éclair accablant",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/magician/magician_magicbolt.webp",
+        "type": "signature",
+        "description": "Sinclair lance un éclair magique qui inflige des dégâts qui augmentent avec la distance parcourue. Si l'Assistante spectrale a été invoquée, elle lance une instance d'Éclair accablant, infligeant des dégâts réduits. Appuyez sur Capacité 1 pour rediriger l'écla",
+        "cooldownSeconds": 24
+      },
+      {
+        "id": 12456023,
+        "name": "Assistante spectrale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/magician/magician_cloneturret.webp",
+        "type": "signature",
+        "description": "Sinclair invoque son assistante à l'emplacement ciblé. L'Assistante attaque quand Sinclair tire, infligeant des dégâts. Quand l'Assistante est invoquée, appuyez sur Capacité 2 pour échanger sa position avec Sinclair. Le lancement d'Assistante spectrale recharg",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 2142213586,
+        "name": "Lagomorphose",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/magician/magician_animalcurse.webp",
+        "type": "signature",
+        "description": "Sinclair maudit une zone cible et transforme temporairement les adversaires qui s'y trouvent en lapins. Les lapins sont petits et leur vitesse de déplacement est augmentée, mais ils sont plus vulnérables aux dégâts et ils sont incapables d'effectuer la plupart",
+        "cooldownSeconds": 26
+      },
+      {
+        "id": 191022746,
+        "name": "Participation du public",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/magician/magician_copyult.webp",
+        "type": "ultimate",
+        "description": "Sinclair imite la capacité ultime d'une unité occultiste ennemie pendant une durée limitée. La réactivation de la capacité lancera la capacité imitée. Le niveau d'amélioration de cette capacité s'applique aux imitations. La capacité Participation du public imi",
+        "cooldownSeconds": 85
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "Surin",
+    "role": "brawler",
+    "gunTag": "Tirs en éventail",
+    "complexity": 3,
+    "tags": ["Rage", "Saignement", "Répétition"],
+    "color": "#E52A68",
+    "lore": "Membre émérite de la « Baxter Society », un ordre international dédié à la chasse aux monstres, Surin passe son temps à écumer les routes d'Amérique du Nord en quête de créatures à abattre. Bien que sa nature peu raffinée et son passé criminel rendent méfiants les membres les plus traditionnels de l'ordre, personne ne peut nier son efficacité.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/shiv_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/shiv_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/shiv_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/shiv_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/shiv.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 830
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.5
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 2460791803,
+        "name": "Couteau de chasse",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/shiv/shiv_toss.webp",
+        "type": "signature",
+        "description": "Surin lance un couteau qui fait saigner une cible ennemie. Chaque attaque supplémentaire ajoute une charge et réinitialise la durée du saignement. Chaque charge augmente l'intensité du saignement.",
+        "cooldownSeconds": 16
+      },
+      {
+        "id": 1458044103,
+        "name": "Élan incisif",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/shiv/shiv_flash.webp",
+        "type": "signature",
+        "description": "Surin s'élance vers l'avant et inflige des dégâts aux adversaires sur son passage. Les cibles ennemies touchées voient leur résistance spirituelle réduite. L'effet négatif peut se cumuler.",
+        "cooldownSeconds": 16
+      },
+      {
+        "id": 1537272748,
+        "name": "Saignée",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/shiv/shiv_bloodletting.webp",
+        "type": "signature",
+        "description": "Surin ne subit qu'une partie des dégâts immédiats. Les dégâts restants sont retardés et appliqués au fur et à mesure. À l'activation, annule une partie des dégâts retardés.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 1835738020,
+        "name": "Coup de grâce",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/shiv/shiv_killing_blow.webp",
+        "type": "ultimate",
+        "description": "",
+        "cooldownSeconds": 145
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "name": "Tombale",
+    "role": "mystic",
+    "gunTag": "Pistolet",
+    "complexity": 2,
+    "tags": ["Morbide", "Déni de zones", "Nécromancie"],
+    "color": "#D9F334",
+    "lore": "Fille d'avocats de la défense réputés, Tombale a grandi dans une maison où chaque conversation se transformait en dispute, en négociation ou en plaidoyer. C'était épuisant. Mais, contrairement à ses parents qui passaient le plus clair de leur temps en réunion avec la clientèle ou à étudier leurs dossiers au lieu de resserer leurs liens avec elle, les morts étaient toujours disponibles pour l’écouter. Tombale savourait ses visites au cimetière. C’était un havre de paix où elle pouvait apaiser ses pensées et réfléchir à ses problèmes… mais un jour, ses conversations à sens unique se mirent à changer. Tout commença par un léger murmure… la voix d'une femme qui semblait répondre aux plaintes de Tombale. L'adolescente écouta, intriguée… et obéit aux consignes de la voix jusqu’à ce qu’elle la guide à un coffre plombé, enfoui dans le parc Van Cortlandt. La plupart des gens de son âge auraient paniqué en déterrant une main de liche coupée, mais Tombale n'était certainement pas une adolescente comme les autres. Une fois la main libérée de sa prison, la voix de la liche devint plus forte… elle avait passé des années à chercher l'élève à qui elle transmettrait son savoir, et Tombale avait soif de connaissances. Désormais nécromancienne en herbe, Tombale jongle non seulement avec ses devoirs à l'Académie Blackmore… mais aussi avec les demandes pressantes des âmes qui reposent au cimetière, toutes ayant quelque affaire en suspens pour laquelle elles sollicitent son aide.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/necro_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/necro_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/necro_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/necro_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/necro.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.7
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 2.2
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3214055642,
+        "name": "Mort en bocal",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/necro/necro_skull.webp",
+        "type": "signature",
+        "description": "Effet passif : Tombale prélève l'essence mortelle de toutes les unités qui succombent à proximité et la conserve dans son bocal. Effet actif : Tombale lance le bocal pour invoquer des têtes de mort qui infligent des dégâts spirituels aux adversaires de manière",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 2001589780,
+        "name": "Mains d'outre-tombe",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/necro/necro_hands.webp",
+        "type": "signature",
+        "description": "Tombale déterre un mur de mains d'outre-tombe, ce qui invoque une goule et laisse une fissure qui inflige des dégâts spirituels et une immobilisation aux unités ennemies qui la traversent. L'utilisation secondaire fait pivoter le mur.",
+        "cooldownSeconds": 34
+      },
+      {
+        "id": 629925354,
+        "name": "Vol d'essence",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/necro/necro_siphon.webp",
+        "type": "signature",
+        "description": "L'arme vole des dégâts des armes et de la résistance spirituelle au fil du temps, jusqu'à un montant max. par cible",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 4110547059,
+        "name": "Clause mortuaire",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/necro/necro_gravestone.webp",
+        "type": "ultimate",
+        "description": "",
+        "cooldownSeconds": 140
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "name": "Venator",
+    "role": "marksman",
+    "gunTag": "Arbalète",
+    "complexity": 2,
+    "tags": ["Pieux", "Maitre d'armes", "Tactique"],
+    "color": "#BD3599",
+    "lore": "Les Venators de l'ordre de Saint-Benoit forment une unité d'élite mandatée par le Vatican, déployée dans les régions à forte concentration de créatures surnaturelles. Leur mission : observer, identifier et exterminer. Méthodiques et précis, ils ne ménagent aucun effort une fois la menace repérée. Pourtant, même parmi les forces de l'Épée de Saint-Benoit, un homme se distingue de tous les autres, un homme dont le cœur dur comme la pierre lui a permis de payer le prix fort au nom du bien… et il a encore une fois été envoyé à New York.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/priest_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/priest_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/priest_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/priest_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/priest.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 820
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.4
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 125
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 911307831,
+        "name": "Grenade consécratrice",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/priest/priest_grenade.webp",
+        "type": "signature",
+        "description": "Venator lance une grenade qui rebondit avant d'exploser. Elle inflige des dégâts des armes et enflamme les adversaires. Les cibles en feu infligent des dégâts purs aux unités ennemies proches et subissent une pénalité de soins.",
+        "cooldownSeconds": 25
+      },
+      {
+        "id": 1764146857,
+        "name": "Quinte ventrale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/priest/priest_shotgun.webp",
+        "type": "signature",
+        "description": "Venator tire avec son arme, ce qui inflige des dégâts des armes et repousse les unités ennemies. Celles qui se trouvent près d'un mur subissent un étourdissement et des dégâts des armes bonus.",
+        "cooldownSeconds": 23
+      },
+      {
+        "id": 11154161,
+        "name": "Souricière sainte",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/priest/priest_trap.webp",
+        "type": "signature",
+        "description": "Venator lance un piège qui s'arme après un bref délai. Le piège se déclenche au premier contact avec une unité ennemie, ce qui lui inflige des dégâts spirituels et une immobilisation. Les unités piégées sont également temporairement révélées.",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 2918874166,
+        "name": "Ira Domini",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/priest/priest_crossbow.webp",
+        "type": "ultimate",
+        "description": "Venator arme son arbalète de 3 pieux pour infliger des dégâts des armes dévastateurs. Venator bénit le pieu final, qui inflige des dégâts purs supplémentaires et achève les occultistes avec peu de PV.",
+        "cooldownSeconds": 160
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "name": "Victor",
+    "role": "brawler",
+    "gunTag": "Pistolet",
+    "complexity": 2,
+    "tags": ["Je", "suis", "indestructible"],
+    "color": "#658B6F",
+    "lore": "Tant de gens passent leur vie entière à chercher leur véritable identité. Pour Victor, cette question existentielle est d'autant plus compliquée qu'il s'est éveillé sur une table mortuaire sans connaitre son créateur, sa raison d'être ni la provenance de ses membres corporels. Depuis, il parcourt sans relâche les cinq arrondissements en quête de réponses, et il espère trouver quelqu'un qui saura identifier une partie de son être.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/frank_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/frank_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/frank_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/victor_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/victor.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 800
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1.5
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.3
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.1
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 2043074967,
+        "name": "Batterie d'affliction",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/frank/frank_pain_battery.webp",
+        "type": "signature",
+        "description": "Subir des dégâts recharge de manière passive la Batterie d'affliction de Victor. Quand elle est pleine, l'activation de la capacité déclenche une salve de rayons électriques qui infligent des dégâts spirituels une fois par cible",
+        "cooldownSeconds": 2
+      },
+      {
+        "id": 3727084744,
+        "name": "Coup de jus",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/frank/frank_jump_start.webp",
+        "type": "signature",
+        "description": "Victor s'autoinflige des dégâts spirituels. Il obtient ensuite un bonus de régénération et de bonus move speed qui diminuent avec le temps.",
+        "cooldownSeconds": 30
+      },
+      {
+        "id": 1472593493,
+        "name": "Aura de souffrance",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/frank/frank_aura_of_suffering.webp",
+        "type": "signature",
+        "description": "Victor déchaine sa douleur en infligeant des dégâts spirituels au fil du temps à la fois à ses adversaires et à lui-même. Les dégâts continuent d'augmenter au fur et à mesure que la capacité est canalisée, jusqu'à son maximum.",
+        "cooldownSeconds": 2
+      },
+      {
+        "id": 3493884851,
+        "name": "Défibrillation",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/frank/frank_shocking_reanimation.webp",
+        "type": "ultimate",
+        "description": "Victor libère une vague après avoir subi des dégâts mortels, qui applique un ralentissement s'estompant au fil du temps. Après une brève canalisation, Victor est réanimé, il inflige alors des dégâts spirituels et applique un étourdissement aux unité ennemies p",
+        "cooldownSeconds": 240
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Vindicta",
+    "role": "marksman",
+    "gunTag": "Longue portée",
+    "complexity": 1,
+    "tags": ["Sniper", "Haut vol", "Dans le mille"],
+    "color": "#A2C7E5",
+    "lore": "Condamnée à mort par John Hathorne lors des procès des sorcières de Salem, Vindicta obtint une deuxième chance de vivre quand son esprit fut ramené par delà le plan de la mortalité pendant le premier malstrom (le cataclysme qui fit découvrir le surnaturel à la face du monde). En guerre spirituelle totale contre les « Amis de l'humanité », une néo-inquisition formée des descendants de Hathorne, Vindicta cherche à protéger tout ce qui a trait au surnaturel de leurs méfaits, et elle est prête à amonceler autant de cadavres qu'il le faudra pour arriver à ses fins.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/hornet_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/hornet_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/hornet_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/vindicta_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/vindicta.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 755
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 7.9
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 2
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 537527508,
+        "name": "Entrave",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/hornet/vindicta_stake.webp",
+        "type": "signature",
+        "description": "Lance un pieu qui permet d'attacher les unités ennemies à l'endroit où il atterrit. Les déplacements de l'unité piégée sont limités à la longueur de la corde attachée au pieu.",
+        "cooldownSeconds": 40
+      },
+      {
+        "id": 1796564033,
+        "name": "Envol",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/hornet/vindicta_flight.webp",
+        "type": "signature",
+        "description": "Vindicta s'élance dans les airs et s'envole. Une fois en l'air, son arme inflige des dégâts spirituels bonus et ses objets bénéficient d'une portée accrue.",
+        "cooldownSeconds": 42
+      },
+      {
+        "id": 2048438176,
+        "name": "Nuée de corneilles",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/hornet/hornet_crow.webp",
+        "type": "signature",
+        "description": "Les corneilles de Vindicta infligent des dégâts d'impact, réduisent la résistance aux balles de la cible et la font saigner, ce qui lui inflige des dégâts en fonction de ses PV actuels.",
+        "cooldownSeconds": 32
+      },
+      {
+        "id": 775377419,
+        "name": "Assassinat",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/hornet/hornet_assassinate.webp",
+        "type": "ultimate",
+        "description": "Vindicta utilise la lunette de son fusil pour effectuer un puissant tir de longue portée. La totalité des dégâts n'est infligée qu'après la charge complète, atteinte 1.0 s après avoir utilisé la lunette. Inflige des dégâts bonus aux cibles ennemies à qui il re",
+        "cooldownSeconds": 55
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Vypère",
+    "role": "assassin",
+    "gunTag": "Tirs en rafale",
+    "complexity": 1,
+    "tags": ["Artilleuse", "Insaisissable", "Mitrailleuse"],
+    "color": "#A7AD00",
+    "lore": "Quand on enfreint la loi, il s'agit de ne pas se faire prendre. Vypère n'a jamais appris ce précepte. Si elle excelle à se faire arrêter, heureusement pour elle, elle brille encore plus par ses talents d'évasion. Après être restée à l'ombre dans toutes les grandes prisons de la métropole, Vypère se targue aujourd'hui d'être à la tête d'un impressionnant réseau de petites canailles, qui lui sont toutes redevables. Bien entendu, une telle réputation lui vaut également d'être la cible à abattre pour une bonne partie de la pègre locale, mais elle essaie de se concentrer sur le positif.",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kali_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kali_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/kali_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/vyper_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/vyper.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 780
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 2
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 6.9
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 4
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 50
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 116
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 645773760,
+        "name": "Lame fulgurante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viper/viper_debuffdagger.webp",
+        "type": "signature",
+        "description": "Vypère lance une dague qui inflige des dégâts spirituels et applique un ralentissement. Chaque nouvelle dague lancée sur la même cible cumule des dégâts spirituels et du ralentissement.",
+        "cooldownSeconds": 10
+      },
+      {
+        "id": 3428732129,
+        "name": "Venin mortel",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viper/viper_venom.webp",
+        "type": "signature",
+        "description": "Injecte du venin mortel à une cible. Après un certain temps, le venin se déclenche et inflige des dégâts spirituels proportionnellement aux PV manquants de la cible. Venin mortel outrepasse le blocage des dégâts de la pétrification.",
+        "cooldownSeconds": 28
+      },
+      {
+        "id": 1469918191,
+        "name": "Reptation",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viper/viper_snakedash.webp",
+        "type": "signature",
+        "description": "La distance de glissade de Vypère augmente, elle peut glisser même dans les montées et sa vitesse de rotation augmente pendant les glissades.",
+        "cooldownSeconds": null
+      },
+      {
+        "id": 1594727071,
+        "name": "Bolas pétrifiants",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/viper/viper_petrifybola.webp",
+        "type": "ultimate",
+        "description": "Vypère lance des bolas explosifs. En explosant, les bolas ralentissent et infligent des dégâts à toutes les unités ennemies dans la zone. Les unités ennemies touchées par un bola subissent des dégâts supplémentaires et sont pétrifiées. Les unités pétrifiées bl",
+        "cooldownSeconds": 115
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Yamato",
+    "role": "assassin",
+    "gunTag": "Tirs en éventail",
+    "complexity": 3,
+    "tags": ["Implacable", "Acrobate", "Traqueuse"],
+    "color": "#625789",
+    "lore": "犯罪組織のボスの家に生まれた花桜梨とその兄の大和にとって、父の死後に「セブンスムーン」の跡目を継ぐのは自明のことでもあった。そして何年もの間、かれらは対等の立場で組織を率いて利益と成功をもたらし、やがてはアメリカへの進出をも目論むようになった。思い描いていた計画は単純で、 大和がアメリカに渡って花桜梨の国際的な存在感を高め、その間花桜梨は日本に残って国内を統制する、といったものだった。 兄妹にとって不運だったのは、花桜梨が日本で指揮をとるという計画を快く思わない部下たちがいたことだった。そして迅速かつ暴力的な形で、反乱は発生した。大和は花桜梨を守るために命を落とし、花桜梨と数人の忠実な部下たちは、その大和の犠牲のおかげもあって、日本からアメリカへと逃げ延びることに成功した。アメリカに着いた花桜梨たちを出迎えたのは、本来であれば大和が会う予定となっていた男であった。彼は日本人の名前になじみがなかったため性別の区別がついておらず、花桜梨のことを「ヤマト」と呼んだ。花桜梨は男の間違いを正そうと思ったが、結局そのままにした。兄の記憶を残し続けるためにも、その名を名乗り、その夢を受け継ぐことが最善の道であろうと考えたからだ。",
+    "images": {
+      "card": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/yamato_card.webp",
+      "small": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/yamato_sm.webp",
+      "vertical": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/yamato_vertical.webp",
+      "background": "https://assets-bucket.deadlock-api.com/assets-api-res/images/heroes/backgrounds/yamato_bg.webp",
+      "name": "https://assets-bucket.deadlock-api.com/assets-api-res/icons/heroes/hero_names/yamato.svg"
+    },
+    "stats": [
+      {
+        "key": "max_health",
+        "label": "Santé",
+        "value": 730
+      },
+      {
+        "key": "base_health_regen",
+        "label": "Régénération de santé",
+        "value": 1
+      },
+      {
+        "key": "max_move_speed",
+        "label": "Vitesse de déplacement",
+        "value": 8.2
+      },
+      {
+        "key": "sprint_speed",
+        "label": "Vitesse de sprint",
+        "value": 1.6
+      },
+      {
+        "key": "stamina",
+        "label": "Endurance",
+        "value": 3
+      },
+      {
+        "key": "light_melee_damage",
+        "label": "Mêlée légère",
+        "value": 55
+      },
+      {
+        "key": "heavy_melee_damage",
+        "label": "Mêlée lourde",
+        "value": 128
+      },
+      {
+        "key": "reload_speed",
+        "label": "Vitesse de rechargement",
+        "value": 1
+      }
+    ],
+    "abilities": [
+      {
+        "id": 3255651252,
+        "name": "Estafilade",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/yamato/yamato_power_slash.webp",
+        "type": "signature",
+        "description": "Yamato canalise son attaque pendant 1.4 secondes pour augmenter ses dégâts, puis assène une attaque complètement chargée avec son sabre. Appuyez sur Capacité 1 ou pour déclencher l'attaque prématurément et n'infliger qu'une partie des dégâts.",
+        "cooldownSeconds": 12
+      },
+      {
+        "id": 2566573207,
+        "name": "Accroche tranchante",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/yamato/yamato_flying_strike.webp",
+        "type": "signature",
+        "description": "Yamato lance un grappin qui la tracte jusqu'à une cible ennemie, lui inflige des dégâts de mêlée légers et un ralentissement à l'arrivée.",
+        "cooldownSeconds": 36
+      },
+      {
+        "id": 2366960452,
+        "name": "Shomen écarlate",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/yamato/yamato_crimson_slash.webp",
+        "type": "signature",
+        "description": "Yamato taillade les adversaires en face d'elle, leur inflige des dégâts et réduit leur cadence de tir. Blesser des occultistes soigne Yamato.",
+        "cooldownSeconds": 16
+      },
+      {
+        "id": 3319782965,
+        "name": "Transformation sépulcrale",
+        "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/abilities/yamato/yamato_blinding_steel.webp",
+        "type": "ultimate",
+        "description": "Yamato se transforme en esprit et devient brièvement invincible pendant la transformation. Ses capacités sont réinitialisées et sont 60 % plus rapides. Accorde l'immunité contre les effets de statut négatifs et augmente considérablement sa résistance spirituel",
+        "cooldownSeconds": 160
+      }
+    ]
+  }
+]

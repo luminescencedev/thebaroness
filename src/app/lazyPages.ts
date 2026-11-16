@@ -25,3 +25,15 @@ export const TrackedPage = lazy(() =>
 export const AuthCallbackPage = lazy(() =>
   import("@/pages/AuthCallbackPage").then((m) => ({ default: m.AuthCallbackPage })),
 );
+export const HeroesPage = lazy(() =>
+  import("@/pages/HeroesPage").then((m) => ({ default: m.HeroesPage })),
+);
+export const HeroPage = lazy(() =>
+  import("@/pages/HeroPage").then((m) => ({ default: m.HeroPage })),
+);
+export const LeaderboardPage = lazy(() =>
+  import("@/pages/LeaderboardPage").then((m) => ({ default: m.LeaderboardPage })),
+);
+export const MatchPage = lazy(() =>
+  import("@/pages/MatchPage").then((m) => ({ default: m.MatchPage })),
+);

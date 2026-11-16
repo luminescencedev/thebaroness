@@ -1,0 +1,35 @@
+import { request } from "./client";
+import type {
+  HeroDetailResponse,
+  HeroListResponse,
+  HeroStatsResponse,
+  LeaderboardRegion,
+  MapAssets,
+  LeaderboardResponse,
+  MatchDetailResponse,
+  PlayerHeroesResponse,
+  RankListResponse,
+  SteamId,
+} from "./types";
+
+export const listHeroes = (signal?: AbortSignal) =>
+  request<HeroListResponse>("/heroes", { signal });
+
+export const getHero = (heroId: number | string, signal?: AbortSignal) =>
+  request<HeroDetailResponse>(`/heroes/${encodeURIComponent(String(heroId))}`, { signal });
+
+export const getHeroStats = (heroId: number | string, signal?: AbortSignal) =>
+  request<HeroStatsResponse>(`/heroes/${encodeURIComponent(String(heroId))}/stats`, { signal });
+
+export const listRanks = (signal?: AbortSignal) => request<RankListResponse>("/ranks", { signal });
+
+export const getLeaderboard = (region: LeaderboardRegion, signal?: AbortSignal) =>
+  request<LeaderboardResponse>("/leaderboard", { query: { region }, signal });
+
+export const getMatch = (matchId: string, signal?: AbortSignal) =>
+  request<MatchDetailResponse>(`/matches/${encodeURIComponent(matchId)}`, { signal });
+
+export const getPlayerHeroes = (steamId: SteamId, signal?: AbortSignal) =>
+  request<PlayerHeroesResponse>(`/players/${encodeURIComponent(steamId)}/heroes`, { signal });
+
+export const getMap = (signal?: AbortSignal) => request<MapAssets>("/map", { signal });

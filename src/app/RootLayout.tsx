@@ -26,7 +26,7 @@ export function RootLayout() {
         Aller au contenu
       </a>
       <Nav onOpenSearch={() => setPaletteOpen(true)} />
-      <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 pb-16 sm:px-6">
+      <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
         <Suspense fallback={<div role="status" aria-label="Chargement" className="py-24" />}>
           <Outlet />
         </Suspense>

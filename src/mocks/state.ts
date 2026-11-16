@@ -1,8 +1,8 @@
 import playersFixture from "./fixtures/players.json";
 import trackedFixture from "./fixtures/tracked-players.json";
 import usersFixture from "./fixtures/users.json";
-import matchesFixture from "./fixtures/matches.json";
 import type { MatchSummary, PlayerProfile, PublicUser, TrackedPlayer } from "@/api/types";
+import { CORVID_STEAM_ID, corvidMatches, ranks, statsFromMatches } from "./synthetic";
 
 type MockUser = PublicUser;
 
@@ -31,8 +31,27 @@ export function resetMockState(): void {
 
 export const mockConfig = { latencyMs: 0 };
 
-export const playerFixtures = playersFixture.players as unknown as (Omit<PlayerProfile, "meta"> & {
-  partial?: boolean;
-})[];
+type Fixture = Omit<PlayerProfile, "meta"> & { partial?: boolean };
 
-export const matchFixtures = matchesFixture as Record<string, MatchSummary[]>;
+const oracle = ranks.find((r) => r.tier === 8);
+
+/** Corvid : Oracle 4, statistiques calculées depuis ses 42 parties synthétiques. */
+export const playerFixtures: Fixture[] = (playersFixture.players as unknown as Fixture[]).map(
+  (p) =>
+    p.player.steamId === CORVID_STEAM_ID
+      ? {
+          ...p,
+          stats: statsFromMatches(corvidMatches),
+          rank: {
+            badgeId: null,
+            name: "Oracle 4",
+            tier: 8,
+            subrank: 4,
+            imageUrl: oracle?.subranks[3] ?? oracle?.imageUrl ?? null,
+            color: oracle?.color ?? null,
+          },
+        }
+      : p,
+);
+
+export const matchFixtures: Record<string, MatchSummary[]> = { [CORVID_STEAM_ID]: corvidMatches };

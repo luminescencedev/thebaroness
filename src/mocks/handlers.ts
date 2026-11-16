@@ -8,6 +8,18 @@ import type {
 } from "@/api/types";
 import { SCENARIOS } from "./scenarios";
 import { matchFixtures, mockConfig, playerFixtures, state } from "./state";
+import {
+  corvidMatches,
+  heroBreakdown,
+  heroById,
+  heroMetaStats,
+  heroes,
+  leaderboard,
+  matchDetail,
+  ranks,
+} from "./synthetic";
+import type { LeaderboardRegion } from "@/api/types";
+import mapFixture from "./fixtures/map.json";
 
 const API = "/api";
 
@@ -109,6 +121,76 @@ export const handlers = [
             )
             .map(summaryOf);
     return HttpResponse.json({ items, meta: meta() });
+  }),
+
+  http.get(`${API}/heroes/:heroId/stats`, async ({ params }) => {
+    await latency();
+    const id = Number(params.heroId);
+    if (!Number.isInteger(id) || id < 1) return invalid("Identifiant de héros invalide.");
+    if (!heroById(id)) return notFound("Héros introuvable.");
+    return HttpResponse.json({ stats: heroMetaStats(id), meta: meta() });
+  }),
+
+  http.get(`${API}/heroes/:heroId`, async ({ params }) => {
+    await latency();
+    const id = Number(params.heroId);
+    if (!Number.isInteger(id) || id < 1) return invalid("Identifiant de héros invalide.");
+    const hero = heroById(id);
+    return hero ? HttpResponse.json({ hero, meta: meta() }) : notFound("Héros introuvable.");
+  }),
+
+  http.get(`${API}/heroes`, async () => {
+    await latency();
+    const items = heroes.map(({ lore: _l, stats: _s, abilities: _a, ...summary }) => {
+      void [_l, _s, _a];
+      return summary;
+    });
+    return HttpResponse.json({ items, meta: meta() });
+  }),
+
+  http.get(`${API}/map`, async () => {
+    await latency();
+    return HttpResponse.json(mapFixture);
+  }),
+
+  http.get(`${API}/ranks`, async () => {
+    await latency();
+    return HttpResponse.json({ items: ranks });
+  }),
+
+  http.get(`${API}/leaderboard`, async ({ request }) => {
+    await latency();
+    const region = new URL(request.url).searchParams.get("region") ?? "Europe";
+    const allowed = ["Europe", "Asia", "NAmerica", "SAmerica", "Oceania"];
+    if (!allowed.includes(region)) return invalid("Région invalide.");
+    return HttpResponse.json({
+      region,
+      items: leaderboard(region as LeaderboardRegion),
+      meta: meta(),
+    });
+  }),
+
+  http.get(`${API}/matches/:matchId`, async ({ params }) => {
+    await latency();
+    const matchId = String(params.matchId);
+    if (!/^\d+$/.test(matchId)) return invalid("Identifiant de partie invalide.");
+    const summary = corvidMatches.find((m) => m.matchId === matchId);
+    return summary
+      ? HttpResponse.json({ match: matchDetail(summary), meta: meta() })
+      : notFound("Partie introuvable.");
+  }),
+
+  http.get(`${API}/players/:steamId/heroes`, async ({ params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    return HttpResponse.json({
+      items: heroBreakdown(matchFixtures[steamId] ?? []),
+      meta: meta(fixture.partial === true),
+    });
   }),
 
   http.get(`${API}/players/:steamId/matches`, async ({ request, params }) => {

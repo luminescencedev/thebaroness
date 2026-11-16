@@ -2,6 +2,7 @@ import { Command } from "cmdk";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Dialog } from "@/components/ui";
+import { useHeroes } from "@/features/heroes/hooks";
 import { useSession } from "@/features/auth/useSession";
 
 interface CommandPaletteProps {
@@ -17,6 +18,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const session = useSession();
   const [query, setQuery] = useState("");
+  const heroes = useHeroes();
 
   const go = (to: string) => {
     onOpenChange(false);
@@ -24,6 +26,11 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     void navigate(to);
   };
   const q = query.trim();
+  const heroMatches = q
+    ? (heroes.data?.items ?? [])
+        .filter((h) => h.name.toLowerCase().includes(q.toLowerCase()))
+        .slice(0, 5)
+    : [];
 
   return (
     <Dialog
@@ -59,6 +66,23 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               </Command.Item>
             </Command.Group>
           )}
+          {heroMatches.length > 0 && (
+            <Command.Group
+              heading="Héros"
+              className="text-xs text-subtle [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5"
+            >
+              {heroMatches.map((h) => (
+                <Command.Item
+                  key={h.id}
+                  value={`hero-${h.id}`}
+                  onSelect={() => go(`/heroes/${h.id}`)}
+                  className={itemClass}
+                >
+                  {h.name}
+                </Command.Item>
+              ))}
+            </Command.Group>
+          )}
           <Command.Group
             heading="Pages"
             className="text-xs text-subtle [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5"
@@ -68,6 +92,16 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
             </Command.Item>
             <Command.Item value="players" onSelect={() => go("/search")} className={itemClass}>
               Joueurs
+            </Command.Item>
+            <Command.Item value="heroes" onSelect={() => go("/heroes")} className={itemClass}>
+              Héros
+            </Command.Item>
+            <Command.Item
+              value="leaderboard"
+              onSelect={() => go("/leaderboard")}
+              className={itemClass}
+            >
+              Classement
             </Command.Item>
             {session ? (
               <Command.Item value="tracked" onSelect={() => go("/tracked")} className={itemClass}>

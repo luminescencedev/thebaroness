@@ -1,0 +1,5 @@
+{
+  "minimap": "https://assets-bucket.deadlock-api.com/assets-api-res/images/maps/minimap_midtown_mid.png",
+  "tunnels": "https://assets-bucket.deadlock-api.com/assets-api-res/images/maps/minimap_midtown_mid_tunnels.png",
+  "frame": "https://assets-bucket.deadlock-api.com/assets-api-res/images/maps/minimap_frame.png"
+}

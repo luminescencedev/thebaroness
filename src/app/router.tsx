@@ -2,7 +2,11 @@ import { Navigate, createBrowserRouter, createMemoryRouter, type RouteObject } f
 import { RequireAuth } from "@/features/auth/RequireAuth";
 import {
   AuthCallbackPage,
+  HeroesPage,
+  HeroPage,
   HomePage,
+  LeaderboardPage,
+  MatchPage,
   LoginPage,
   NotFoundPage,
   PlayerPage,
@@ -19,6 +23,10 @@ export const routes: RouteObject[] = [
       { path: "/", element: <HomePage /> },
       { path: "/search", element: <SearchPage /> },
       { path: "/players/:steamId", element: <PlayerPage /> },
+      { path: "/heroes", element: <HeroesPage /> },
+      { path: "/heroes/:heroId", element: <HeroPage /> },
+      { path: "/leaderboard", element: <LeaderboardPage /> },
+      { path: "/matches/:matchId", element: <MatchPage /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/auth/callback", element: <AuthCallbackPage /> },
       { path: "/register", element: <Navigate to="/login" replace /> },

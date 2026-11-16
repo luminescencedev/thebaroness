@@ -181,3 +181,34 @@
     transform: none;
   }
 }
+
+/* Apparition à l'entrée dans la page : opacité + léger déplacement, 500 ms ease-out. */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 500ms var(--ease-out),
+    transform 500ms var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transform: none;
+  }
+}
+
+.hero-glow {
+  background:
+    radial-gradient(60% 50% at 50% 0%, rgb(91 75 240 / 0.28), transparent 70%),
+    radial-gradient(40% 40% at 85% 30%, rgb(180 171 255 / 0.1), transparent 70%);
+}
+
+.dot-grid {
+  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(70% 60% at 50% 30%, #000, transparent 75%);
+}

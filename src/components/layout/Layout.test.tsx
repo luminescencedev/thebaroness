@@ -2,6 +2,7 @@ import { act, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { sessionStore } from "@/api/session";
+import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
 
 describe("layout", () => {
@@ -14,13 +15,9 @@ describe("layout", () => {
     expect(within(nav).queryByRole("link", { name: "Mes suivis" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Rechercher un joueur" })).toHaveTextContent("⌘K");
     const header = screen.getByRole("banner");
-    expect(within(header).getByRole("link", { name: "Connexion" })).toHaveAttribute(
+    expect(within(header).getByRole("link", { name: "Connexion Steam" })).toHaveAttribute(
       "href",
-      "/login",
-    );
-    expect(within(header).getByRole("link", { name: "Créer un compte" })).toHaveAttribute(
-      "href",
-      "/register",
+      "/api/auth/steam",
     );
     expect(
       screen.getByText(/Deadlock API, projet communautaire indépendant de Valve/),
@@ -29,24 +26,24 @@ describe("layout", () => {
   });
 
   it("affiche l'email et Mes suivis quand l'utilisateur est connecté", () => {
-    sessionStore.set({ token: "t", user: { id: "1", email: "alice@example.test" } });
+    signIn();
     renderApp("/");
 
-    expect(screen.getByText("alice@example.test")).toBeInTheDocument();
+    expect(screen.getByText("Corvid")).toBeInTheDocument();
     expect(
       within(screen.getByRole("navigation", { name: "Navigation principale" })).getByRole("link", {
         name: "Mes suivis",
       }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Connexion" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Connexion Steam" })).not.toBeInTheDocument();
   });
 
   it("réagit à une déconnexion", () => {
-    sessionStore.set({ token: "t", user: { id: "1", email: "alice@example.test" } });
+    signIn();
     renderApp("/");
     act(() => sessionStore.clear());
 
-    expect(screen.getAllByRole("link", { name: "Connexion" }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole("link", { name: "Connexion Steam" }).length).toBeGreaterThan(0);
   });
 
   it("ouvre la palette avec Ctrl+K", async () => {

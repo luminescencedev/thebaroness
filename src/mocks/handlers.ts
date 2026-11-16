@@ -31,9 +31,6 @@ async function latency() {
   if (mockConfig.latencyMs > 0) await delay(mockConfig.latencyMs);
 }
 
-/** Faux JWT, valable uniquement en mock : jamais envoye a un vrai serveur. */
-const makeToken = (userId: string) => `mock.${userId}.signature`;
-
 function userIdFrom(request: Request): string | null {
   const header = request.headers.get("Authorization");
   const match = header?.match(/^Bearer mock\.([^.]+)\.signature$/);
@@ -41,7 +38,6 @@ function userIdFrom(request: Request): string | null {
   return id && state.users.some((u) => u.id === id) ? id : null;
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const STEAM_ID_RE = /^\d{17}$/;
 const OBJECT_ID_RE = /^[0-9a-f]{24}$/;
 
@@ -89,35 +85,11 @@ export const handlers = [
     return HttpResponse.json({ status: "ok" });
   }),
 
-  http.post(`${API}/auth/register`, async ({ request }) => {
+  http.get(`${API}/auth/me`, async ({ request }) => {
     await latency();
-    const body = await readJson(request);
-    const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
-    const password = typeof body?.password === "string" ? body.password : "";
-    if (!EMAIL_RE.test(email)) return invalid("Adresse email invalide.");
-    if (password.length < 8) return invalid("Le mot de passe doit contenir au moins 8 caractères.");
-    if (state.users.some((u) => u.email === email))
-      return apiError(409, "EMAIL_ALREADY_USED", "Cette adresse email est déjà utilisée.");
-    const id = Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join(
-      "",
-    );
-    state.users.push({ id, email, password });
-    state.tracked.set(id, []);
-    return HttpResponse.json({ user: { id, email }, token: makeToken(id) }, { status: 201 });
-  }),
-
-  http.post(`${API}/auth/login`, async ({ request }) => {
-    await latency();
-    const body = await readJson(request);
-    const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
-    const password = typeof body?.password === "string" ? body.password : "";
-    if (!EMAIL_RE.test(email) || password.length === 0) return invalid("Identifiants invalides.");
-    const user = state.users.find((u) => u.email === email && u.password === password);
-    if (!user) return apiError(401, "UNAUTHORIZED", "Email ou mot de passe incorrect.");
-    return HttpResponse.json({
-      user: { id: user.id, email: user.email },
-      token: makeToken(user.id),
-    });
+    const id = userIdFrom(request);
+    const user = state.users.find((u) => u.id === id);
+    return user ? HttpResponse.json(user) : unauthorized();
   }),
 
   http.get(`${API}/players/search`, async ({ request }) => {

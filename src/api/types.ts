@@ -14,19 +14,12 @@ export interface HealthResponse {
   status: "ok";
 }
 
+/** Utilisateur connecté via Steam (OpenID). Aucun email ni mot de passe. */
 export interface PublicUser {
   id: string;
-  email: string;
-}
-
-export interface AuthResponse {
-  user: PublicUser;
-  token: string;
-}
-
-export interface Credentials {
-  email: string;
-  password: string;
+  steamId: SteamId;
+  displayName: string;
+  avatarUrl: string | null;
 }
 
 export interface PlayerSummary {

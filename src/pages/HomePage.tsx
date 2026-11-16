@@ -38,8 +38,8 @@ export function HomePage() {
         {!session && (
           <p className="mt-5 text-sm text-subtle">
             La recherche est ouverte à tous.{" "}
-            <Link to="/register" className="text-muted underline underline-offset-4 hover-text">
-              Créez un compte
+            <Link to="/login" className="text-muted underline underline-offset-4 hover-text">
+              Connectez-vous avec Steam
             </Link>{" "}
             pour suivre des joueurs.
           </p>

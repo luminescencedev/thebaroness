@@ -6,11 +6,11 @@ import {
   getPlayer,
   getPlayerMatches,
   listTrackedPlayers,
-  login,
+  completeSteamLogin,
   searchPlayers,
   sessionStore,
 } from "@/api";
-import { DEMO_ACCOUNT, SCENARIOS } from "@/mocks/scenarios";
+import { DEMO_TOKEN, SCENARIOS } from "@/mocks/scenarios";
 import { server } from "@/mocks/server";
 
 describe("client API", () => {
@@ -70,13 +70,14 @@ describe("client API", () => {
         return HttpResponse.json({ items: [] });
       }),
     );
-    const { token } = await login(DEMO_ACCOUNT);
+    await completeSteamLogin(DEMO_TOKEN);
+    const token = DEMO_TOKEN;
     await listTrackedPlayers();
     expect(header).toBe(`Bearer ${token}`);
   });
 
   it("vide la session sur un 401", async () => {
-    await login(DEMO_ACCOUNT);
+    await completeSteamLogin(DEMO_TOKEN);
     expect(sessionStore.get()).not.toBeNull();
     server.use(
       http.get("/api/tracked-players", () =>
@@ -87,6 +88,15 @@ describe("client API", () => {
       ),
     );
     await expect(listTrackedPlayers()).rejects.toMatchObject({ status: 401 });
+    expect(sessionStore.get()).toBeNull();
+  });
+
+  it("ouvre la session depuis le jeton Steam et refuse un faux jeton", async () => {
+    const user = await completeSteamLogin(DEMO_TOKEN);
+    expect(user).toMatchObject({ displayName: "Corvid", steamId: "76561198000000000" });
+    expect(sessionStore.get()?.token).toBe(DEMO_TOKEN);
+    sessionStore.clear();
+    await expect(completeSteamLogin("faux")).rejects.toMatchObject({ status: 401 });
     expect(sessionStore.get()).toBeNull();
   });
 

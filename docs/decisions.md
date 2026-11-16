@@ -25,3 +25,21 @@
 - Valeur absente : affichée `n/d`, jamais 0 (cahier 19.4).
 - Erreurs : 401 vide la session et affiche un toast, les autres codes ont un message clair (`src/lib/messages.ts`). Pas de nouvelle tentative sur les 4xx.
 - Pas encore fait : Playwright (T-17), contrat `openapi.yaml`, pages P1 (héros, match, classement).
+
+## Connexion Steam uniquement (accord de l'encadrant)
+
+Remplace email, mot de passe et inscription (cahier 6 à 8, 13). Le front n'a plus de formulaire de connexion ni de page `/register` (redirigée vers `/login`).
+
+Contrat à implémenter côté `baroness-back` :
+
+| Route                                                         | Rôle                                                                                                                                                                                                                  |
+| ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /api/auth/steam`                                         | Redirige le navigateur vers Steam OpenID (`return_to` = callback du back).                                                                                                                                            |
+| callback du back (par exemple `GET /api/auth/steam/callback`) | Vérifie la réponse OpenID auprès de Steam, crée ou retrouve l'utilisateur par `steamId`, signe un JWT, puis redirige vers `<front>/auth/callback#token=<JWT>`. En cas d'échec : `<front>/auth/callback?error=<code>`. |
+| `GET /api/auth/me`                                            | Bearer JWT, 200 `{ id, steamId, displayName, avatarUrl }`, 401 sinon.                                                                                                                                                 |
+
+- Le jeton est transmis dans le fragment (`#token=`), jamais envoyé au serveur ni journalisé. Il reste en mémoire : un rechargement complet demande de recliquer sur « Se connecter avec Steam ».
+- `PublicUser` devient `{ id, steamId, displayName, avatarUrl }`. `ownerId` des suivis reste l'id utilisateur issu du JWT.
+- Les routes `POST /api/auth/register` et `POST /api/auth/login` et le code `EMAIL_ALREADY_USED` disparaissent. Le cahier et le contrat OpenAPI du back sont à mettre à jour.
+- Mode mock : le lien Steam mène directement à `/auth/callback#token=<faux jeton>`, l'utilisateur fictif est Corvid. Le faux jeton n'existe qu'en mock.
+- Le chemin de retour (page à rouvrir après connexion) est gardé dans `sessionStorage` : chemin interne uniquement, pas le jeton.

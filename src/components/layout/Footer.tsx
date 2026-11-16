@@ -23,14 +23,9 @@ export function Footer() {
               Mes suivis
             </Link>
           ) : (
-            <>
-              <Link to="/login" className="hover-text pressable rounded-md">
-                Connexion
-              </Link>
-              <Link to="/register" className="hover-text pressable rounded-md">
-                Créer un compte
-              </Link>
-            </>
+            <Link to="/login" className="hover-text pressable rounded-md">
+              Connexion Steam
+            </Link>
           )}
         </nav>
       </div>

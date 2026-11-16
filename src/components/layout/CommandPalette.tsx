@@ -74,18 +74,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 Mes suivis
               </Command.Item>
             ) : (
-              <>
-                <Command.Item value="login" onSelect={() => go("/login")} className={itemClass}>
-                  Connexion
-                </Command.Item>
-                <Command.Item
-                  value="register"
-                  onSelect={() => go("/register")}
-                  className={itemClass}
-                >
-                  Créer un compte
-                </Command.Item>
-              </>
+              <Command.Item value="login" onSelect={() => go("/login")} className={itemClass}>
+                Connexion Steam
+              </Command.Item>
             )}
           </Command.Group>
         </Command.List>

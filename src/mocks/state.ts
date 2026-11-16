@@ -2,13 +2,9 @@ import playersFixture from "./fixtures/players.json";
 import trackedFixture from "./fixtures/tracked-players.json";
 import usersFixture from "./fixtures/users.json";
 import matchesFixture from "./fixtures/matches.json";
-import type { MatchSummary, PlayerProfile, TrackedPlayer } from "@/api/types";
+import type { MatchSummary, PlayerProfile, PublicUser, TrackedPlayer } from "@/api/types";
 
-interface MockUser {
-  id: string;
-  email: string;
-  password: string;
-}
+type MockUser = PublicUser;
 
 export interface MockState {
   users: MockUser[];

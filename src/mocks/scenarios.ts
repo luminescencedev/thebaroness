@@ -17,4 +17,5 @@ export const SCENARIOS = {
   steamIdUnavailable: "76561198000000503",
 } as const;
 
-export const DEMO_ACCOUNT = { email: "alice@example.test", password: "MotDePasse123!" } as const;
+/** Compte Steam fictif du mode mock : même joueur que Corvid. */
+export const DEMO_TOKEN = "mock.507f1f77bcf86cd799439011.signature";

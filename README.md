@@ -42,7 +42,7 @@ npm run dev:mock
 MSW intercepte `/api/*` dans le navigateur. Les données viennent de `src/mocks/fixtures/` et sont **synthétiques**.
 Le CRUD des suivis est cohérent en mémoire (POST, GET, PATCH, DELETE) et revient à son état de départ au rechargement.
 
-- Compte de démonstration : `alice@example.test` / `MotDePasse123!`
+- Connexion : le bouton Steam ouvre directement une session fictive (utilisateur Corvid), sans passer par Steam
 - Joueur d'exemple : Corvid, `76561198000000000`
 - Scénarios déterministes (voir `src/mocks/scenarios.ts`) : recherche `vide` (aucun résultat), `indispo` (503), `limite` (429) ; profil `76561198000000001` (partiel), `76561198000000503` (503)
 
@@ -66,6 +66,8 @@ Vite proxifie `/api` vers `http://localhost:3001`. Pour viser un autre serveur, 
 
 Le jeton JWT est gardé **en mémoire seulement** (`src/api/session.ts`). Pas de `localStorage`, pas de cookie :
 un rechargement complet de la page demande une reconnexion. Un 401 sur une route privée vide la session.
+
+Connexion **Steam uniquement** : le back gère OpenID et renvoie vers `/auth/callback#token=<JWT>`. Contrat des routes dans [`docs/decisions.md`](docs/decisions.md).
 
 ## Docker
 

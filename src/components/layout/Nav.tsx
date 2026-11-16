@@ -1,6 +1,8 @@
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
+import { logout } from "@/api";
+import { SteamButton } from "@/features/auth/SteamButton";
 import { useSession } from "@/features/auth/useSession";
-import { Kbd, buttonStyles, cn } from "@/components/ui";
+import { Avatar, Kbd, cn } from "@/components/ui";
 
 import { Wordmark } from "./Wordmark";
 
@@ -18,6 +20,7 @@ function SearchIcon() {
 
 export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
   const session = useSession();
+  const location = useLocation();
   const links = session ? [...publicLinks, ...privateLinks] : publicLinks;
 
   return (
@@ -57,24 +60,29 @@ export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
           </button>
 
           {session ? (
-            <span className="max-w-[9rem] truncate pr-3 text-sm text-muted sm:max-w-[14rem]">
-              {session.user.email}
-            </span>
-          ) : (
             <>
-              <NavLink
-                to="/login"
+              <span className="flex items-center gap-2 text-sm text-muted">
+                <Avatar
+                  name={session.user.displayName}
+                  src={session.user.avatarUrl}
+                  className="size-7 text-xs"
+                />
+                <span className="hidden max-w-[10rem] truncate sm:inline">
+                  {session.user.displayName}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={logout}
                 className="pressable hover-text rounded-full px-3 py-1.5 text-sm text-muted"
               >
-                Connexion
-              </NavLink>
-              <NavLink
-                to="/register"
-                className={cn(buttonStyles("primary", "sm"), "hidden rounded-full sm:inline-flex")}
-              >
-                Créer un compte
-              </NavLink>
+                Déconnexion
+              </button>
             </>
+          ) : (
+            <SteamButton size="sm" className="rounded-full" returnTo={location.pathname}>
+              Connexion Steam
+            </SteamButton>
           )}
         </div>
       </div>

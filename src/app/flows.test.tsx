@@ -2,14 +2,9 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { sessionStore } from "@/api/session";
-import { DEMO_ACCOUNT, SCENARIOS } from "@/mocks/scenarios";
+import { DEMO_TOKEN, SCENARIOS } from "@/mocks/scenarios";
+import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
-
-const login = () =>
-  sessionStore.set({
-    token: "mock.507f1f77bcf86cd799439011.signature",
-    user: { id: "507f1f77bcf86cd799439011", email: DEMO_ACCOUNT.email },
-  });
 
 describe("recherche et profil", () => {
   it("affiche les résultats puis le profil de Corvid", async () => {
@@ -57,44 +52,47 @@ describe("recherche et profil", () => {
   });
 });
 
-describe("authentification", () => {
-  it("connecte puis redirige vers Mes suivis", async () => {
+describe("connexion Steam", () => {
+  it("la page de connexion mène au backend (OpenID)", () => {
     renderApp("/login");
-    await userEvent.type(screen.getByLabelText("Email"), DEMO_ACCOUNT.email);
-    await userEvent.type(screen.getByLabelText("Mot de passe"), DEMO_ACCOUNT.password);
-    await userEvent.click(screen.getByRole("button", { name: "Se connecter" }));
+    expect(screen.getByRole("link", { name: "Se connecter avec Steam" })).toHaveAttribute(
+      "href",
+      "/api/auth/steam",
+    );
+  });
+
+  it("ouvre la session depuis le jeton du fragment puis ouvre Mes suivis", async () => {
+    window.location.hash = `#token=${DEMO_TOKEN}`;
+    renderApp("/auth/callback");
 
     expect(await screen.findByRole("heading", { name: "Mes suivis" })).toBeInTheDocument();
-    expect(sessionStore.get()?.user.email).toBe(DEMO_ACCOUNT.email);
+    expect(sessionStore.get()?.user.displayName).toBe("Corvid");
+    window.location.hash = "";
   });
 
-  it("affiche une erreur générique sur un mauvais mot de passe", async () => {
-    renderApp("/login");
-    await userEvent.type(screen.getByLabelText("Email"), DEMO_ACCOUNT.email);
-    await userEvent.type(screen.getByLabelText("Mot de passe"), "mauvais");
-    await userEvent.click(screen.getByRole("button", { name: "Se connecter" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("Email ou mot de passe incorrect.");
+  it("affiche une erreur quand Steam échoue ou que le jeton est refusé", async () => {
+    const first = renderApp("/auth/callback?error=steam_failed");
+    expect(await screen.findByText("Connexion impossible")).toBeInTheDocument();
+    first.unmount();
+
+    window.location.hash = "#token=faux";
+    renderApp("/auth/callback");
+    expect(await screen.findByText("Connexion impossible")).toBeInTheDocument();
+    expect(sessionStore.get()).toBeNull();
+    window.location.hash = "";
   });
 
-  it("valide l'inscription et signale un email déjà utilisé", async () => {
-    renderApp("/register");
-    await userEvent.type(screen.getByLabelText("Email"), "pasunemail");
-    await userEvent.type(screen.getByLabelText("Mot de passe"), "court");
-    await userEvent.click(screen.getByRole("button", { name: "Créer mon compte" }));
-    expect(screen.getByText("Saisissez une adresse email valide.")).toBeInTheDocument();
-
-    await userEvent.clear(screen.getByLabelText("Email"));
-    await userEvent.type(screen.getByLabelText("Email"), DEMO_ACCOUNT.email);
-    await userEvent.clear(screen.getByLabelText("Mot de passe"));
-    await userEvent.type(screen.getByLabelText("Mot de passe"), "MotDePasse123!");
-    await userEvent.click(screen.getByRole("button", { name: "Créer mon compte" }));
-    expect(await screen.findByText("Cette adresse email est déjà utilisée.")).toBeInTheDocument();
+  it("garde la déconnexion en mémoire seulement", async () => {
+    signIn();
+    renderApp("/");
+    await userEvent.click(screen.getByRole("button", { name: "Déconnexion" }));
+    expect(sessionStore.get()).toBeNull();
   });
 });
 
 describe("suivis (CRUD)", () => {
   it("liste, modifie puis supprime un suivi", async () => {
-    login();
+    signIn();
     renderApp("/tracked");
     await userEvent.click(await screen.findByRole("link", { name: /Duo régulier/ }));
 
@@ -113,7 +111,7 @@ describe("suivis (CRUD)", () => {
   });
 
   it("suit un joueur depuis son profil", async () => {
-    login();
+    signIn();
     renderApp(`/players/${SCENARIOS.steamIdPartial}`);
     await userEvent.click(await screen.findByRole("button", { name: "Suivre" }));
     const dialog = await screen.findByRole("dialog");
@@ -125,7 +123,7 @@ describe("suivis (CRUD)", () => {
   it("propose de se connecter pour suivre sans session", async () => {
     renderApp(`/players/${SCENARIOS.steamIdFull}`);
     expect(
-      await screen.findByRole("link", { name: "Se connecter pour suivre" }),
+      await screen.findByRole("link", { name: "Se connecter avec Steam pour suivre" }),
     ).toBeInTheDocument();
   });
 });

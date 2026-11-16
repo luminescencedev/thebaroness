@@ -1,6 +1,6 @@
 import { screen, waitFor } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-import { sessionStore } from "@/api/session";
+import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
 
 describe("routes privées", () => {
@@ -18,10 +18,7 @@ describe("routes privées", () => {
   });
 
   it("affiche la page avec une session et le bon titre d'onglet", async () => {
-    sessionStore.set({
-      token: "mock.507f1f77bcf86cd799439011.signature",
-      user: { id: "507f1f77bcf86cd799439011", email: "alice@example.test" },
-    });
+    signIn();
     renderApp("/tracked");
 
     expect(await screen.findByRole("heading", { name: "Mes suivis" })).toBeInTheDocument();

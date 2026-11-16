@@ -17,7 +17,7 @@ export function FollowButton({ steamId, name }: { steamId: string; name: string 
   if (!session) {
     return (
       <Link to="/login" state={{ from: location.pathname }} className={buttonStyles("secondary")}>
-        Se connecter pour suivre
+        Se connecter avec Steam pour suivre
       </Link>
     );
   }

@@ -8,6 +8,8 @@ export interface RequestOptions {
   query?: Record<string, string | number | undefined>;
   /** Route privée : ajoute Authorization: Bearer. */
   auth?: boolean;
+  /** Jeton explicite (retour Steam), avant que la session n'existe. */
+  token?: string;
   signal?: AbortSignal;
 }
 
@@ -22,10 +24,12 @@ function buildUrl(path: string, query?: RequestOptions["query"]): string {
 
 /** Appel HTTP typé vers le backend. Lève ApiError pour toute réponse en erreur. */
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = "GET", body, query, auth = false, signal } = options;
+  const { method = "GET", body, query, auth = false, token, signal } = options;
   const headers: Record<string, string> = { Accept: "application/json" };
 
-  if (auth) {
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  } else if (auth) {
     const session = sessionStore.get();
     if (!session) throw new ApiError(401, "UNAUTHORIZED", "Connexion requise.");
     headers.Authorization = `Bearer ${session.token}`;

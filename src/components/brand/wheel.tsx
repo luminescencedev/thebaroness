@@ -1,52 +1,46 @@
 /**
- * Médaillon : roue à huit rayons et œil central, dans l'esprit de l'emblème du jeu.
- * Dessin vectoriel refait à la main (jamais calqué sur l'image officielle).
- * Repère : centré en (0, 0), rayon extérieur 5,3.
+ * Médaillon : roue à huit rayons et œil central en amande (iris cerclé, pupille),
+ * dessiné à la main d'après la silhouette de l'emblème du jeu. Centré en (0, 0), rayon 5,3.
  */
+export const ALMOND = "M-4.5 0C-2.8 -2.7 2.8 -2.7 4.5 0C2.8 2.7 -2.8 2.7 -4.5 0Z";
+
 const SPOKES = Array.from({ length: 8 }, (_, i) => {
   const a = (i * Math.PI) / 4;
+  const f = (n: number) => n.toFixed(2);
   return {
     key: i,
-    x1: (Math.cos(a) * 2.2).toFixed(2),
-    y1: (Math.sin(a) * 2.2).toFixed(2),
-    x2: (Math.cos(a) * 4.9).toFixed(2),
-    y2: (Math.sin(a) * 4.9).toFixed(2),
+    d: `M${f(Math.cos(a) * 1.5)} ${f(Math.sin(a) * 1.5)}L${f(Math.cos(a) * 4.75)} ${f(Math.sin(a) * 4.75)}`,
   };
 });
 
+/** Anneau extérieur et huit rayons (tourne au chargement). */
 export function WheelRing({ stroke }: { stroke: string }) {
   return (
     <>
-      <circle r="5.3" fill="none" stroke={stroke} strokeWidth="1.15" />
+      <circle r="5.3" fill="none" stroke={stroke} strokeWidth="1.05" />
       {SPOKES.map((s) => (
-        <path
-          key={s.key}
-          d={`M${s.x1} ${s.y1}L${s.x2} ${s.y2}`}
-          stroke={stroke}
-          strokeWidth="1"
-          strokeLinecap="round"
-        />
+        <path key={s.key} d={s.d} stroke={stroke} strokeWidth="0.95" strokeLinecap="round" />
       ))}
     </>
   );
 }
 
+/** Amande de l'œil, iris (fond) et pupille. `pupil` peut être décalée (suivi du pointeur). */
 export function WheelEye({
-  stroke,
+  ink,
   iris,
-  pupil,
-  eyeBg,
+  pupilOffset = { x: 0, y: 0 },
 }: {
-  stroke: string;
+  ink: string;
+  /** Couleur du fond de l'iris (le noir du site ou le violet en version blanche). */
   iris: string;
-  pupil: string;
-  eyeBg: string;
+  pupilOffset?: { x: number; y: number };
 }) {
   return (
     <>
-      <circle r="2.2" fill={eyeBg} stroke={stroke} strokeWidth="0.9" />
-      <circle r="1.05" fill={iris} />
-      <circle r="0.45" fill={pupil} />
+      <path d={ALMOND} fill={ink} />
+      <circle r="1.45" fill={iris} />
+      <circle r="0.72" fill={ink} transform={`translate(${pupilOffset.x} ${pupilOffset.y})`} />
     </>
   );
 }

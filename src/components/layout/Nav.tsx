@@ -3,6 +3,8 @@ import { NavLink, useLocation } from "react-router";
 import { Kbd, cn } from "@/components/ui";
 import { SteamButton } from "@/features/auth/SteamButton";
 import { useSession } from "@/features/auth/useSession";
+import { RankBadge } from "@/components/media/RankBadge";
+import { useNavSubject } from "./navContext";
 import { MobileMenu } from "./MobileMenu";
 import { UserMenu } from "./UserMenu";
 import { Wordmark } from "./Wordmark";
@@ -29,9 +31,14 @@ export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
   const { pathname } = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const subject = useNavSubject();
+  const [deep, setDeep] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8);
+      setDeep(window.scrollY > 320);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -62,25 +69,39 @@ export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
       >
         <Wordmark />
 
-        <nav
-          aria-label="Navigation principale"
-          className="ml-2 hidden items-center gap-0.5 md:flex"
-        >
-          {links.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                cn(
-                  "pressable hover-text rounded-full px-3.5 py-1.5 text-sm",
-                  isActive ? "bg-surface-strong text-text" : "text-muted",
-                )
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+        {subject && deep ? (
+          <div
+            className="ml-2 hidden min-w-0 items-center gap-2.5 rounded-full py-1 pr-3 pl-1.5 md:flex"
+            style={{
+              background: `color-mix(in srgb, ${subject.color ?? "#8B7CFF"} 16%, transparent)`,
+            }}
+            aria-live="polite"
+          >
+            <RankBadge name={subject.rankName} imageUrl={subject.rankImage} size="sm" />
+            <span className="truncate text-sm font-medium">{subject.name}</span>
+            {subject.rankName && <span className="text-xs text-muted">{subject.rankName}</span>}
+          </div>
+        ) : (
+          <nav
+            aria-label="Navigation principale"
+            className="ml-2 hidden items-center gap-0.5 md:flex"
+          >
+            {links.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  cn(
+                    "pressable hover-text rounded-full px-3.5 py-1.5 text-sm",
+                    isActive ? "bg-surface-strong text-text" : "text-muted",
+                  )
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
 
         <div className="ml-auto flex items-center gap-2">
           <button

@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from "react";
-import { WheelRing } from "./wheel";
+import { ALMOND, WheelRing } from "./wheel";
 
 interface BrandMarkProps {
   size?: number;
@@ -81,7 +81,7 @@ export function BrandMark({ size = 30, loading = false, className }: BrandMarkPr
     >
       <defs>
         <clipPath id={clipId}>
-          <circle r="2.2" />
+          <circle r="1.45" />
         </clipPath>
       </defs>
       <g
@@ -106,21 +106,21 @@ export function BrandMark({ size = 30, loading = false, className }: BrandMarkPr
           strokeLinecap="round"
         />
         <path d="M7 13h2M25 13h-2" stroke="#B4ABFF" strokeWidth="1.3" strokeLinecap="round" />
-        <g transform="translate(16 13) scale(.95)">
+        <g transform="translate(16 13) scale(1.08)">
           <circle r="6.1" fill="#B4ABFF" fillOpacity=".07" />
           <g className="ring">
             <WheelRing stroke="#B4ABFF" />
           </g>
           <g className="eye-open">
             <g className="eye">
-              <circle r="2.2" fill="#0b0c10" stroke="#B4ABFF" strokeWidth="0.9" />
+              <path d={ALMOND} fill="#B4ABFF" />
+              <circle r="1.45" fill="#0b0c10" />
               <g clipPath={`url(#${clipId})`}>
                 <g
                   className="look"
-                  style={{ transform: `translate(${look.x * 0.6}px, ${look.y * 0.6}px)` }}
+                  style={{ transform: `translate(${look.x * 0.45}px, ${look.y * 0.45}px)` }}
                 >
-                  <circle r="1.05" fill="#F4F5F7" />
-                  <circle r="0.45" fill="#060709" />
+                  <circle r="0.72" fill="#B4ABFF" />
                 </g>
               </g>
             </g>

@@ -13,6 +13,7 @@ import { MatchesTab } from "@/features/players/profile/MatchesTab";
 import { OverviewTab } from "@/features/players/profile/OverviewTab";
 import { ProfileBanner } from "@/features/players/profile/ProfileBanner";
 import { useProfileData } from "@/features/players/profile/useProfileData";
+import { setNavSubject } from "@/components/layout/navContext";
 import { rememberPlayer } from "@/features/search/recents";
 import { FollowButton } from "@/features/tracked-players/FollowButton";
 
@@ -46,6 +47,17 @@ function Body({
   const data = useProfileData(steamId);
   const { history, stats } = data;
   const heroColor = data.mainHero?.color;
+  const { player: p0, rank: r0 } = profile;
+  useEffect(() => {
+    setNavSubject({
+      steamId: p0.steamId,
+      name: p0.displayName,
+      rankName: r0.name,
+      rankImage: r0.imageUrl,
+      color: heroColor,
+    });
+    return () => setNavSubject(null);
+  }, [p0.steamId, p0.displayName, r0.name, r0.imageUrl, heroColor]);
   const coverage = `Calculé sur ${history.loaded} partie${history.loaded > 1 ? "s" : ""} disponible${history.loaded > 1 ? "s" : ""} via Deadlock API, projet communautaire indépendant de Valve.${profile.meta.isPartial ? " Données partielles : l'historique peut être incomplet." : " L'historique peut être incomplet."} KDA = (éliminations + assistances) / max(morts, 1), calculé sur les sommes. Valeur nette par minute = valeur nette / durée.`;
 
   const loading = history.isPending;

@@ -6,6 +6,8 @@ import { logout } from "@/api";
 import { HeroPortrait } from "@/components/media/HeroPortrait";
 import { Avatar, Dialog, Kbd, Spinner, cn } from "@/components/ui";
 import { useSession } from "@/features/auth/useSession";
+import { useNavSubject } from "./navContext";
+import { copyText } from "@/lib/clipboard";
 import { useHeroes } from "@/features/heroes/hooks";
 import { usePlayerSearch } from "@/features/players/hooks";
 import { clearRecents, rememberPlayer, useRecentPlayers } from "@/features/search/recents";
@@ -133,6 +135,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const navigate = useNavigate();
   const session = useSession();
   const heroes = useHeroes();
+  const subject = useNavSubject();
   const recents = useRecentPlayers();
   const [query, setQuery] = useState("");
 
@@ -170,6 +173,27 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   ].filter((p) => !needle || p.label.toLowerCase().includes(needle));
 
   const actions = [
+    ...(subject
+      ? [
+          {
+            value: "copy-link",
+            label: `Copier le lien de ${subject.name}`,
+            hint: "Profil public",
+            run: () => {
+              void copyText(window.location.href, "Lien copié");
+              close(false);
+            },
+            icon: glyphs.user,
+          },
+          {
+            value: "see-matches",
+            label: `Voir les parties de ${subject.name}`,
+            hint: "Onglet Parties",
+            run: () => go(`/players/${subject.steamId}?tab=matches`),
+            icon: glyphs.clock,
+          },
+        ]
+      : []),
     ...(session
       ? [
           {

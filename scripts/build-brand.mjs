@@ -5,17 +5,20 @@ import path from "node:path";
 import { chromium } from "@playwright/test";
 
 const pub = "public";
+const f = (n) => n.toFixed(2);
 const spokes = Array.from({ length: 8 }, (_, i) => {
   const a = (i * Math.PI) / 4;
-  const f = (n) => n.toFixed(2);
-  return `<path d="M${f(Math.cos(a) * 2.2)} ${f(Math.sin(a) * 2.2)}L${f(Math.cos(a) * 4.9)} ${f(Math.sin(a) * 4.9)}" stroke="#B4ABFF" stroke-width="1" stroke-linecap="round"/>`;
+  return `<path d="M${f(Math.cos(a) * 1.5)} ${f(Math.sin(a) * 1.5)}L${f(Math.cos(a) * 4.75)} ${f(Math.sin(a) * 4.75)}" stroke="#B4ABFF" stroke-width=".95" stroke-linecap="round"/>`;
 }).join("");
-const medal = `<g transform="translate(16 16) scale(2.6)"><circle r="6.1" fill="#B4ABFF" fill-opacity=".07"/><circle r="5.3" fill="none" stroke="#B4ABFF" stroke-width="1.15"/>${spokes}<circle r="2.2" fill="#0b0c10" stroke="#B4ABFF" stroke-width=".9"/><circle r="1.05" fill="#F4F5F7"/><circle r=".45" fill="#060709"/></g>`;
-const medalSvg = (size) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${size}" height="${size}" fill="none">${medal}</svg>`;
+const medal = `<g transform="translate(16 16) scale(2.6)"><circle r="6.1" fill="#B4ABFF" fill-opacity=".07"/><circle r="5.3" fill="none" stroke="#B4ABFF" stroke-width="1.05"/>${spokes}<path d="M-4.5 0C-2.8 -2.7 2.8 -2.7 4.5 0C2.8 2.7 -2.8 2.7 -4.5 0Z" fill="#B4ABFF"/><circle r="1.45" fill="#0b0c10"/><circle r=".72" fill="#B4ABFF"/></g>`;
+const medalSvg = (size) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${size}" height="${size}" fill="none">${medal}</svg>`;
 const favicon = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none"><rect width="64" height="64" rx="15" fill="#060709"/><rect x="1.5" y="1.5" width="61" height="61" rx="13.5" stroke="#fff" stroke-opacity=".12" stroke-width="1.5"/><g transform="translate(8 8) scale(1.5)">${medal}</g></svg>`;
 fs.writeFileSync(path.join(pub, "favicon.svg"), favicon + "\n");
 
-const geist = path.resolve("node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2");
+const geist = path.resolve(
+  "node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2",
+);
 const font = `@font-face{font-family:Geist;src:url(data:font/woff2;base64,${fs.readFileSync(geist).toString("base64")}) format("woff2");font-weight:100 900}`;
 
 const browser = await chromium.launch();
@@ -25,15 +28,27 @@ async function png(html, width, height, file) {
   await page.setViewportSize({ width, height });
   await page.setContent(`<style>${font}html,body{margin:0;background:transparent}</style>${html}`);
   await page.evaluate(() => document.fonts.ready);
-  const buf = await page.screenshot({ type: "png", omitBackground: true, clip: { x: 0, y: 0, width, height } });
+  const buf = await page.screenshot({
+    type: "png",
+    omitBackground: true,
+    clip: { x: 0, y: 0, width, height },
+  });
   if (file) fs.writeFileSync(path.join(pub, file), buf);
   return buf;
 }
-const framed = (size) => `<div style="width:${size}px;height:${size}px">${favicon.replace('width="64" height="64"', `width="${size}" height="${size}"`)}</div>`;
+const framed = (size) =>
+  `<div style="width:${size}px;height:${size}px">${favicon.replace('width="64" height="64"', `width="${size}" height="${size}"`)}</div>`;
 
-const sizes = { 16: null, 32: "favicon-32.png", 48: null, 180: "apple-touch-icon.png", 512: "icon-512.png" };
+const sizes = {
+  16: null,
+  32: "favicon-32.png",
+  48: null,
+  180: "apple-touch-icon.png",
+  512: "icon-512.png",
+};
 const bufs = {};
-for (const [size, file] of Object.entries(sizes)) bufs[size] = await png(framed(Number(size)), Number(size), Number(size), file);
+for (const [size, file] of Object.entries(sizes))
+  bufs[size] = await png(framed(Number(size)), Number(size), Number(size), file);
 
 // favicon.ico : trois images PNG (16, 32, 48).
 const entries = [16, 32, 48].map((s) => ({ s, data: bufs[s] }));
@@ -51,7 +66,10 @@ entries.forEach((e, i) => {
   head.writeUInt32LE(offset, o + 12);
   offset += e.data.length;
 });
-fs.writeFileSync(path.join(pub, "favicon.ico"), Buffer.concat([head, ...entries.map((e) => e.data)]));
+fs.writeFileSync(
+  path.join(pub, "favicon.ico"),
+  Buffer.concat([head, ...entries.map((e) => e.data)]),
+);
 
 // Image de partage 1200 x 630.
 const og = `<div style="width:1200px;height:630px;position:relative;overflow:hidden;background:#060709;font-family:Geist,sans-serif;color:#F4F5F7">
@@ -83,4 +101,6 @@ fs.writeFileSync(
   ) + "\n",
 );
 await browser.close();
-console.log("favicon.svg, favicon.ico, favicon-32.png, apple-touch-icon.png, icon-512.png, og-default.png, site.webmanifest");
+console.log(
+  "favicon.svg, favicon.ico, favicon-32.png, apple-touch-icon.png, icon-512.png, og-default.png, site.webmanifest",
+);

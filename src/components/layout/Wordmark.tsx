@@ -9,7 +9,7 @@ export function Wordmark({ animated = true }: { animated?: boolean }) {
       aria-label="The Baroness, accueil"
       className="pressable inline-flex items-center gap-2 rounded-md whitespace-nowrap"
     >
-      {animated && <BrandMark size={30} />}
+      {animated && <BrandMark size={34} />}
       <span className="text-[19px] leading-none font-semibold tracking-[-0.045em] text-text lowercase">
         the baroness.
       </span>

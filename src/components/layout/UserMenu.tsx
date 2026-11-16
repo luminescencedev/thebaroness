@@ -33,6 +33,9 @@ export function UserMenu() {
             <Menu.Item className={item} onClick={() => void navigate("/tracked")}>
               Mes suivis
             </Menu.Item>
+            <Menu.Item className={item} onClick={() => void navigate("/groups")}>
+              Groupes
+            </Menu.Item>
             <Menu.Item className={item} onClick={() => void navigate(`/players/${steamId}`)}>
               Mon profil public
             </Menu.Item>

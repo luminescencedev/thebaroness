@@ -37,3 +37,9 @@ export const LeaderboardPage = lazy(() =>
 export const MatchPage = lazy(() =>
   import("@/pages/MatchPage").then((m) => ({ default: m.MatchPage })),
 );
+export const GroupsPage = lazy(() =>
+  import("@/pages/GroupsPage").then((m) => ({ default: m.GroupsPage })),
+);
+export const GroupDetailPage = lazy(() =>
+  import("@/pages/GroupDetailPage").then((m) => ({ default: m.GroupDetailPage })),
+);

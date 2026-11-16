@@ -9,7 +9,9 @@ import type {
 import { SCENARIOS } from "./scenarios";
 import { matchFixtures, mockConfig, playerFixtures, state } from "./state";
 import {
-  corvidMatches,
+  allSyntheticPlayers,
+  memberStats,
+  syntheticMatches,
   heroBreakdown,
   heroById,
   heroMetaStats,
@@ -18,7 +20,7 @@ import {
   matchDetail,
   ranks,
 } from "./synthetic";
-import type { LeaderboardRegion } from "@/api/types";
+import type { ComparePeriod, Group, LeaderboardRegion } from "@/api/types";
 import mapFixture from "./fixtures/map.json";
 
 const API = "/api";
@@ -77,6 +79,31 @@ function validateTrackedFields(body: Record<string, unknown>): string | null {
     const cleaned = tags.map((t) => (typeof t === "string" ? t.trim() : ""));
     if (cleaned.some((t) => t.length < 1 || t.length > 24)) return "tags : 1 à 24 caractères.";
     if (new Set(cleaned).size !== cleaned.length) return "tags : doublons interdits.";
+  }
+  return null;
+}
+
+/** Règles des groupes : nom 1 à 60, 2 à 20 SteamID64 uniques. Retourne un message ou null. */
+function validateGroup(body: Record<string, unknown>, full: boolean): string | null {
+  const allowed = new Set(["name", "steamIds"]);
+  if (Object.keys(body).some((k) => !allowed.has(k))) return "Champ non autorisé.";
+  if (full && (body.name === undefined || body.steamIds === undefined))
+    return "name et steamIds sont obligatoires.";
+  if (body.name !== undefined) {
+    if (
+      typeof body.name !== "string" ||
+      body.name.trim().length < 1 ||
+      body.name.trim().length > 60
+    )
+      return "name : 1 à 60 caractères.";
+  }
+  if (body.steamIds !== undefined) {
+    const ids = body.steamIds;
+    if (!Array.isArray(ids) || ids.length < 2 || ids.length > 20)
+      return "steamIds : 2 à 20 joueurs.";
+    if (ids.some((i) => typeof i !== "string" || !STEAM_ID_RE.test(i)))
+      return "steamIds : 17 chiffres chacun.";
+    if (new Set(ids).size !== ids.length) return "steamIds : doublons interdits.";
   }
   return null;
 }
@@ -174,9 +201,13 @@ export const handlers = [
     await latency();
     const matchId = String(params.matchId);
     if (!/^\d+$/.test(matchId)) return invalid("Identifiant de partie invalide.");
-    const summary = corvidMatches.find((m) => m.matchId === matchId);
-    return summary
-      ? HttpResponse.json({ match: matchDetail(summary), meta: meta() })
+    const owner = allSyntheticPlayers.find((p) =>
+      (syntheticMatches[p.steamId] ?? []).some((m) => m.matchId === matchId),
+    );
+    const summary =
+      owner && (syntheticMatches[owner.steamId] ?? []).find((m) => m.matchId === matchId);
+    return summary && owner
+      ? HttpResponse.json({ match: matchDetail(summary, owner), meta: meta() })
       : notFound("Partie introuvable.");
   }),
 
@@ -232,6 +263,103 @@ export const handlers = [
     if (!fixture) return notFound("Joueur introuvable.");
     const { partial, ...profile } = fixture;
     return HttpResponse.json({ ...profile, meta: meta(partial === true) });
+  }),
+
+  http.get(`${API}/groups`, async ({ request }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    return HttpResponse.json({ items: state.groups.get(owner) ?? [] });
+  }),
+
+  http.post(`${API}/groups`, async ({ request }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const body = await readJson(request);
+    const error = body ? validateGroup(body, true) : "Corps JSON invalide.";
+    if (!body || error) return invalid(error ?? "Corps JSON invalide.");
+    const now = new Date().toISOString();
+    const created: Group = {
+      id: Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join(""),
+      name: String(body.name).trim(),
+      steamIds: body.steamIds as string[],
+      createdAt: now,
+      updatedAt: now,
+    };
+    state.groups.set(owner, [created, ...(state.groups.get(owner) ?? [])]);
+    return HttpResponse.json(created, { status: 201 });
+  }),
+
+  http.get(`${API}/groups/:id/compare`, async ({ request, params }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const id = String(params.id);
+    if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
+    const group = state.groups.get(owner)?.find((g) => g.id === id);
+    if (!group) return notFound("Groupe introuvable.");
+    const period = (new URL(request.url).searchParams.get("period") ?? "30d") as ComparePeriod;
+    if (!["7d", "30d", "season"].includes(period)) return invalid("Période invalide.");
+    const members = group.steamIds.flatMap((steamId) => {
+      const p = allSyntheticPlayers.find((x) => x.steamId === steamId);
+      return p ? [memberStats(p, syntheticMatches[steamId] ?? [], period)] : [];
+    });
+    return HttpResponse.json({
+      group,
+      period,
+      members,
+      meta: meta(members.length < group.steamIds.length),
+    });
+  }),
+
+  http.get(`${API}/groups/:id`, async ({ request, params }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const id = String(params.id);
+    if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
+    const found = state.groups.get(owner)?.find((g) => g.id === id);
+    return found ? HttpResponse.json(found) : notFound("Groupe introuvable.");
+  }),
+
+  http.patch(`${API}/groups/:id`, async ({ request, params }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const id = String(params.id);
+    if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
+    const body = await readJson(request);
+    if (!body || Object.keys(body).length === 0) return invalid("Aucune modification fournie.");
+    const error = validateGroup(body, false);
+    if (error) return invalid(error);
+    const list = state.groups.get(owner) ?? [];
+    const index = list.findIndex((g) => g.id === id);
+    const current = list[index];
+    if (!current) return notFound("Groupe introuvable.");
+    const updated: Group = {
+      ...current,
+      ...(typeof body.name === "string" && { name: body.name.trim() }),
+      ...(Array.isArray(body.steamIds) && { steamIds: body.steamIds as string[] }),
+      updatedAt: new Date().toISOString(),
+    };
+    list[index] = updated;
+    return HttpResponse.json(updated);
+  }),
+
+  http.delete(`${API}/groups/:id`, async ({ request, params }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const id = String(params.id);
+    if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
+    const list = state.groups.get(owner) ?? [];
+    if (!list.some((g) => g.id === id)) return notFound("Groupe introuvable.");
+    state.groups.set(
+      owner,
+      list.filter((g) => g.id !== id),
+    );
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.get(`${API}/tracked-players`, async ({ request }) => {

@@ -104,9 +104,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
               Classement
             </Command.Item>
             {session ? (
-              <Command.Item value="tracked" onSelect={() => go("/tracked")} className={itemClass}>
-                Mes suivis
-              </Command.Item>
+              <>
+                <Command.Item value="tracked" onSelect={() => go("/tracked")} className={itemClass}>
+                  Mes suivis
+                </Command.Item>
+                <Command.Item value="groups" onSelect={() => go("/groups")} className={itemClass}>
+                  Groupes
+                </Command.Item>
+              </>
             ) : (
               <Command.Item value="login" onSelect={() => go("/login")} className={itemClass}>
                 Connexion Steam

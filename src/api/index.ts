@@ -2,6 +2,7 @@ export * from "./auth";
 export * from "./catalog";
 export * from "./client";
 export * from "./errors";
+export * from "./groups";
 export * from "./health";
 export * from "./players";
 export * from "./session";

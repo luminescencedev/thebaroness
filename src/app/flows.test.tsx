@@ -108,7 +108,8 @@ describe("suivis (CRUD)", () => {
     await userEvent.click(screen.getByRole("button", { name: "Supprimer" }));
     const dialog = await screen.findByRole("dialog");
     await userEvent.click(within(dialog).getByRole("button", { name: "Supprimer" }));
-    expect(await screen.findByText("Aucun joueur suivi")).toBeInTheDocument();
+    await screen.findByRole("heading", { name: "Mes suivis" });
+    expect(screen.queryByRole("link", { name: /Partenaire/ })).not.toBeInTheDocument();
   });
 
   it("suit un joueur depuis son profil", async () => {

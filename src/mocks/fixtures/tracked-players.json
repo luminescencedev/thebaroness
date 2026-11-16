@@ -9,6 +9,42 @@
       "tags": ["duo", "ranked"],
       "createdAt": "2026-11-16T09:00:00.000Z",
       "updatedAt": "2026-11-16T09:00:00.000Z"
+    },
+    {
+      "id": "507f1f77bcf86cd799439021",
+      "steamId": "76561198000000010",
+      "alias": "NoxFox12",
+      "note": "",
+      "tags": ["groupe"],
+      "createdAt": "2026-11-10T17:00:00.000Z",
+      "updatedAt": "2026-11-10T17:00:00.000Z"
+    },
+    {
+      "id": "507f1f77bcf86cd799439022",
+      "steamId": "76561198000000011",
+      "alias": "SableLynx7",
+      "note": "",
+      "tags": ["groupe"],
+      "createdAt": "2026-11-10T17:00:00.000Z",
+      "updatedAt": "2026-11-10T17:00:00.000Z"
+    },
+    {
+      "id": "507f1f77bcf86cd799439023",
+      "steamId": "76561198000000012",
+      "alias": "WrenIvory3",
+      "note": "",
+      "tags": ["groupe"],
+      "createdAt": "2026-11-10T17:00:00.000Z",
+      "updatedAt": "2026-11-10T17:00:00.000Z"
+    },
+    {
+      "id": "507f1f77bcf86cd799439024",
+      "steamId": "76561198000000013",
+      "alias": "MinkEmber9",
+      "note": "",
+      "tags": ["groupe"],
+      "createdAt": "2026-11-10T17:00:00.000Z",
+      "updatedAt": "2026-11-10T17:00:00.000Z"
     }
   ]
 }

@@ -2,6 +2,8 @@ import { Navigate, createBrowserRouter, createMemoryRouter, type RouteObject } f
 import { RequireAuth } from "@/features/auth/RequireAuth";
 import {
   AuthCallbackPage,
+  GroupDetailPage,
+  GroupsPage,
   HeroesPage,
   HeroPage,
   HomePage,
@@ -35,6 +37,8 @@ export const routes: RouteObject[] = [
         children: [
           { path: "/tracked", element: <TrackedPage /> },
           { path: "/tracked/:id", element: <TrackedDetailPage /> },
+          { path: "/groups", element: <GroupsPage /> },
+          { path: "/groups/:id", element: <GroupDetailPage /> },
         ],
       },
       { path: "*", element: <NotFoundPage /> },

@@ -284,3 +284,68 @@ export interface MapAssets {
   tunnels: string | null;
   frame: string | null;
 }
+
+/* ---------- Groupes et comparaison (proposition du front, voir docs/back-groups-contract.md) ---------- */
+
+export type ComparePeriod = "7d" | "30d" | "season";
+
+export interface Group {
+  id: string;
+  name: string;
+  steamIds: SteamId[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GroupsResponse {
+  items: Group[];
+}
+
+export interface GroupInput {
+  /** 1 à 60 caractères. */
+  name: string;
+  /** 2 à 20 SteamID64 uniques. */
+  steamIds: SteamId[];
+}
+
+export interface RankPoint {
+  at: string;
+  /** tier * 6 + sous-rang (1 à 6) : 78 = Éternus 6. Comparable d'un joueur à l'autre. */
+  score: number;
+}
+
+export interface BestMatch {
+  matchId: string;
+  playedAt: string;
+  heroName: string;
+  heroImageUrl: string | null;
+  kills: number;
+  deaths: number;
+  assists: number;
+  netWorth: number | null;
+  kda: number | null;
+}
+
+export interface GroupMemberStats {
+  steamId: SteamId;
+  displayName: string;
+  avatarUrl: string | null;
+  rank: PlayerRank | null;
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  kda: number | null;
+  longestWinStreak: number;
+  /** Meilleure partie de la période par KDA, null si aucune partie. */
+  bestMatch: BestMatch | null;
+  /** Historique de rang sur la période, du plus ancien au plus récent. */
+  rankHistory: RankPoint[];
+}
+
+export interface GroupCompareResponse {
+  group: Group;
+  period: ComparePeriod;
+  members: GroupMemberStats[];
+  meta: DataMeta;
+}

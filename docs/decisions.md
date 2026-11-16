@@ -59,3 +59,11 @@ Contrat à implémenter côté `baroness-back` :
 - Les images, noms et textes de héros appartiennent à Valve : attribution dans le pied de page. À valider pour la remise (risque identifié dans le cahier, section 22).
 - Joueurs, parties, classements et statistiques de méta des fixtures sont synthétiques et déterministes (`src/mocks/synthetic.ts`). Aucun joueur réel.
 - Les courbes de progression s'appuient sur les parties chargées (20 par page) : le libellé le dit.
+
+## Groupes et comparaison
+
+- Demande produit : comparer des amis (classement, progression de rang, meilleures parties). Hors périmètre P0 du cahier (F-21 est P2), livrée en mock.
+- Pages privées `/groups` (liste, création) et `/groups/:id` (titres de la période, classement triable, courbe de progression de rang, meilleures parties).
+- Contrat proposé dans `docs/back-groups-contract.md`. Le back est à écrire : collection `groups`, CRUD isolé par compte, route `compare`.
+- « Meilleures actions de la partie » : le front compare la meilleure partie de chaque joueur par KDA. Les événements fins d'une partie (multi-éliminations, moments forts) ne sont pas dans le contrat.
+- L'historique de rang de la comparaison est synthétique en mock. La source réelle reste à trancher avec le back (historique de parties ou snapshots).

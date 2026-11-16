@@ -5,7 +5,12 @@
 import heroesFixture from "./fixtures/heroes.json";
 import ranksFixture from "./fixtures/ranks.json";
 import type {
+  BestMatch,
+  ComparePeriod,
+  GroupMemberStats,
   HeroDetail,
+  PlayerRank,
+  RankPoint,
   HeroMetaStats,
   LeaderboardEntry,
   LeaderboardRegion,
@@ -74,15 +79,84 @@ const SECOND = [
 export const fakeName = (r: ReturnType<typeof seeded>) =>
   `${r.pick(FIRST)}${r.pick(SECOND)}${r.int(1, 99)}`;
 
-/** Joueur d'exemple (Corvid) : 42 parties, 24 victoires, 18 défaites. */
 export const CORVID_STEAM_ID = "76561198000000000";
-const CORVID_HEROES = [1, 6, 7, 10, 13, 17, 27].filter((id) => heroById(id));
 
-function buildCorvidMatches(): MatchSummary[] {
-  const r = seeded(7);
+export interface SyntheticPlayer {
+  steamId: string;
+  accountId: number;
+  displayName: string;
+  tier: number;
+  subrank: number;
+  matches: number;
+  wins: number;
+  seed: number;
+  heroPool: number[];
+}
+
+const accountOf = (steamId: string) => Number(BigInt(steamId) - 76561197960265728n);
+
+/** Coéquipiers fictifs du groupe de démonstration. */
+export const GROUP_PLAYERS: SyntheticPlayer[] = [
+  {
+    steamId: "76561198000000010",
+    displayName: "NoxFox12",
+    tier: 9,
+    subrank: 2,
+    matches: 38,
+    wins: 25,
+    seed: 11,
+    heroPool: [2, 3, 11, 15],
+  },
+  {
+    steamId: "76561198000000011",
+    displayName: "SableLynx7",
+    tier: 7,
+    subrank: 5,
+    matches: 30,
+    wins: 14,
+    seed: 12,
+    heroPool: [4, 8, 12, 18],
+  },
+  {
+    steamId: "76561198000000012",
+    displayName: "WrenIvory3",
+    tier: 8,
+    subrank: 1,
+    matches: 45,
+    wins: 27,
+    seed: 13,
+    heroPool: [6, 14, 19, 20],
+  },
+  {
+    steamId: "76561198000000013",
+    displayName: "MinkEmber9",
+    tier: 6,
+    subrank: 3,
+    matches: 22,
+    wins: 9,
+    seed: 14,
+    heroPool: [7, 16, 25, 31],
+  },
+].map((p) => ({ ...p, accountId: accountOf(p.steamId) }));
+
+export const CORVID: SyntheticPlayer = {
+  steamId: CORVID_STEAM_ID,
+  accountId: 39734272,
+  displayName: "Corvid",
+  tier: 8,
+  subrank: 4,
+  matches: 42,
+  wins: 24,
+  seed: 7,
+  heroPool: [1, 6, 7, 10, 13, 17, 27],
+};
+
+export function buildMatches(p: SyntheticPlayer): MatchSummary[] {
+  const r = seeded(p.seed);
+  const pool = p.heroPool.filter((id) => heroById(id));
   const outcomes: ("win" | "loss")[] = [
-    ...Array<"win">(24).fill("win"),
-    ...Array<"loss">(18).fill("loss"),
+    ...Array<"win">(p.wins).fill("win"),
+    ...Array<"loss">(p.matches - p.wins).fill("loss"),
   ];
   for (let i = outcomes.length - 1; i > 0; i--) {
     const j = r.int(0, i);
@@ -90,11 +164,11 @@ function buildCorvidMatches(): MatchSummary[] {
   }
   const base = Date.parse("2026-11-15T20:00:00.000Z");
   return outcomes.map((outcome, i) => {
-    const hero = heroById(r.pick(CORVID_HEROES))!;
+    const hero = heroById(r.pick(pool))!;
     const win = outcome === "win";
     const duration = r.int(1500, 2700);
     return {
-      matchId: String(123456789 - i),
+      matchId: String(p.seed * 10_000_000 + 123456789 - i),
       playedAt: new Date(base - i * 86400000 * 0.75).toISOString(),
       heroId: hero.id,
       heroName: hero.name,
@@ -109,7 +183,11 @@ function buildCorvidMatches(): MatchSummary[] {
   });
 }
 
-export const corvidMatches = buildCorvidMatches();
+export const corvidMatches = buildMatches(CORVID);
+/** Parties de tous les joueurs synthétiques, par SteamID. */
+export const syntheticMatches: Record<string, MatchSummary[]> = Object.fromEntries(
+  [CORVID, ...GROUP_PLAYERS].map((p) => [p.steamId, buildMatches(p)]),
+);
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
@@ -196,7 +274,7 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
 }
 
 /** Détail d'une partie de Corvid : 6 joueurs par équipe, adversaires synthétiques. */
-export function matchDetail(summary: MatchSummary): MatchDetail {
+export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORVID): MatchDetail {
   const r = seeded(Number(summary.matchId) % 1_000_000);
   const duration = summary.durationSeconds ?? 2000;
   const corvidSide = r.next() > 0.5 ? "amber" : "sapphire";
@@ -225,8 +303,8 @@ export function matchDetail(summary: MatchSummary): MatchDetail {
   };
 
   const corvid: MatchPlayer = {
-    steamId: CORVID_STEAM_ID,
-    displayName: "Corvid",
+    steamId: owner.steamId,
+    displayName: owner.displayName,
     heroId: summary.heroId,
     heroName: summary.heroName,
     heroImageUrl: summary.heroImageUrl ?? null,
@@ -261,3 +339,91 @@ export function matchDetail(summary: MatchSummary): MatchDetail {
     ].sort((a) => (a.side === "amber" ? -1 : 1)) as MatchDetail["teams"],
   };
 }
+
+export const rankScore = (tier: number, subrank: number) => tier * 6 + subrank;
+
+export function rankFor(tier: number, subrank: number): PlayerRank {
+  const rank = ranks.find((r) => r.tier === tier);
+  return {
+    badgeId: null,
+    name: rank ? `${rank.name} ${subrank}` : null,
+    tier,
+    subrank,
+    imageUrl: rank?.subranks[subrank - 1] ?? rank?.imageUrl ?? null,
+    color: rank?.color ?? null,
+  };
+}
+
+/** Historique de rang synthétique : la tendance suit les victoires, il se termine au rang actuel. */
+export function rankHistory(p: SyntheticPlayer, matches: MatchSummary[]): RankPoint[] {
+  const ordered = [...matches].reverse();
+  const end = rankScore(p.tier, p.subrank);
+  const deltas = ordered.map((m, i) => (i % 2 === 0 ? (m.outcome === "win" ? 1 : -1) : 0));
+  let score = end - deltas.reduce<number>((s, d) => s + d, 0);
+  return ordered.map((m, i) => {
+    score += deltas[i] ?? 0;
+    return { at: m.playedAt, score: Math.max(6, score) };
+  });
+}
+
+function longestWinStreak(matches: MatchSummary[]): number {
+  let best = 0;
+  let run = 0;
+  for (const m of [...matches].reverse()) {
+    run = m.outcome === "win" ? run + 1 : 0;
+    best = Math.max(best, run);
+  }
+  return best;
+}
+
+const PERIOD_DAYS: Record<ComparePeriod, number | null> = { "7d": 7, "30d": 30, season: null };
+
+/** Statistiques d'un membre sur une période, calculées depuis ses parties synthétiques. */
+export function memberStats(
+  p: SyntheticPlayer,
+  all: MatchSummary[],
+  period: ComparePeriod,
+  now = Date.parse("2026-11-16T12:00:00.000Z"),
+): GroupMemberStats {
+  const days = PERIOD_DAYS[period];
+  const inPeriod = all.filter(
+    (m) => days === null || Date.parse(m.playedAt) >= now - days * 86400000,
+  );
+  const s = statsFromMatches(inPeriod);
+  const best = [...inPeriod]
+    .filter((m) => m.kills !== null && m.assists !== null && m.deaths !== null)
+    .map((m) => ({ m, kda: ((m.kills ?? 0) + (m.assists ?? 0)) / Math.max(1, m.deaths ?? 1) }))
+    .sort((a, b) => b.kda - a.kda)[0];
+  const bestMatch: BestMatch | null = best
+    ? {
+        matchId: best.m.matchId,
+        playedAt: best.m.playedAt,
+        heroName: best.m.heroName,
+        heroImageUrl: best.m.heroImageUrl ?? null,
+        kills: best.m.kills ?? 0,
+        deaths: best.m.deaths ?? 0,
+        assists: best.m.assists ?? 0,
+        netWorth: best.m.netWorth,
+        kda: round2(best.kda),
+      }
+    : null;
+  const history = rankHistory(p, all).filter(
+    (pt) => days === null || Date.parse(pt.at) >= now - days * 86400000,
+  );
+  return {
+    steamId: p.steamId,
+    displayName: p.displayName,
+    avatarUrl: null,
+    rank: rankFor(p.tier, p.subrank),
+    matches: inPeriod.length,
+    wins: s.wins ?? 0,
+    losses: s.losses ?? 0,
+    winRate: s.winRate,
+    kda: s.kda,
+    longestWinStreak: longestWinStreak(inPeriod),
+    bestMatch,
+    rankHistory: history,
+  };
+}
+
+export const allSyntheticPlayers = [CORVID, ...GROUP_PLAYERS];

@@ -41,7 +41,12 @@ export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
     { to: "/search", label: "Joueurs" },
     { to: "/heroes", label: "Héros" },
     { to: "/leaderboard", label: "Classement" },
-    ...(session ? [{ to: "/tracked", label: "Mes suivis" }] : []),
+    ...(session
+      ? [
+          { to: "/tracked", label: "Mes suivis" },
+          { to: "/groups", label: "Groupes" },
+        ]
+      : []),
   ];
 
   return (

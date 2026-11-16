@@ -15,6 +15,8 @@ interface DialogProps {
   top?: boolean;
   /** Titre lisible par les lecteurs d'écran seulement (palette). */
   hideTitle?: boolean;
+  /** false : aucune marge interne ni largeur par défaut (palette). */
+  padded?: boolean;
 }
 
 export function Dialog({
@@ -27,6 +29,7 @@ export function Dialog({
   className,
   top = false,
   hideTitle = false,
+  padded = true,
 }: DialogProps) {
   return (
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -46,7 +49,9 @@ export function Dialog({
         >
           <BaseDialog.Popup
             className={cn(
-              "surface-solid w-full max-w-md p-6",
+              "surface-solid w-full",
+              padded && "p-6",
+              !className?.includes("max-w-") && "max-w-md",
               animated && "dialog-popup",
               className,
             )}

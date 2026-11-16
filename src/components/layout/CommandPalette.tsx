@@ -222,7 +222,8 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       hideTitle
       animated={false}
       top
-      className="max-w-[640px] overflow-hidden p-0"
+      padded={false}
+      className="max-w-[760px] overflow-hidden"
     >
       <Command shouldFilter={false} label="Recherche rapide" loop>
         <div className="flex items-center gap-3 border-b border-border px-4">

@@ -6,8 +6,9 @@ import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
 
 describe("layout", () => {
-  it("affiche wordmark, liens, déclencheur de recherche et pied de page", () => {
+  it("affiche wordmark, liens, déclencheur de recherche et pied de page", async () => {
     renderApp("/");
+    await screen.findByRole("heading", { level: 1 });
 
     expect(screen.getAllByLabelText("The Baroness, accueil").length).toBeGreaterThan(0);
     const nav = screen.getByRole("navigation", { name: "Navigation principale" });
@@ -52,8 +53,8 @@ describe("layout", () => {
     expect(await screen.findByPlaceholderText(/Pseudo, identifiant Steam/)).toBeInTheDocument();
   });
 
-  it("affiche la page introuvable pour une route inconnue", () => {
+  it("affiche la page introuvable pour une route inconnue", async () => {
     renderApp("/nimporte-quoi");
-    expect(screen.getByRole("heading", { name: "Page introuvable" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Page introuvable" })).toBeInTheDocument();
   });
 });

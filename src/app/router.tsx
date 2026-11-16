@@ -1,13 +1,15 @@
 import { Navigate, createBrowserRouter, createMemoryRouter, type RouteObject } from "react-router";
 import { RequireAuth } from "@/features/auth/RequireAuth";
-import { HomePage } from "@/pages/HomePage";
-import { LoginPage } from "@/pages/LoginPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
-import { PlayerPage } from "@/pages/PlayerPage";
-import { AuthCallbackPage } from "@/pages/AuthCallbackPage";
-import { SearchPage } from "@/pages/SearchPage";
-import { TrackedDetailPage } from "@/pages/TrackedDetailPage";
-import { TrackedPage } from "@/pages/TrackedPage";
+import {
+  AuthCallbackPage,
+  HomePage,
+  LoginPage,
+  NotFoundPage,
+  PlayerPage,
+  SearchPage,
+  TrackedDetailPage,
+  TrackedPage,
+} from "./lazyPages";
 import { RootLayout } from "./RootLayout";
 
 export const routes: RouteObject[] = [

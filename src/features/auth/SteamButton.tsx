@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { steamLoginUrl } from "@/api";
 import { buttonStyles, cn } from "@/components/ui";
 import { saveReturnTo } from "./returnTo";
@@ -14,7 +15,7 @@ interface SteamButtonProps {
   returnTo?: string;
   size?: "sm" | "md";
   className?: string;
-  children?: string;
+  children?: ReactNode;
 }
 
 /** Lien (navigation complète vers le backend) qui ressemble à un bouton. */

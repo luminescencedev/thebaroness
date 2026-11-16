@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { Footer, Nav } from "@/components/layout";
@@ -27,7 +27,9 @@ export function RootLayout() {
       </a>
       <Nav onOpenSearch={() => setPaletteOpen(true)} />
       <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 pb-16 sm:px-6">
-        <Outlet />
+        <Suspense fallback={<div role="status" aria-label="Chargement" className="py-24" />}>
+          <Outlet />
+        </Suspense>
       </main>
       <Footer />
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />

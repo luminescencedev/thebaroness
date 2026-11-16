@@ -53,9 +53,9 @@ describe("recherche et profil", () => {
 });
 
 describe("connexion Steam", () => {
-  it("la page de connexion mène au backend (OpenID)", () => {
+  it("la page de connexion mène au backend (OpenID)", async () => {
     renderApp("/login");
-    expect(screen.getByRole("link", { name: "Se connecter avec Steam" })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Se connecter avec Steam" })).toHaveAttribute(
       "href",
       "/api/auth/steam",
     );

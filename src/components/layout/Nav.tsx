@@ -81,7 +81,7 @@ export function Nav({ onOpenSearch }: { onOpenSearch: () => void }) {
             </>
           ) : (
             <SteamButton size="sm" className="rounded-full" returnTo={location.pathname}>
-              Connexion Steam
+              <span className="hidden sm:inline">Connexion</span> Steam
             </SteamButton>
           )}
         </div>

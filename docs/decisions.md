@@ -43,3 +43,10 @@ Contrat à implémenter côté `baroness-back` :
 - Les routes `POST /api/auth/register` et `POST /api/auth/login` et le code `EMAIL_ALREADY_USED` disparaissent. Le cahier et le contrat OpenAPI du back sont à mettre à jour.
 - Mode mock : le lien Steam mène directement à `/auth/callback#token=<faux jeton>`, l'utilisateur fictif est Corvid. Le faux jeton n'existe qu'en mock.
 - Le chemin de retour (page à rouvrir après connexion) est gardé dans `sessionStorage` : chemin interne uniquement, pas le jeton.
+
+## Tests de bout en bout
+
+- Playwright (`npm run test:e2e`) sur `dev:mock` : parcours complet (connexion Steam mock, suivi, modification, suppression), redirection d'une route privée, palette au clavier (T-17), absence de défilement horizontal à 375 px et focus visible (T-18).
+- Chromium doit être installé une fois : `npx playwright install chromium`.
+- Un `goto` complet recharge la page et efface la session en mémoire : les parcours connectés utilisent la navigation interne.
+- Pages chargées à la demande (une par chunk) : le bundle initial passe sous 500 kB.

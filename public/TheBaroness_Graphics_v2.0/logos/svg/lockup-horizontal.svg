@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="624" height="120" viewBox="0 0 624 120" fill="none">
+    <defs></defs><g transform="translate(5,5) scale(.85)"><path d="M31 11H97L109 23V96L96 109H32L19 96V23Z" stroke="#B4ABFF" stroke-opacity=".42" stroke-width="2.4"/>
+    <path d="M31 94V47C31 29 45 20 64 20C83 20 97 29 97 47V94" stroke="#B4ABFF" stroke-opacity=".50" stroke-width="2.3" />
+      <path d="M46 37V89 M46 37H63C77 37 80 51 65 59H46M46 59H66C83 59 83 89 65 89H46" stroke="#F4F5F7" stroke-width="8.7" stroke-linecap="square" stroke-linejoin="round" />
+      <circle cx="67" cy="73.5" r="3.1" fill="#B4ABFF"/>
+      <path d="M65.8 76H68.2L70.1 83H63.9Z" fill="#B4ABFF" />
+      <path d="M64 13L65.7 17.1L69.8 18.8L65.7 20.5L64 24.5L62.3 20.5L58.2 18.8L62.3 17.1Z" fill="#B4ABFF"/></g>
+  <text x="132" y="80" fill="#F4F5F7" font-family="Geist Variable, Inter, Arial, sans-serif" font-size="62" font-weight="650" letter-spacing="-3.5">the baroness.</text></svg>

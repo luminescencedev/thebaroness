@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="0 0 120 80" fill="none">
+    <defs></defs><path d="M14 40C30 18 47 16 60 16C73 16 90 18 106 40C90 62 73 64 60 64C47 64 30 62 14 40Z" stroke="#B4ABFF" stroke-width="2"/>
+  <circle cx="60" cy="40" r="12" stroke="#F4F5F7" stroke-width="2"/><circle cx="60" cy="40" r="4" fill="#5B4BF0"/>
+  <path d="M60 3V11M60 69V77M2 40H10M110 40H118" stroke="#5B4BF0" stroke-width="1.5"/></svg>

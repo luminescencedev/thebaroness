@@ -1,0 +1,6 @@
+/* Optional styling only. The existing src/styles/tokens.css remains authoritative. */
+.baroness-brand-mark{display:block;flex:none;object-fit:contain}
+.baroness-hero-art{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(180deg,rgba(6,7,9,.74),rgba(6,7,9,.9)),url('/brand/backgrounds/hero-ambient-full-1920x1080.webp');background-position:center top;background-size:cover;opacity:.6}
+.baroness-emblem-halo{background:radial-gradient(circle,rgba(91,75,240,.20),transparent 68%)}
+.baroness-accent-line{height:1px;background:linear-gradient(90deg,transparent,rgba(180,171,255,.45),transparent)}
+@media (prefers-reduced-motion:reduce){.baroness-brand-mark{animation:none}}

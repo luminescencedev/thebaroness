@@ -1,0 +1,16 @@
+{
+  "source": "src/styles/tokens.css as read on 2026-11-16",
+  "palette": {
+    "Background": "#060709",
+    "Surface": "#111218",
+    "Text": "#F4F5F7",
+    "Accent": "#5B4BF0",
+    "Accent text": "#B4ABFF",
+    "Muted": "#A1A7B3"
+  },
+  "radius": "10px",
+  "card_radius": "16px",
+  "font": "Geist Variable",
+  "mono": "Geist Mono Variable",
+  "accent": "#5B4BF0"
+}

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { initials } from "@/lib/format";
 import { cn } from "./cn";
 
@@ -7,10 +8,21 @@ interface AvatarProps {
   className?: string;
 }
 
-/** Avatar de remplacement (initiales) quand avatarUrl est null. */
+/** Avatar Steam, ou initiales quand avatarUrl est null ou que l'image ne charge pas. */
 export function Avatar({ name, src, className }: AvatarProps) {
-  if (src) {
-    return <img src={src} alt="" className={cn("size-10 rounded-full object-cover", className)} />;
+  const [failed, setFailed] = useState(false);
+  if (src && !failed) {
+    return (
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+        className={cn("size-10 shrink-0 rounded-full bg-surface-strong object-cover", className)}
+      />
+    );
   }
   return (
     <span

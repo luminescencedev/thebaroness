@@ -1,0 +1,292 @@
+{
+  "pack": "The Baroness Graphic System",
+  "version": "2.0.0",
+  "source_repo": "luminescencedev/thebaroness",
+  "files": [
+    {
+      "path": "backgrounds/ambient-01-01.webp",
+      "bytes": 12880,
+      "sha256": "195931042f6f5d29e9b80f41836142e1ac6715880fc37ee6ea81917512526278"
+    },
+    {
+      "path": "backgrounds/ambient-01-02.webp",
+      "bytes": 11076,
+      "sha256": "225f5232c9c03199eee968a32f3c58f36f9b510d352cada101f778937e54f8c3"
+    },
+    {
+      "path": "backgrounds/ambient-02-01.webp",
+      "bytes": 19328,
+      "sha256": "a8a80119a0ac2395ef3996630966e38257ebccb6810df3ab0b22b0271b1c8e41"
+    },
+    {
+      "path": "backgrounds/ambient-02-02.webp",
+      "bytes": 15018,
+      "sha256": "b3f66811913bfdb2859cba1da2d5174760eaf2c4efb0232bb2205692411c758e"
+    },
+    {
+      "path": "backgrounds/hero-ambient-full-1920x1080.webp",
+      "bytes": 13660,
+      "sha256": "70e1ac4719691624829285fa4206d743cfbc5ce371477ee151fcec2aafe407bf"
+    },
+    {
+      "path": "backgrounds/hero-ambient-recommended.webp",
+      "bytes": 13946,
+      "sha256": "10560f795613eecb5220905bcf60c541002798214e42d7b6d802c91f6dd7365b"
+    },
+    {
+      "path": "docs/INTEGRATION.md",
+      "bytes": 3520,
+      "sha256": "35df6368e35232f08d7d007acfe8a30ba5be2c58742b68848d85694d1cb73680"
+    },
+    {
+      "path": "docs/README.md",
+      "bytes": 2051,
+      "sha256": "772fc8a4c3bdc4558cf6c5c7e7351628cf8a86dd2c0388f5a3733481c3f7d171"
+    },
+    {
+      "path": "favicons/android-chrome-192x192.png",
+      "bytes": 7709,
+      "sha256": "9e3c2b9287a54e9403f6a54231de8221bf5ecc9ffd96ad7fa3f3e5c5f10a617a"
+    },
+    {
+      "path": "favicons/android-chrome-512x512.png",
+      "bytes": 21839,
+      "sha256": "fce94a0e9a86d8a731c1dce34a4e62dc477c7b3f4588f0777e8ba00f0383de22"
+    },
+    {
+      "path": "favicons/apple-touch-icon.png",
+      "bytes": 7155,
+      "sha256": "e9e3d83a92c64d94440d0b290965770b88df3b50861d37d20cd9987addc0cffd"
+    },
+    {
+      "path": "favicons/favicon-16x16.png",
+      "bytes": 563,
+      "sha256": "e5662508693c308c79d9f8ba5a54fc2e77d6a258ac3d8acf79880c24b8928cfc"
+    },
+    {
+      "path": "favicons/favicon-32x32.png",
+      "bytes": 1159,
+      "sha256": "673d26899da2039a5f6e3db88715cbc42cf6959a0005abe475e02d9a541463de"
+    },
+    {
+      "path": "favicons/favicon-48x48.png",
+      "bytes": 1715,
+      "sha256": "bc19b0529e750d387c3dcea695e284e566d439410ec75318d6d917756aa33f3f"
+    },
+    {
+      "path": "favicons/favicon-64x64.png",
+      "bytes": 2356,
+      "sha256": "cea6d0ac382b8a5387e9ab65b9cc2c03483ecb6920d3d3297c66d76c624797e9"
+    },
+    {
+      "path": "favicons/favicon.ico",
+      "bytes": 7380,
+      "sha256": "0ae8a7caed251a10f6b236b0bc30e6dbe84c84621a9c06af272daf9b0868faf1"
+    },
+    {
+      "path": "favicons/favicon.svg",
+      "bytes": 566,
+      "sha256": "ebdaa4f3fb2db2f63765cbb950c2222e616a42da0232a0a8adf0988556908f1b"
+    },
+    {
+      "path": "favicons/site.webmanifest",
+      "bytes": 409,
+      "sha256": "68185c513bb3d6d67a742fef9f38cb572233fbd39b3ef5b2746100abe53ecff1"
+    },
+    {
+      "path": "graphics/svg/deco-corners.svg",
+      "bytes": 403,
+      "sha256": "bcf451cecdc6df341a199119635dd3fb962b2bd0c511992f367b432a5732114e"
+    },
+    {
+      "path": "graphics/svg/deco-divider.svg",
+      "bytes": 382,
+      "sha256": "a275f9e62d5c8b196a2364dced716923f2f1aee73b776fb905b0d1f0c365b698"
+    },
+    {
+      "path": "graphics/svg/empty-state-search.svg",
+      "bytes": 662,
+      "sha256": "74d9204e5199dd63c7c3fc6e9416b03c8a08d2ea989506c413e5d6e76b4d6d1d"
+    },
+    {
+      "path": "graphics/svg/empty-state-tracked.svg",
+      "bytes": 531,
+      "sha256": "00f59cd2a82c83a49e9afd8ecc0fa89a92c3db73b224cb542a96cbfe06fa0e12"
+    },
+    {
+      "path": "graphics/svg/four-point-star.svg",
+      "bytes": 239,
+      "sha256": "a70fd6142047cf236c00a11202be840449abda5fba9a78062c1b5fa186db4951"
+    },
+    {
+      "path": "graphics/svg/portal-arch.svg",
+      "bytes": 444,
+      "sha256": "24011cafb792f8e38f0a71ab2aca2dfa8249794245b323d08a36cb879cdfcde7"
+    },
+    {
+      "path": "graphics/svg/rank-radiance.svg",
+      "bytes": 607,
+      "sha256": "bb836c31a85badd82a2d56bbce6fc63e3d3f123fffa1f363e0f8e9e10f07d16d"
+    },
+    {
+      "path": "graphics/svg/sigil-eye.svg",
+      "bytes": 450,
+      "sha256": "fdfd65823880935d0c34e5febba8a93be3d133af74033e542522ba6b5b87f81d"
+    },
+    {
+      "path": "graphics/svg/sigil-keyhole.svg",
+      "bytes": 320,
+      "sha256": "1efb68c9365ec6857bcdcc64a8db45b99bd8d723dbf01bbb1ac8442fd00b9763"
+    },
+    {
+      "path": "graphics/svg/topographic-grid.svg",
+      "bytes": 564,
+      "sha256": "3e806eedad79c93cb259411b973de795cb087902fe5679809f6b980b1159ef28"
+    },
+    {
+      "path": "logos/png/lockup-horizontal.png",
+      "bytes": 21156,
+      "sha256": "163d9dba096dd8365bd4adc50704d2293be20cb1019015b21a20a6fa09c94752"
+    },
+    {
+      "path": "logos/png/lockup-stacked.png",
+      "bytes": 23693,
+      "sha256": "9f0ceb733f8b21913177c61519f151ec8c60a5342ea617a1bba136ec369fa1c4"
+    },
+    {
+      "path": "logos/png/mark-dark.png",
+      "bytes": 6896,
+      "sha256": "2ad25ff63b7796ddc1d54b92814172a6e9a2bbb121962fac18aba3dfd660e4ea"
+    },
+    {
+      "path": "logos/png/mark-monochrome.png",
+      "bytes": 6782,
+      "sha256": "d7f5e89cd1de121fea94abdebfd915509ea6fe62e9d4ebc7382bcb871fc226a7"
+    },
+    {
+      "path": "logos/png/mark-primary-256px.png",
+      "bytes": 6639,
+      "sha256": "e3e761a4dce6ecc9c54351b6db05347290a649b00f8c521f21b60b03baeacee2"
+    },
+    {
+      "path": "logos/png/mark-primary-512px.png",
+      "bytes": 13833,
+      "sha256": "d29f0a7ae132e1dd6be578d17b3fb33305fe2e605346296d665b68ff1b991e32"
+    },
+    {
+      "path": "logos/png/wordmark-primary.png",
+      "bytes": 16838,
+      "sha256": "d7f815501b389f2abc3b4b519ebcb37f722f1cddfe0c682204931239f5e18ccf"
+    },
+    {
+      "path": "logos/svg/lockup-horizontal.svg",
+      "bytes": 971,
+      "sha256": "94493debcace9a7a8476472ed364f3f6ae9ff2c0d98b147ee04accda4a8fa7fa"
+    },
+    {
+      "path": "logos/svg/lockup-stacked.svg",
+      "bytes": 1234,
+      "sha256": "902794f14fdf0b63c587b661d28aafa2b721a81faabab44eb36c0443b80e7c08"
+    },
+    {
+      "path": "logos/svg/mark-dark.svg",
+      "bytes": 757,
+      "sha256": "0c66657683936684f1e9058940eb44680d30f59a60cf7c6e984015e3cc97a63f"
+    },
+    {
+      "path": "logos/svg/mark-monochrome.svg",
+      "bytes": 757,
+      "sha256": "9bce3c6d3b2086b588250cf9b7f6146762c6d565b0ca238560e675b4f30ac215"
+    },
+    {
+      "path": "logos/svg/mark-muted.svg",
+      "bytes": 757,
+      "sha256": "89f4fbcc943502ff73eb37ae34b3a1c9e52f7a48d74db6b1caf46de566d494d8"
+    },
+    {
+      "path": "logos/svg/mark-noframe.svg",
+      "bytes": 526,
+      "sha256": "ed2cb4c55bea97ccf7b355bf60a150aafef19be313196ebbdcd5b4fa6ce7b554"
+    },
+    {
+      "path": "logos/svg/mark-primary.svg",
+      "bytes": 757,
+      "sha256": "91371d000e41b666ac5080684ab6c7ffb028934c055d5a19c2b81bec6f672585"
+    },
+    {
+      "path": "logos/svg/wordmark-dark.svg",
+      "bytes": 286,
+      "sha256": "ef86a62a981593439034320383c199cc3689d6bfec112863cdf15385db6a0ae3"
+    },
+    {
+      "path": "logos/svg/wordmark-muted.svg",
+      "bytes": 286,
+      "sha256": "df9d920cc1dc70976b2937a00db93d2be7d33e8679561990cdcf4d10e4dcfa02"
+    },
+    {
+      "path": "logos/svg/wordmark-primary.svg",
+      "bytes": 286,
+      "sha256": "e4e6515ab9e0ccc9299c0869b64605001a95b1753543aa77a625a6b651ed3394"
+    },
+    {
+      "path": "logos/svg/wordmark-white.svg",
+      "bytes": 286,
+      "sha256": "bdcc2889b18d676b7a7a25e396beead1b23c067382f452deb9978eef53717277"
+    },
+    {
+      "path": "preview/brand-board.html",
+      "bytes": 4517,
+      "sha256": "3cdc37613f8cb0d52235ad644eb46af8a5b6f09bdbde9c90f6ff1dddf2f5713e"
+    },
+    {
+      "path": "preview/brand-board.png",
+      "bytes": 339131,
+      "sha256": "108f54a0fd6724a541a654ffcafe1c1c147ddc96b7de3323c53fbed92adeb274"
+    },
+    {
+      "path": "react/BrandMark.tsx",
+      "bytes": 457,
+      "sha256": "bfd6f51a472539db26a7237022d219de0a28368d79e9e1d51abc20f7aaec1552"
+    },
+    {
+      "path": "react/Wordmark.tsx",
+      "bytes": 612,
+      "sha256": "4e050b393e70ebaf71706ee250b5f0124b904b460dc718798666ad1075c00b8a"
+    },
+    {
+      "path": "social/og-default-1200x630.jpg",
+      "bytes": 91921,
+      "sha256": "ad4f5c82e38cedf48a684c344c808a4c7f0f27958d837d35585971479c31b81f"
+    },
+    {
+      "path": "social/og-groups-1200x630.jpg",
+      "bytes": 99116,
+      "sha256": "c8a421294c8f000ba1d835cf5c70f3798d7b41ad8b71ce000f56f1fd97b1f66e"
+    },
+    {
+      "path": "social/og-heroes-1200x630.jpg",
+      "bytes": 98940,
+      "sha256": "f04b753eee9b273f2a2fdf8ded70e0b160fe544e6eadd3e52f5134b78453fa2e"
+    },
+    {
+      "path": "social/og-players-1200x630.jpg",
+      "bytes": 97898,
+      "sha256": "9b1df271c832ad6c23f116628cea588e90499a697c44f76b30f6441cb7ae5ed0"
+    },
+    {
+      "path": "social/social-square-1080x1080.jpg",
+      "bytes": 97910,
+      "sha256": "6a253e5f5e0b5bfe771e19f0586f0ae2fa4f3b927420d56dc28b2394255a2c0c"
+    },
+    {
+      "path": "styles/brand-optional.css",
+      "bytes": 698,
+      "sha256": "cd7a900cfb1edc314b5f0ff6014d357e2ef5aec92e1b47665cfdcebe3858a893"
+    },
+    {
+      "path": "styles/tokens-reference.json",
+      "bytes": 366,
+      "sha256": "a888946ef82244b3a2f693b6c65407c329dc033ba4a5fed1b2ea28ee65b0c943"
+    }
+  ]
+}

@@ -62,7 +62,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
               {e.rank}
             </span>
             <span className="flex min-w-0 items-center gap-3">
-              <RankBadge name={e.badge?.name} imageUrl={e.badge?.imageUrl} size="md" />
+              {e.badge && <RankBadge name={e.badge.name} imageUrl={e.badge.imageUrl} size="md" />}
               <span className="min-w-0">
                 {e.steamId ? (
                   <Link

@@ -4,7 +4,7 @@ Fichier de liaison entre le Claude du front (`thebaroness`) et celui du back (`t
 Il est mis à jour à chaque rapport du front. Le Claude du back le lit en premier : `git -C ../thebaroness pull` puis ce fichier.
 Pendant côté back : `docs/HANDOFF.md` du back, lu par le front à chaque session.
 
-Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA). Back relu au commit `4cd9b73`.
+Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA). Back relu au commit `3303b45` (contrat v1.4.1 recopié).
 
 ## Décision à appliquer côté back : données de jeu en anglais
 
@@ -49,6 +49,7 @@ Tout est écrit contre `src/api/types.ts` et testé en mock (`npm run dev:mock`)
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
+- 16/11/2026 : back v1.4.1 testé en réel depuis le front (Docker Compose, `npm run dev`) : catalogue, rangs, carte, recherche, profil, historique, classement, fiche héros fonctionnent. Aucun écart de forme relevé. Côté front : avatar de repli si l'image Steam ne charge pas, pas de pastille vide dans le classement sans badge.
 - 16/11/2026 : palette ⌘K refaite (recherche de joueurs en direct via `GET /api/players/search`, récents gardés dans le navigateur, héros, actions, pages), connexion, comparaison de groupe adaptée au mobile. Aucun DTO ni route modifié. Le front appelle `players/search` après 220 ms de pause de frappe, 2 caractères minimum.
 - 16/11/2026 : types alignés sur l'OpenAPI 1.3.0 (`LeaderboardEntry.badge` nullable, `MatchDetail.playedAt` et `winningSide` nullables, score de rang max 72). Décision « données de jeu en anglais, rangs compris ».
 - 16/11/2026 : refonte visuelle d'après les maquettes. Aucun DTO ni route modifié. Le front lit `meta.isStale` (bandeau « Source lente ») et `meta.isPartial`.

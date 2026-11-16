@@ -3,7 +3,8 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { completeSteamLogin } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { ErrorState } from "@/components/ErrorState";
-import { Spinner, buttonStyles } from "@/components/ui";
+import { BrandLoader } from "@/components/brand";
+import { buttonStyles } from "@/components/ui";
 import { takeReturnTo } from "@/features/auth/returnTo";
 
 /** Retour de Steam : le backend redirige ici avec #token=<JWT> ou ?error=<code>. */
@@ -34,10 +35,5 @@ export function AuthCallbackPage() {
       </div>
     );
   }
-  return (
-    <div className="flex flex-col items-center gap-3 py-24 text-muted" role="status">
-      <Spinner className="size-6" />
-      <p>Connexion en cours...</p>
-    </div>
-  );
+  return <BrandLoader message="Connexion avec Steam en cours" />;
 }

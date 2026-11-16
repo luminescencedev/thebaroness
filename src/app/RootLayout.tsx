@@ -1,5 +1,6 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router";
+import { BrandLoader } from "@/components/brand";
 import { CommandPalette } from "@/components/layout/CommandPalette";
 import { PaletteContext } from "@/components/layout/paletteContext";
 import { SessionExpiredDialog } from "@/features/auth/SessionExpiredDialog";
@@ -47,7 +48,7 @@ export function RootLayout() {
           id="contenu"
           className="mx-auto w-full outline-none max-w-6xl flex-1 px-4 pt-10 sm:px-6"
         >
-          <Suspense fallback={<div role="status" aria-label="Chargement" className="py-24" />}>
+          <Suspense fallback={<BrandLoader />}>
             <Outlet />
           </Suspense>
         </main>

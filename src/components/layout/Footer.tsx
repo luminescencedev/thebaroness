@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { useSession } from "@/features/auth/useSession";
-import { Wordmark } from "./Wordmark";
+import { Medallion } from "@/components/brand";
 
 const col = "space-y-2.5 text-sm";
 const link = "hover-text pressable inline-block rounded-md text-muted";
@@ -11,7 +11,12 @@ export function Footer() {
     <footer className="mt-24 border-t border-border">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="space-y-4">
-          <Wordmark />
+          <span className="inline-flex items-center gap-2">
+            <Medallion size={26} />
+            <span className="text-[19px] leading-none font-semibold tracking-[-0.045em] lowercase">
+              the baroness.
+            </span>
+          </span>
           <p className="max-w-sm text-[13px] leading-relaxed text-subtle">
             Les statistiques de joueurs et de héros Deadlock, lisibles, avec un espace privé pour
             suivre les joueurs qui comptent.

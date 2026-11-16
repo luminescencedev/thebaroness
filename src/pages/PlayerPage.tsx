@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { isApiError } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
+import { BrandLoader } from "@/components/brand";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
 import { RankBadge } from "@/components/media/RankBadge";
@@ -99,23 +100,7 @@ export function PlayerPage() {
   }, [viewed]);
 
   if (player.isPending) {
-    return (
-      <div className="space-y-6" aria-busy="true" aria-label="Chargement du profil">
-        <div className="flex items-center gap-4">
-          <Skeleton className="size-[52px] rounded-[14px]" />
-          <div className="flex flex-1 flex-col gap-2">
-            <Skeleton className="h-[18px] w-1/2" />
-            <Skeleton className="h-3 w-1/3" />
-          </div>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="h-[70px] rounded-xl" />
-          ))}
-        </div>
-        <Skeleton className="h-[60px] rounded-xl" />
-      </div>
-    );
+    return <BrandLoader message="Le Doorman monte les parties du joueur" />;
   }
 
   if (player.isError) {

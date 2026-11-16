@@ -267,3 +267,228 @@
     }
   }
 }
+
+/* Marque animée (chariot + médaillon à roue). Jamais sous 24 px. */
+.ev {
+  display: block;
+  overflow: visible;
+}
+.ev .rig,
+.ev .wheel,
+.ev .bag,
+.ev .ln,
+.ev .eye,
+.ev .eye-open,
+.ev .ring {
+  transform-box: fill-box;
+}
+.ev .rig {
+  transform-origin: 50% 100%;
+}
+.ev .wheel,
+.ev .ring,
+.ev .eye,
+.ev .eye-open {
+  transform-origin: 50% 50%;
+}
+.ev .bag {
+  transform-origin: 50% 100%;
+}
+.ev .look {
+  transition: transform 110ms var(--ease-out);
+}
+.ev .lines {
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.ev .eye-open {
+  animation: openEye 500ms var(--ease-out) both;
+}
+@keyframes openEye {
+  from {
+    transform: scaleY(0.08);
+  }
+}
+.ev[data-anim="a"] .wheel {
+  animation: spinA 650ms var(--ease-out);
+}
+.ev[data-anim="b"] .wheel {
+  animation: spinB 650ms var(--ease-out);
+}
+.ev[data-anim="a"] .rig {
+  animation: nudgeA 650ms var(--ease-out);
+}
+.ev[data-anim="b"] .rig {
+  animation: nudgeB 650ms var(--ease-out);
+}
+.ev[data-anim="a"] .ring {
+  animation: notchA 650ms var(--ease-out);
+}
+.ev[data-anim="b"] .ring {
+  animation: notchB 650ms var(--ease-out);
+}
+.ev[data-anim="a"] .bag-b,
+.ev[data-anim="b"] .bag-b {
+  animation: hop 480ms ease-out 60ms;
+}
+.ev[data-anim="a"] .bag-c,
+.ev[data-anim="b"] .bag-c {
+  animation: hop2 480ms ease-out 130ms;
+}
+.ev[data-blink="a"] .eye {
+  animation: blinkA 280ms ease-in-out;
+}
+.ev[data-blink="b"] .eye {
+  animation: blinkB 280ms ease-in-out;
+}
+.ev[data-loading="true"] .lines {
+  opacity: 1;
+}
+.ev[data-loading="true"] .wheel {
+  animation: spinLoop 700ms linear infinite;
+}
+.ev[data-loading="true"] .ring {
+  animation: spinLoop 2.4s linear infinite;
+}
+.ev[data-loading="true"] .rig {
+  animation: bob 350ms ease-in-out infinite;
+}
+.ev[data-loading="true"] .bag-b {
+  animation: jiggle 700ms ease-in-out infinite;
+}
+.ev[data-loading="true"] .bag-c {
+  animation: jiggle 700ms ease-in-out 175ms infinite;
+}
+.ev[data-loading="true"] .ln {
+  animation: dash 700ms linear infinite;
+}
+.ev[data-loading="true"] .ln2 {
+  animation-delay: 230ms;
+}
+.ev[data-loading="true"] .ln3 {
+  animation-delay: 460ms;
+}
+.ev[data-loading="true"] .look {
+  animation: scan 1.5s var(--ease-in-out) infinite alternate;
+  transition: none;
+}
+@keyframes spinA {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spinB {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes notchA {
+  to {
+    transform: rotate(var(--notch));
+  }
+}
+@keyframes notchB {
+  to {
+    transform: rotate(var(--notch));
+  }
+}
+@keyframes nudgeA {
+  40% {
+    transform: translateX(1.4px);
+  }
+}
+@keyframes nudgeB {
+  40% {
+    transform: translateX(1.4px);
+  }
+}
+@keyframes hop {
+  35% {
+    transform: translateY(-1.2px);
+  }
+  65% {
+    transform: translateY(0.2px);
+  }
+}
+@keyframes hop2 {
+  35% {
+    transform: translateY(-1.6px);
+  }
+  65% {
+    transform: translateY(0.25px);
+  }
+}
+@keyframes blinkA {
+  40% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes blinkB {
+  40% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes spinLoop {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes bob {
+  50% {
+    transform: translateY(-0.45px);
+  }
+}
+@keyframes jiggle {
+  50% {
+    transform: translateY(-0.7px);
+  }
+}
+@keyframes dash {
+  0% {
+    transform: translateX(2px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-3px);
+    opacity: 0;
+  }
+}
+@keyframes scan {
+  from {
+    transform: translate(calc(var(--sx) * -1), 0);
+  }
+  to {
+    transform: translate(var(--sx), 0);
+  }
+}
+@keyframes pulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ev .rig,
+  .ev .wheel,
+  .ev .bag,
+  .ev .ln,
+  .ev .eye,
+  .ev .eye-open,
+  .ev .ring {
+    animation: none !important;
+  }
+  .ev .look {
+    transform: none !important;
+    animation: none !important;
+    transition: none;
+  }
+  .ev[data-loading="true"] .bag,
+  .ev[data-loading="true"] .ring {
+    animation: pulse 1.2s ease-in-out infinite !important;
+  }
+  .ev[data-loading="true"] .lines {
+    opacity: 0;
+  }
+}

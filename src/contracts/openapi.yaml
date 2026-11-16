@@ -6,7 +6,7 @@ openapi: 3.1.0
 info:
   title: thebaroness API
   version: 1.4.1
-  description: "API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l'espace privé est stocké dans MongoDB. Erreurs : `{ \"error\": { \"code\", \"message\" } }`. Inconnu = `null`, jamais 0."
+  description: 'API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l''espace privé est stocké dans MongoDB. Erreurs : `{ "error": { "code", "message" } }`. Inconnu = `null`, jamais 0.'
 servers:
   - url: /api
 tags:

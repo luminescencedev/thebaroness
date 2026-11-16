@@ -136,18 +136,30 @@
   transition-duration: 150ms;
 }
 
-@keyframes skeleton-pulse {
-  0%,
-  100% {
-    opacity: 0.5;
-  }
-  50% {
-    opacity: 1;
+@keyframes skeleton-sweep {
+  to {
+    transform: translateX(100%);
   }
 }
+/* Balayage linéaire, après 150 ms : évite le clignotement sur les réponses rapides. */
 .skeleton {
+  position: relative;
+  overflow: hidden;
   background: var(--surface-strong);
-  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  animation: skeleton-in 1ms 150ms backwards;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.06), transparent);
+  animation: skeleton-sweep 1.3s linear infinite;
+}
+@keyframes skeleton-in {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes spin {
@@ -176,6 +188,10 @@
   .spinner {
     animation: spinner-fade 1.2s ease-in-out infinite;
   }
+  .skeleton::after {
+    animation: none;
+    opacity: 0;
+  }
   .dialog-popup[data-starting-style],
   .dialog-popup[data-ending-style] {
     transform: none;
@@ -202,15 +218,15 @@
 }
 
 .hero-glow {
-  background:
-    radial-gradient(60% 50% at 50% 0%, rgb(91 75 240 / 0.28), transparent 70%),
-    radial-gradient(40% 40% at 85% 30%, rgb(180 171 255 / 0.1), transparent 70%);
+  background: radial-gradient(60% 55% at 50% 0%, rgb(91 75 240 / 0.28), rgb(91 75 240 / 0) 70%);
 }
 
-.dot-grid {
-  background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px);
-  background-size: 22px 22px;
-  mask-image: radial-gradient(70% 60% at 50% 30%, #000, transparent 75%);
+.hero-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(55% 60% at 50% 0%, #000 30%, transparent 75%);
 }
 
 /* Surface opaque pour les calques flottants (dialogues, menus) : le contenu dessous ne transparaît pas. */
@@ -221,4 +237,33 @@
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 0.05),
     0 24px 60px rgb(0 0 0 / 0.6);
+}
+
+.grad {
+  background: linear-gradient(180deg, #fff 30%, #8c92a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Rangées d'un tableau : apparition en cascade courte (première arrivée), 260 ms. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.rise {
+  animation: rise 260ms var(--ease-out) both;
+  animation-delay: var(--rise-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation-name: rise-fade;
+  }
+  @keyframes rise-fade {
+    from {
+      opacity: 0;
+    }
+  }
 }

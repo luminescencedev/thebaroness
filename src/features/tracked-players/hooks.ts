@@ -37,7 +37,6 @@ export function useCreateTracked() {
     mutationFn: createTrackedPlayer,
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: trackedKeys.all });
-      toast.success("Joueur ajouté à vos suivis.");
     },
   });
 }
@@ -49,7 +48,7 @@ export function useUpdateTracked(id: string) {
     onSuccess: (updated) => {
       qc.setQueryData(trackedKeys.detail(id), updated);
       void qc.invalidateQueries({ queryKey: trackedKeys.all });
-      toast.success("Suivi mis à jour.");
+      toast.success("Suivi enregistré");
     },
   });
 }
@@ -61,7 +60,7 @@ export function useDeleteTracked(id: string) {
     onSuccess: () => {
       qc.removeQueries({ queryKey: trackedKeys.detail(id) });
       void qc.invalidateQueries({ queryKey: trackedKeys.all });
-      toast.success("Suivi supprimé.");
+      toast.success("Vous ne suivez plus ce joueur");
     },
   });
 }

@@ -13,25 +13,29 @@ describe("recherche et profil", () => {
     await userEvent.click(link);
 
     expect(await screen.findByRole("heading", { name: "Corvid", level: 1 })).toBeInTheDocument();
-    expect(screen.getByText("Oracle 4")).toBeInTheDocument();
-    expect(screen.getByText("Victoires").nextSibling).toHaveTextContent("24");
-    expect(screen.getByText("Défaites").nextSibling).toHaveTextContent("18");
+    expect((await screen.findAllByText("Oracle 4")).length).toBeGreaterThan(0);
+    expect(await screen.findByText(/24 V · 18 D/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("tab", { name: "Parties" }));
     expect((await screen.findAllByText("Victoire")).length).toBeGreaterThan(0);
     expect(screen.getAllByText("Défaite").length).toBeGreaterThan(0);
   });
 
   it("charge plus de parties avec le curseur", async () => {
     renderApp(`/players/${SCENARIOS.steamIdFull}`);
+    await userEvent.click(await screen.findByRole("tab", { name: "Parties" }));
     // 42 parties, pages de 20 : deux clics pour tout charger.
-    await userEvent.click(await screen.findByRole("button", { name: "Charger plus" }));
-    await waitFor(() => expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(40));
-    await userEvent.click(await screen.findByRole("button", { name: "Charger plus" }));
-    await waitFor(() => expect(screen.queryByText("Charger plus")).not.toBeInTheDocument());
+    const more = /Charger \d+ parties de plus/;
+    await userEvent.click(await screen.findByRole("button", { name: more }));
+    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(30));
+    await userEvent.click(await screen.findByRole("button", { name: more }));
+    await waitFor(() =>
+      expect(screen.queryByRole("button", { name: more })).not.toBeInTheDocument(),
+    );
   });
 
   it("gère zéro résultat et service indisponible", async () => {
     const first = renderApp(`/search?q=${SCENARIOS.searchEmpty}`);
-    expect(await screen.findByText("Aucun résultat")).toBeInTheDocument();
+    expect(await screen.findByText(/Aucun joueur pour/)).toBeInTheDocument();
     first.unmount();
     renderApp(`/search?q=${SCENARIOS.searchUnavailable}`);
     expect(await screen.findByText(/temporairement indisponibles/)).toBeInTheDocument();
@@ -42,8 +46,8 @@ describe("recherche et profil", () => {
     expect(
       await screen.findByText(/Données partielles/, {}, { timeout: 3000 }),
     ).toBeInTheDocument();
-    expect(screen.getAllByText("n/d").length).toBeGreaterThan(3);
-    expect(await screen.findByText("Aucune partie disponible")).toBeInTheDocument();
+    expect((await screen.findAllByText("n/d")).length).toBeGreaterThan(1);
+    expect(await screen.findByText("Pas assez de parties")).toBeInTheDocument();
   });
 
   it("affiche joueur introuvable en 404", async () => {
@@ -98,16 +102,16 @@ describe("suivis (CRUD)", () => {
     await userEvent.click(await screen.findByRole("link", { name: /Duo régulier/ }));
 
     expect(await screen.findByRole("heading", { name: "Duo régulier" })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: "Modifier" }));
     const alias = screen.getByLabelText("Alias");
     await userEvent.clear(alias);
     await userEvent.type(alias, "Partenaire");
+    expect(screen.getByText("Modifications non enregistrées")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByRole("heading", { name: "Partenaire" })).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole("button", { name: "Supprimer" }));
+    await userEvent.click(screen.getByRole("button", { name: /Ne plus suivre/ }));
     const dialog = await screen.findByRole("dialog");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Supprimer" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "Ne plus suivre" }));
     await screen.findByRole("heading", { name: "Mes suivis" });
     expect(screen.queryByRole("link", { name: /Partenaire/ })).not.toBeInTheDocument();
   });
@@ -115,17 +119,19 @@ describe("suivis (CRUD)", () => {
   it("suit un joueur depuis son profil", async () => {
     signIn();
     renderApp(`/players/${SCENARIOS.steamIdPartial}`);
-    await userEvent.click(await screen.findByRole("button", { name: "Suivre" }));
+    await userEvent.click((await screen.findAllByRole("button", { name: /^Suivre/ }))[0]!);
     const dialog = await screen.findByRole("dialog");
     await userEvent.type(within(dialog).getByLabelText("Alias"), "Petit");
     await userEvent.click(within(dialog).getByRole("button", { name: "Suivre ce joueur" }));
-    expect(await screen.findByRole("link", { name: "Voir le suivi" })).toBeInTheDocument();
+    expect((await screen.findAllByRole("link", { name: "Voir le suivi" })).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it("propose de se connecter pour suivre sans session", async () => {
     renderApp(`/players/${SCENARIOS.steamIdFull}`);
     expect(
-      await screen.findByRole("link", { name: "Se connecter avec Steam pour suivre" }),
-    ).toBeInTheDocument();
+      (await screen.findAllByRole("link", { name: "Se connecter avec Steam pour suivre" })).length,
+    ).toBeGreaterThan(0);
   });
 });

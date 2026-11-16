@@ -79,3 +79,11 @@ Contrat à implémenter côté `baroness-back` :
 ## Langue des données de jeu
 
 Les données de jeu viennent de Deadlock API en anglais et restent en anglais (noms de héros, capacités, descriptions, histoire, rangs, rôles, équipes Amber Hand et Sapphire Flame). Seule l'interface (libellés, boutons, messages) est en français. Le script `scripts/build-fixtures.mjs` ne demande plus `language=french`.
+
+## Alignement sur les maquettes (Claude Design)
+
+- Source : l'artefact de maquettes du projet (accueil, recherche, profil, connexion, suivis, détail d'un suivi, états système, mobile, tokens et mouvement). Le front reprend sa direction artistique : noir froid, verre léger, accent violet unique, Geist, titres en dégradé, retour d'appui `scale(.97)`, survols en couleur seulement.
+- Écarts assumés : header en pill flottant (demande de l'équipe), connexion Steam uniquement (la maquette montrait email et mot de passe), point du wordmark sans accent, rangs et portraits réels du catalogue, pages et données P1 absentes des maquettes (héros, classement, partie, groupes).
+- Profil : onglets Aperçu, Héros, Parties avec indicateur glissant, KPI avec courbes, courbe de performance survolable (KDA ou valeur nette : les « âmes par minute » ne sont pas dans le contrat), tableau des parties. Pas de progression « vers le rang suivant » : aucune donnée.
+- États : skeleton à balayage affiché après 150 ms, bandeau « Source lente » avec réessai, erreur avec « Vos suivis restent accessibles » sur 502 et 503, boîte « Session expirée » sur 401, toasts avec action (« Ajouter une note », « Ouvrir »).
+- Accueil : l'aperçu de profil est une illustration étiquetée « exemple ». Les raccourcis « Essayer Corvid » ne s'affichent qu'en mode mock.

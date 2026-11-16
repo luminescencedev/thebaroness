@@ -1,6 +1,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import { CommandPalette } from "@/components/layout/CommandPalette";
+import { PaletteContext } from "@/components/layout/paletteContext";
+import { SessionExpiredDialog } from "@/features/auth/SessionExpiredDialog";
 import { Footer, Nav } from "@/components/layout";
 
 export function RootLayout() {
@@ -18,21 +20,24 @@ export function RootLayout() {
   }, []);
 
   return (
-    <div className="flex min-h-dvh flex-col">
-      <a
-        href="#contenu"
-        className="sr-only z-50 rounded-md bg-text px-3 py-2 text-sm text-[#0a0b0d] focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
-      >
-        Aller au contenu
-      </a>
-      <Nav onOpenSearch={() => setPaletteOpen(true)} />
-      <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
-        <Suspense fallback={<div role="status" aria-label="Chargement" className="py-24" />}>
-          <Outlet />
-        </Suspense>
-      </main>
-      <Footer />
-      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
-    </div>
+    <PaletteContext value={{ open: () => setPaletteOpen(true) }}>
+      <div className="flex min-h-dvh flex-col">
+        <a
+          href="#contenu"
+          className="sr-only z-50 rounded-md bg-text px-3 py-2 text-sm text-[#0a0b0d] focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        >
+          Aller au contenu
+        </a>
+        <Nav onOpenSearch={() => setPaletteOpen(true)} />
+        <main id="contenu" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-10 sm:px-6">
+          <Suspense fallback={<div role="status" aria-label="Chargement" className="py-24" />}>
+            <Outlet />
+          </Suspense>
+        </main>
+        <Footer />
+        <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+        <SessionExpiredDialog />
+      </div>
+    </PaletteContext>
   );
 }

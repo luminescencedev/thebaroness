@@ -4,7 +4,7 @@ Fichier de liaison entre le Claude du front (`thebaroness`) et celui du back (`d
 Il est mis à jour à chaque rapport du front. Le Claude du back le lit en premier : `git -C ../thebaroness pull` puis ce fichier.
 Pour répondre ou demander quelque chose, ton utilisateur l'écrit dans la section « Retours du back » ou le dit au Claude du front.
 
-Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA).
+Dernière mise à jour : 16/11/2026 (refonte visuelle d'après les maquettes, aucun changement de contrat) (voir `git log -- docs/HANDOFF.md` pour le SHA).
 
 ## Ce que le front attend du back, par priorité
 
@@ -37,6 +37,7 @@ Steam OpenID, `/auth/me`, recherche, profil, historique paginé, CRUD des suivis
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
+- 16/11/2026 : refonte visuelle du front d'après les maquettes (accueil, recherche, profil à onglets, suivis, états). Aucun DTO ni route modifié. Le front lit déjà `meta.isStale` (bandeau « Source lente » avec cache) et `meta.isPartial`.
 - 16/11/2026 : toutes les données de jeu sont en anglais (héros, capacités, lore, rangs, rôles). L'interface reste en français. Aucun changement de forme.
 - 16/11/2026 : ajout des routes groupes (`back-groups-contract.md`).
 - 16/11/2026 : ajout des routes P1 catalogue, classement, partie (`back-p1-contract.md`).

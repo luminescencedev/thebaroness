@@ -43,3 +43,16 @@ export function formatRegion(region: string): string {
   }
   return region;
 }
+
+const rtf = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+
+/** « il y a 2 min », « hier », « il y a 3 h ». */
+export function timeAgo(iso: string, now = Date.now()): string {
+  const seconds = Math.round((new Date(iso).getTime() - now) / 1000);
+  const abs = Math.abs(seconds);
+  if (abs < 45) return "à l'instant";
+  if (abs < 3600) return rtf.format(Math.round(seconds / 60), "minute");
+  if (abs < 86400) return rtf.format(Math.round(seconds / 3600), "hour");
+  if (abs < 86400 * 7) return rtf.format(Math.round(seconds / 86400), "day");
+  return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(new Date(iso));
+}

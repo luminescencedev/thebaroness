@@ -1,11 +1,11 @@
 import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { notifySessionExpired } from "@/features/auth/sessionExpired";
 import { isApiError } from "@/api/errors";
 
 /** Un 401 vide déjà la session (client API) : on prévient l'utilisateur. */
 function onUnauthorized(error: unknown) {
   if (isApiError(error) && error.status === 401 && error.code === "UNAUTHORIZED") {
-    toast.error("Session expirée. Reconnectez-vous.", { id: "session-expired" });
+    notifySessionExpired();
   }
 }
 

@@ -23,14 +23,14 @@ describe("layout", () => {
     expect(
       screen.getByText(/Deadlock API, projet communautaire indépendant de Valve/),
     ).toBeInTheDocument();
-    expect(document.title).toBe("Accueil · The Baroness");
+    expect(document.title).toBe("The Baroness · Deadlock Tracker");
   });
 
   it("affiche l'email et Mes suivis quand l'utilisateur est connecté", () => {
     signIn();
     renderApp("/");
 
-    expect(screen.getByText("Corvid")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Compte de Corvid/ })).toBeInTheDocument();
     expect(
       within(screen.getByRole("navigation", { name: "Navigation principale" })).getByRole("link", {
         name: "Mes suivis",

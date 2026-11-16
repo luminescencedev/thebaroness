@@ -1,15 +1,25 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { isApiError } from "@/api";
-import { Button, Dialog, buttonStyles } from "@/components/ui";
+import { Button, Dialog, buttonStyles, cn } from "@/components/ui";
 import { useSession } from "@/features/auth/useSession";
 import { TrackedForm } from "./TrackedForm";
 import { useCreateTracked, useTrackedList } from "./hooks";
 
-export function FollowButton({ steamId, name }: { steamId: string; name: string }) {
+export function FollowButton({
+  steamId,
+  name,
+  block = false,
+}: {
+  steamId: string;
+  name: string;
+  /** Pleine largeur (barre d'action mobile). */
+  block?: boolean;
+}) {
   const session = useSession();
   const location = useLocation();
+  const navigate = useNavigate();
   const list = useTrackedList();
   const create = useCreateTracked();
   const [open, setOpen] = useState(false);
@@ -25,7 +35,13 @@ export function FollowButton({ steamId, name }: { steamId: string; name: string 
   const existing = list.data?.items.find((t) => t.steamId === steamId);
   if (existing) {
     return (
-      <Link to={`/tracked/${existing.id}`} className={buttonStyles("secondary")}>
+      <Link
+        to={`/tracked/${existing.id}`}
+        className={cn(
+          buttonStyles("secondary"),
+          block && "!h-[50px] !w-full !rounded-[14px] !text-base",
+        )}
+      >
         Voir le suivi
       </Link>
     );
@@ -33,8 +49,12 @@ export function FollowButton({ steamId, name }: { steamId: string; name: string 
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} disabled={list.isPending}>
-        Suivre
+      <Button
+        onClick={() => setOpen(true)}
+        disabled={list.isPending}
+        className={block ? "!h-[50px] !w-full !rounded-[14px] !text-base" : undefined}
+      >
+        Suivre{block ? ` ${name}` : ""}
       </Button>
       <Dialog
         open={open}
@@ -54,12 +74,29 @@ export function FollowButton({ steamId, name }: { steamId: string; name: string 
             create.mutate(
               { steamId, alias: v.alias.trim(), note: v.note.trim(), tags: v.tags },
               {
-                onSuccess: () => setOpen(false),
+                onSuccess: (created) => {
+                  setOpen(false);
+                  toast.success(`${name} ajouté à vos suivis`, {
+                    action: {
+                      label: "Ajouter une note",
+                      onClick: () => void navigate(`/tracked/${created.id}`),
+                    },
+                  });
+                },
                 onError: (error) => {
                   if (isApiError(error) && error.code === "ALREADY_TRACKED") {
                     setOpen(false);
-                    void list.refetch();
-                    toast.info("Ce joueur est déjà dans vos suivis.");
+                    void list.refetch().then((r) => {
+                      const existing = r.data?.items.find((t) => t.steamId === steamId);
+                      toast.info("Déjà dans vos suivis", {
+                        action: existing
+                          ? {
+                              label: "Ouvrir",
+                              onClick: () => void navigate(`/tracked/${existing.id}`),
+                            }
+                          : undefined,
+                      });
+                    });
                   }
                 },
               },

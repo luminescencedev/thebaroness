@@ -13,6 +13,8 @@ interface DialogProps {
   className?: string;
   /** Position haute (palette) au lieu du centre. */
   top?: boolean;
+  /** Titre lisible par les lecteurs d'écran seulement (palette). */
+  hideTitle?: boolean;
 }
 
 export function Dialog({
@@ -24,6 +26,7 @@ export function Dialog({
   animated = true,
   className,
   top = false,
+  hideTitle = false,
 }: DialogProps) {
   return (
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
@@ -39,12 +42,14 @@ export function Dialog({
         >
           <BaseDialog.Popup
             className={cn(
-              "card w-full max-w-md bg-[#0d0e11] p-6 shadow-2xl",
+              "surface-solid w-full max-w-md p-6",
               animated && "dialog-popup",
               className,
             )}
           >
-            <BaseDialog.Title className="text-lg">{title}</BaseDialog.Title>
+            <BaseDialog.Title className={hideTitle ? "sr-only" : "text-lg"}>
+              {title}
+            </BaseDialog.Title>
             {description ? (
               <BaseDialog.Description className="mt-1.5 text-sm text-muted">
                 {description}

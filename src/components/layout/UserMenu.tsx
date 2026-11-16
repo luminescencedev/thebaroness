@@ -24,7 +24,7 @@ export function UserMenu() {
       </Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={10} align="end" className="z-50">
-          <Menu.Popup className="card w-56 bg-[#0d0e11] p-1.5 shadow-2xl outline-none">
+          <Menu.Popup className="surface-solid w-56 p-1.5 outline-none">
             <div className="px-3 py-2">
               <p className="truncate text-sm font-medium">{displayName}</p>
               <p className="mono text-xs text-subtle">{steamId}</p>

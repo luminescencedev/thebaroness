@@ -233,7 +233,8 @@ export interface LeaderboardEntry {
   displayName: string;
   /** null quand le classement ne permet pas de relier le compte à un SteamID. */
   steamId: SteamId | null;
-  badge: { tier: number; subrank: number; name: string; imageUrl: string | null };
+  /** null : le classement de Deadlock API ne donne pas le rang du joueur. */
+  badge: { tier: number; subrank: number; name: string; imageUrl: string | null } | null;
   topHeroes: { heroId: number; name: string; imageUrl: string | null }[];
 }
 
@@ -268,9 +269,10 @@ export interface MatchTeam {
 
 export interface MatchDetail {
   matchId: string;
-  playedAt: string;
+  playedAt: string | null;
   durationSeconds: number | null;
-  winningSide: TeamSide;
+  /** null : vainqueur inconnu. */
+  winningSide: TeamSide | null;
   teams: MatchTeam[];
 }
 
@@ -310,7 +312,7 @@ export interface GroupInput {
 
 export interface RankPoint {
   at: string;
-  /** tier * 6 + sous-rang (1 à 6) : 78 = Éternus 6. Comparable d'un joueur à l'autre. */
+  /** tier * 6 + sous-rang (1 à 6) : maximum 72 (Éternus 6). Comparable d'un joueur à l'autre. */
   score: number;
 }
 

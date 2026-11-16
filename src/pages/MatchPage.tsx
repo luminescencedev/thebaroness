@@ -137,13 +137,17 @@ export function MatchPage() {
         <div>
           <p className="mono text-xs text-subtle">Partie {match.matchId}</p>
           <h1 className="mt-1 text-3xl sm:text-4xl">
-            Victoire de la {TEAM_NAMES[match.winningSide]}
+            {match.winningSide
+              ? `Victoire des ${TEAM_NAMES[match.winningSide]}`
+              : "Vainqueur inconnu"}
           </h1>
         </div>
         <dl className="flex gap-8 text-sm">
           <div>
             <dt className="text-xs text-subtle">Date</dt>
-            <dd className="mt-0.5 text-muted">{formatDateTime(match.playedAt)}</dd>
+            <dd className="mt-0.5 text-muted">
+              {match.playedAt ? formatDateTime(match.playedAt) : NA}
+            </dd>
           </div>
           <div>
             <dt className="text-xs text-subtle">Durée</dt>

@@ -269,7 +269,11 @@ export const handlers = [
     await latency();
     const owner = userIdFrom(request);
     if (!owner) return unauthorized();
-    return HttpResponse.json({ items: state.groups.get(owner) ?? [] });
+    // Du plus récemment modifié au plus ancien, comme le back.
+    const items = [...(state.groups.get(owner) ?? [])].sort((a, b) =>
+      b.updatedAt.localeCompare(a.updatedAt),
+    );
+    return HttpResponse.json({ items });
   }),
 
   http.post(`${API}/groups`, async ({ request }) => {

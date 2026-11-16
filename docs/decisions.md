@@ -87,3 +87,9 @@ Les données de jeu viennent de Deadlock API en anglais et restent en anglais (n
 - Profil : onglets Aperçu, Héros, Parties avec indicateur glissant, KPI avec courbes, courbe de performance survolable (KDA ou valeur nette : les « âmes par minute » ne sont pas dans le contrat), tableau des parties. Pas de progression « vers le rang suivant » : aucune donnée.
 - États : skeleton à balayage affiché après 150 ms, bandeau « Source lente » avec réessai, erreur avec « Vos suivis restent accessibles » sur 502 et 503, boîte « Session expirée » sur 401, toasts avec action (« Ajouter une note », « Ouvrir »).
 - Accueil : l'aperçu de profil est une illustration étiquetée « exemple ». Les raccourcis « Essayer Corvid » ne s'affichent qu'en mode mock.
+
+## Alignement sur le back v1.3.0 (commit 4cd9b73)
+
+- Types : `LeaderboardEntry.badge`, `MatchDetail.playedAt` et `winningSide` nullables, score de rang maximum 72. Écrans adaptés (« Rang non communiqué », « Vainqueur inconnu »).
+- Mock aligné sur les décisions du back : KDA `(K + A) / max(D, 1)`, 503 sur une comparaison sans données, groupes triés par modification.
+- Données de jeu en anglais, noms de rangs compris : le back doit retirer `language=french` (voir `HANDOFF.md`).

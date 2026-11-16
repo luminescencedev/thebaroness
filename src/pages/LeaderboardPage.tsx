@@ -62,7 +62,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
               {e.rank}
             </span>
             <span className="flex min-w-0 items-center gap-3">
-              <RankBadge name={e.badge.name} imageUrl={e.badge.imageUrl} size="md" />
+              <RankBadge name={e.badge?.name} imageUrl={e.badge?.imageUrl} size="md" />
               <span className="min-w-0">
                 {e.steamId ? (
                   <Link
@@ -75,7 +75,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
                   <span className="block truncate font-medium">{e.displayName}</span>
                 )}
                 <span className="block text-xs text-subtle">
-                  {e.badge.name} {e.badge.subrank}
+                  {e.badge ? `${e.badge.name} ${e.badge.subrank}` : "Rang non communiqué"}
                 </span>
               </span>
             </span>

@@ -1,6 +1,6 @@
 # The Baroness, frontend
 
-Frontend React + Vite + TypeScript. Le back est dans `../deadlock-tracker-back` (dépôt séparé).
+Frontend React + Vite + TypeScript. Le back est un dépôt séparé : GitHub `LilStick/thebaroness-back` (ancien nom `deadlock-tracker-back`, l'URL redirige). Cloné localement dans `../deadlock-tracker-back` ; son `docs/HANDOFF.md` est le pendant de `docs/HANDOFF.md` d'ici.
 
 ## Liaison avec le Claude du back
 

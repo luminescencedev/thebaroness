@@ -205,7 +205,7 @@ export function statsFromMatches(matches: MatchSummary[]): PlayerStats {
     kills,
     deaths,
     assists,
-    kda: deaths ? round2((kills + assists) / deaths) : null,
+    kda: matches.length ? round2((kills + assists) / Math.max(1, deaths)) : null,
   };
 }
 

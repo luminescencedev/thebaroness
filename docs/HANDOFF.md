@@ -1,54 +1,62 @@
 # HANDOFF : front vers back
 
-Fichier de liaison entre le Claude du front (`thebaroness`) et celui du back (`deadlock-tracker-back`).
+Fichier de liaison entre le Claude du front (`thebaroness`) et celui du back (`thebaroness-back`).
 Il est mis à jour à chaque rapport du front. Le Claude du back le lit en premier : `git -C ../thebaroness pull` puis ce fichier.
-Pour répondre ou demander quelque chose, ton utilisateur l'écrit dans la section « Retours du back » ou le dit au Claude du front.
+Pendant côté back : `docs/HANDOFF.md` du back, lu par le front à chaque session.
 
-Dernière mise à jour : 16/11/2026 (refonte visuelle d'après les maquettes, aucun changement de contrat) (voir `git log -- docs/HANDOFF.md` pour le SHA).
+Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le SHA). Back relu au commit `4cd9b73`.
 
-## Ce que le front attend du back, par priorité
+## Décision à appliquer côté back : données de jeu en anglais
 
-| #   | À faire                                                                                                                                                                | Contrat                   | État côté back                   |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------------------------------- |
-| 1   | `GET /api/heroes`, `GET /api/heroes/:heroId`, `GET /api/ranks`, `GET /api/map` (catalogue, images, textes en anglais : ne pas passer `language=french` à Deadlock API) | `back-p1-contract.md`     | NON COMMENCÉE (issues #19 à #23) |
-| 2   | `rank` détaillé dans le profil : `tier`, `subrank`, `imageUrl`, `color` en plus de `badgeId` et `name`. Aujourd'hui `{ badgeId: null, name: null }`                    | `back-p1-contract.md`     | à faire                          |
-| 3   | `heroImageUrl` dans `MatchSummary`                                                                                                                                     | `back-p1-contract.md`     | à faire                          |
-| 4   | `GET /api/leaderboard?region=`, `GET /api/matches/:matchId`, `GET /api/players/:steamId/heroes`, `GET /api/heroes/:heroId/stats`                                       | `back-p1-contract.md`     | NON COMMENCÉE                    |
-| 5   | Groupes : CRUD `/api/groups` et `GET /api/groups/:id/compare?period=`                                                                                                  | `back-groups-contract.md` | à faire                          |
+L'équipe a décidé que **toutes les données de jeu sont en anglais** : noms de héros, capacités, descriptions, histoire, rôles, tags, et **noms de rangs** (Obscurus, Initiate, Seeker, Acolyte, Sentinel, Mystic, Ritualist, Emissary, Oracle, Phantom, Ascendant, Eternus). Seule l'interface du front est en français.
+Le back lit aujourd'hui les noms de rangs avec `language=french` (« Prosélyte », « Éternus 3 »). Merci de **retirer `language=french`** pour les rangs et le catalogue, et de renvoyer `"Eternus 3"`. Les fixtures du front sont déjà en anglais (`scripts/build-fixtures.mjs`, sans paramètre `language`).
 
-Ordre conseillé : 1 à 3 d'abord (la landing, les profils et les parties en dépendent), puis 4, puis 5.
+## Réponses aux questions du back
 
-## Ce qui est déjà aligné
+- `LeaderboardEntry.badge` nullable : **oui**, le type du front est maintenant `... | null` et l'écran affiche « Rang non communiqué ».
+- `MatchPlayer.displayName` avec repli sur le SteamID : **oui**, ça convient.
+- `MatchDetail.playedAt` et `winningSide` nullables (openapi 1.3.0) : **gérés** (« Vainqueur inconnu », date « n/d »).
+- Classement : `steamId` null si ambigu, `topHeroes` vide, ex aequo : **gérés** (pas de lien vers un profil, pas de portraits).
+- Échelle du score de rang max 72 : commentaire corrigé dans `src/api/types.ts`.
+- Compare : 503 si tout est indisponible, formule du KDA `(K + A) / max(D, 1)`, ordre de `GET /api/groups` par `updatedAt` décroissant : **le mock est aligné**.
 
-Steam OpenID, `/auth/me`, recherche, profil, historique paginé, CRUD des suivis, erreurs, CORS : le front est branché sur ces formes (copie figée du contrat dans `src/contracts/openapi.yaml`, commit back `7f88585`). `player.region` est un code pays (`FR`) : le front le convertit en nom.
+## Ce que le front attend encore du back
+
+| #   | À faire                                                                              | État côté back (relevé)                                                                  |
+| --- | ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| 1   | `GET /api/groups/:id/compare?period=`                                                | NON COMMENCÉE                                                                            |
+| 2   | `heroes/:heroId/stats`, `leaderboard`, `matches/:matchId`, `players/:steamId/heroes` | livrées au commit `4cd9b73` : le front les branchera en mode réel dès que le back tourne |
+| 3   | Noms de rangs et de héros en anglais                                                 | à faire (voir plus haut)                                                                 |
+
+Le front a recopié le contrat OpenAPI v1.3.0 (`src/contracts/openapi.yaml`, commit back `4cd9b73`).
+
+## Ce qui est branché côté front
+
+Tout est écrit contre `src/api/types.ts` et testé en mock (`npm run dev:mock`) : Steam OpenID, recherche, profil à onglets (aperçu, héros, parties), suivis (CRUD), héros (liste, fiche, stats de méta), classement, détail de partie, groupes (CRUD, comparaison). Le mode réel (`npm run dev`) lit les mêmes formes.
 
 ## Où lire les formes exactes
 
 - `src/api/types.ts` : tous les DTO attendus, la référence.
 - `src/mocks/handlers.ts` : comportement attendu de chaque route (statuts, validation, erreurs).
-- `src/mocks/synthetic.ts`, `src/mocks/fixtures/` : exemples de réponses. Le catalogue (héros, rangs, carte) y est réel (Deadlock API, français), les joueurs et statistiques sont synthétiques.
+- `src/mocks/synthetic.ts`, `src/mocks/fixtures/` : exemples. Le catalogue (héros, rangs, carte) y est réel, les joueurs et statistiques sont synthétiques.
 - `docs/decisions.md` : choix et écarts.
 
 ## Mise en route pour tester front et back ensemble
 
-1. Back : `.env` avec `MONGODB_URI`, `JWT_SECRET` (32 caractères minimum), `API_PUBLIC_URL=http://localhost:3001`, `FRONT_URL=http://localhost:5173`, `CORS_ORIGIN=http://localhost:5173`, `JWT_EXPIRES_IN=1h`. Lancer Mongo et l'API (Docker Compose, voir le README du back). L'API écoute sur le port 3001.
+1. Back : `cp .env.example .env` (`JWT_SECRET` de 32 caractères minimum), puis `docker compose up --build -d`. API sur le port 3001.
 2. Front : `npm ci` puis `npm run dev`. Le proxy Vite envoie `/api` vers `http://localhost:3001`.
-3. Sans back : `npm run dev:mock` (MSW), toutes les pages fonctionnent avec des données de démonstration.
+3. Sans back : `npm run dev:mock` (MSW).
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
-- 16/11/2026 : refonte visuelle du front d'après les maquettes (accueil, recherche, profil à onglets, suivis, états). Aucun DTO ni route modifié. Le front lit déjà `meta.isStale` (bandeau « Source lente » avec cache) et `meta.isPartial`.
-- 16/11/2026 : toutes les données de jeu sont en anglais (héros, capacités, lore, rangs, rôles). L'interface reste en français. Aucun changement de forme.
-- 16/11/2026 : ajout des routes groupes (`back-groups-contract.md`).
-- 16/11/2026 : ajout des routes P1 catalogue, classement, partie (`back-p1-contract.md`).
-- 16/11/2026 : connexion Steam uniquement (`back-steam-contract.md`), implémentée par le back.
+- 16/11/2026 : types alignés sur l'OpenAPI 1.3.0 (`LeaderboardEntry.badge` nullable, `MatchDetail.playedAt` et `winningSide` nullables, score de rang max 72). Décision « données de jeu en anglais, rangs compris ».
+- 16/11/2026 : refonte visuelle d'après les maquettes. Aucun DTO ni route modifié. Le front lit `meta.isStale` (bandeau « Source lente ») et `meta.isPartial`.
+- 16/11/2026 : routes groupes (`back-groups-contract.md`), routes P1 (`back-p1-contract.md`), connexion Steam uniquement (`back-steam-contract.md`).
 
 ## Questions ouvertes
 
-- Rang détaillé : le back peut-il fournir `tier` et `subrank` à partir de `ranked_display_badge` (historique de parties) ? Sinon le profil reste « Non classé ».
-- Historique de rang pour les groupes : historique de parties (`ranked_delta`) ou snapshots du back (`player_snapshots`) ?
-- Images Valve (portraits, rangs) : validation de l'usage à faire pour la remise (cahier, section 22).
+- Images Valve (portraits, rangs, carte) : validation de l'usage par l'encadrant à faire pour la remise (cahier, section 22).
 
 ## Retours du back
 
-_(à remplir : date, point traité, SHA du back, écarts éventuels par rapport aux contrats)_
+Voir `docs/HANDOFF.md` du back (état des routes, décisions, écarts avec la source réelle).

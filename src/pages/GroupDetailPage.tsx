@@ -13,6 +13,7 @@ import {
   Card,
   Dialog,
   EmptyState,
+  Segmented,
   Skeleton,
   buttonStyles,
   cn,
@@ -27,7 +28,12 @@ import {
   sortMembers,
   type SortKey,
 } from "@/features/groups/compare";
-import { useDeleteGroup, useGroupCompare, useUpdateGroup } from "@/features/groups/hooks";
+import {
+  useDeleteGroup,
+  useGroupCompare,
+  useRefreshGroup,
+  useUpdateGroup,
+} from "@/features/groups/hooks";
 import { useTrackedList } from "@/features/tracked-players/hooks";
 import { formatDecimal, formatPercent } from "@/lib/format";
 
@@ -74,6 +80,7 @@ export function GroupDetailPage() {
   const tracked = useTrackedList();
   const update = useUpdateGroup(id);
   const remove = useDeleteGroup(id);
+  const refresh = useRefreshGroup(id, period);
   useDocumentTitle(compare.data?.group.name ?? "Groupe");
 
   const members = useMemo(() => compare.data?.members ?? [], [compare.data]);
@@ -138,27 +145,20 @@ export function GroupDetailPage() {
             <p className="mt-1.5 text-sm text-muted">{group.steamIds.length} joueurs comparés</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div
-              role="radiogroup"
-              aria-label="Période"
-              className="flex rounded-full border border-border bg-surface p-1"
+            <Segmented<ComparePeriod>
+              ariaLabel="Période"
+              value={period}
+              onChange={setPeriod}
+              options={PERIODS}
+            />
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={refresh.isPending}
+              onClick={() => refresh.mutate()}
             >
-              {PERIODS.map((p) => (
-                <button
-                  key={p.value}
-                  type="button"
-                  role="radio"
-                  aria-checked={period === p.value}
-                  onClick={() => setPeriod(p.value)}
-                  className={cn(
-                    "pressable hover-text rounded-full px-3.5 py-1.5 text-sm",
-                    period === p.value ? "bg-surface-strong text-text" : "text-muted",
-                  )}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
+              Actualiser
+            </Button>
             <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
               Modifier
             </Button>

@@ -5,6 +5,7 @@ import {
   createGroup,
   deleteGroup,
   getGroup,
+  refreshGroup,
   listGroups,
   updateGroup,
   type ComparePeriod,
@@ -63,6 +64,18 @@ export function useDeleteGroup(id: string) {
       qc.removeQueries({ queryKey: [...key, "one", id] });
       void qc.invalidateQueries({ queryKey: key });
       toast.success("Groupe supprimé.");
+    },
+  });
+}
+
+/** Actualisation forcée de tous les membres : remplace la comparaison affichée. */
+export function useRefreshGroup(id: string, period: ComparePeriod) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => refreshGroup(id, period),
+    onSuccess: (data) => {
+      qc.setQueryData([...key, "compare", id, period], data);
+      toast.success("Comparaison actualisée");
     },
   });
 }

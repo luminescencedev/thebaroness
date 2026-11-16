@@ -45,10 +45,59 @@ function Board({ region }: { region: LeaderboardRegion }) {
       <EmptyState title="Classement vide" description="Aucun joueur classé pour cette région." />
     );
   }
+  const top = board.data.items.slice(0, 3);
+  const rest = board.data.items.slice(3);
+  const MEDAL = ["#F5C451", "#C9CED8", "#D08A5A"];
   return (
     <div className="space-y-4">
-      <ol className="space-y-2">
-        {board.data.items.map((e) => (
+      <ol className="grid gap-3 sm:grid-cols-3" aria-label="Podium">
+        {top.map((e, i) => (
+          <li
+            key={e.rank}
+            className="card-hero flex flex-col items-center gap-2 px-4 py-6 text-center"
+            style={{ ["--hc" as string]: MEDAL[i] }}
+          >
+            <span
+              className="text-4xl leading-none font-semibold tabular-nums"
+              style={{ color: MEDAL[i] }}
+            >
+              {e.rank}
+            </span>
+            {e.badge ? (
+              <RankBadge name={e.badge.name} imageUrl={e.badge.imageUrl} size="lg" />
+            ) : null}
+            {e.steamId ? (
+              <Link
+                to={`/players/${e.steamId}`}
+                className="max-w-full truncate text-lg font-semibold hover:underline"
+              >
+                {e.displayName}
+              </Link>
+            ) : (
+              <span className="max-w-full truncate text-lg font-semibold">{e.displayName}</span>
+            )}
+            <span className="text-xs text-muted">
+              {e.badge ? `${e.badge.name} ${e.badge.subrank}` : "Rang non communiqué"}
+            </span>
+            {e.topHeroes.length > 0 && (
+              <ul className="mt-1 flex -space-x-2" aria-label="Héros les plus joués">
+                {e.topHeroes.map((h) => (
+                  <li key={h.heroId} title={h.name}>
+                    <HeroPortrait
+                      name={h.name}
+                      src={h.imageUrl}
+                      rounded="full"
+                      className="size-8 border-2 border-bg"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+      <ol start={4} className="space-y-2">
+        {rest.map((e) => (
           <li
             key={e.rank}
             className="card grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 px-3 py-2.5 sm:grid-cols-[3rem_1fr_auto_auto]"

@@ -3,10 +3,11 @@ import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
 import { PageHeader } from "@/components/PageHeader";
-import { EmptyState, Input, Skeleton, cn } from "@/components/ui";
+import { EmptyState, Input, Skeleton } from "@/components/ui";
 import { HeroCard } from "@/features/heroes/HeroCard";
 import { useHeroes } from "@/features/heroes/hooks";
 import { ROLES, ROLE_LABELS } from "@/features/heroes/roles";
+import { Segmented } from "@/components/ui";
 import type { HeroRole } from "@/api";
 
 export function HeroesPage() {
@@ -14,13 +15,21 @@ export function HeroesPage() {
   const heroes = useHeroes();
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<HeroRole | null>(null);
+  const [sort, setSort] = useState<"name" | "role" | "complexity">("name");
 
   const visible = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return (heroes.data?.items ?? []).filter(
+    const list = (heroes.data?.items ?? []).filter(
       (h) => (!role || h.role === role) && (!needle || h.name.toLowerCase().includes(needle)),
     );
-  }, [heroes.data, query, role]);
+    return [...list].sort((a, b) =>
+      sort === "role"
+        ? a.role.localeCompare(b.role) || a.name.localeCompare(b.name)
+        : sort === "complexity"
+          ? (a.complexity ?? 9) - (b.complexity ?? 9) || a.name.localeCompare(b.name)
+          : a.name.localeCompare(b.name),
+    );
+  }, [heroes.data, query, role, sort]);
 
   return (
     <div>
@@ -40,23 +49,41 @@ export function HeroesPage() {
           />
         </div>
         <div role="group" aria-label="Filtrer par rôle" className="flex flex-wrap gap-1.5">
-          {[null, ...ROLES].map((r) => (
-            <button
-              key={r ?? "all"}
-              type="button"
-              aria-pressed={role === r}
-              onClick={() => setRole(r)}
-              className={cn(
-                "pressable hover-text h-9 rounded-full border px-3.5 text-sm",
-                role === r
-                  ? "border-border-strong bg-surface-strong text-text"
-                  : "border-border bg-transparent text-muted",
-              )}
-            >
-              {r ? ROLE_LABELS[r] : "Tous"}
-            </button>
-          ))}
+          {[null, ...ROLES].map((r) => {
+            const color = r ? `var(--role-${r})` : "var(--text)";
+            return (
+              <button
+                key={r ?? "all"}
+                type="button"
+                aria-pressed={role === r}
+                onClick={() => setRole(r)}
+                className="pressable hover-text h-9 rounded-full border px-3.5 text-sm"
+                style={
+                  role === r
+                    ? {
+                        borderColor: `color-mix(in srgb, ${color} 55%, transparent)`,
+                        background: `color-mix(in srgb, ${color} 16%, transparent)`,
+                        color,
+                      }
+                    : { borderColor: "var(--border)", color: "var(--muted)" }
+                }
+              >
+                {r ? ROLE_LABELS[r] : "Tous"}
+              </button>
+            );
+          })}
         </div>
+        <Segmented
+          ariaLabel="Trier les héros"
+          className="ml-auto"
+          value={sort}
+          onChange={setSort}
+          options={[
+            { value: "name", label: "Nom" },
+            { value: "role", label: "Rôle" },
+            { value: "complexity", label: "Complexité" },
+          ]}
+        />
       </div>
 
       {heroes.isPending ? (

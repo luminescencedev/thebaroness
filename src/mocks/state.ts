@@ -56,7 +56,7 @@ const identity = (steamId: string, accountId: number, displayName: string) => ({
   accountId,
   displayName,
   avatarUrl: null,
-  region: "Europe",
+  region: "FR",
 });
 
 const fromJson = playersFixture.players as unknown as Fixture[];

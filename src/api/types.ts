@@ -46,7 +46,7 @@ export interface PlayerStats {
 }
 
 export interface PlayerProfile {
-  /** `region` est un ajout rétrocompatible au contrat v1 (voir docs/decisions.md). */
+  /** `region` : code pays Steam (ex. FR), null si inconnu. Fourni par le back. */
   player: PlayerSummary & { region?: string | null };
   stats: PlayerStats;
   rank: PlayerRank;

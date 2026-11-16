@@ -13,7 +13,7 @@ import { FormStrip } from "@/features/players/FormStrip";
 import { StatsGrid } from "@/features/players/StatsGrid";
 import { usePlayer, usePlayerMatches } from "@/features/players/hooks";
 import { FollowButton } from "@/features/tracked-players/FollowButton";
-import { formatDate, formatDecimal, formatPercent } from "@/lib/format";
+import { formatDate, formatDecimal, formatPercent, formatRegion } from "@/lib/format";
 
 /** Taux de victoire cumulé, du plus ancien au plus récent, sur les parties chargées. */
 function cumulativeWinRate(matches: MatchSummary[]) {
@@ -244,7 +244,7 @@ export function PlayerPage() {
           <h1 className="truncate text-3xl sm:text-4xl">{p.displayName}</h1>
           <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
             <span className="mono text-subtle">{p.steamId}</span>
-            {p.region && <span>{p.region}</span>}
+            {p.region && <span>{formatRegion(p.region)}</span>}
           </p>
         </div>
         <div className="flex items-center gap-3">

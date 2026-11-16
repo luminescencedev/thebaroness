@@ -29,3 +29,17 @@ export function formatDuration(seconds: number | null | undefined): string {
 }
 
 export const initials = (name: string): string => name.trim().slice(0, 2).toUpperCase() || "?";
+
+const regionNames = new Intl.DisplayNames("fr", { type: "region" });
+
+/** Région d'un joueur : code pays Steam (FR) converti en nom, sinon texte tel quel. */
+export function formatRegion(region: string): string {
+  if (/^[A-Za-z]{2}$/.test(region)) {
+    try {
+      return regionNames.of(region.toUpperCase()) ?? region;
+    } catch {
+      return region;
+    }
+  }
+  return region;
+}

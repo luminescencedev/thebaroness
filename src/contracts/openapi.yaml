@@ -1,0 +1,797 @@
+# Copie figée du contrat OpenAPI du backend
+# Source : deadlock-tracker-back, docs/openapi.yaml, commit 7f88585 (16/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.1.0) par `npm run openapi`.
+# Ne pas modifier à la main.
+openapi: 3.1.0
+info:
+  title: thebaroness API
+  version: 1.1.0
+  description: 'API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l''espace privé est stocké dans MongoDB. Erreurs : `{ "error": { "code", "message" } }`. Inconnu = `null`, jamais 0.'
+servers:
+  - url: /api
+tags:
+  - name: Santé
+  - name: Authentification
+    description: Connexion Steam OpenID uniquement.
+  - name: Joueurs
+    description: Données publiques issues de Deadlock API, avec cache.
+  - name: Suivis
+    description: Liste privée de joueurs suivis (Bearer JWT).
+paths:
+  /health:
+    get:
+      tags:
+        - Santé
+      summary: Santé du serveur
+      responses:
+        "200":
+          description: Serveur opérationnel
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    const: ok
+                additionalProperties: false
+              example:
+                status: ok
+  /auth/steam:
+    get:
+      tags:
+        - Authentification
+      summary: Démarre la connexion Steam
+      description: À ouvrir par **navigation complète** (pas en fetch). Redirige vers Steam OpenID 2.0.
+      responses:
+        "302":
+          description: Redirection vers https://steamcommunity.com/openid/login
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/steam/callback:
+    get:
+      tags:
+        - Authentification
+      summary: Retour de Steam (appelé par Steam)
+      description: |-
+        Vérifie l'assertion OpenID (localement puis via `check_authentication`), crée ou met à jour l'utilisateur, puis redirige vers le front :
+
+        - succès : `<FRONT_URL>/auth/callback#token=<JWT>`
+        - échec : `<FRONT_URL>/auth/callback?error=<code>` avec `STEAM_CANCELLED`, `STEAM_AUTH_FAILED`, `STEAM_UNAVAILABLE` ou `INVALID_STATE`.
+      parameters:
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: openid.*
+          in: query
+          required: false
+          description: Paramètres OpenID 2.0 ajoutés par Steam.
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirection vers `<FRONT_URL>/auth/callback`
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /auth/me:
+    get:
+      tags:
+        - Authentification
+      summary: Utilisateur courant
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Utilisateur authentifié
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicUser"
+              example:
+                id: 665f1c2e9b1e8a0012345678
+                steamId: "76561198957316510"
+                displayName: Corvid
+                avatarUrl: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /players/search:
+    get:
+      tags:
+        - Joueurs
+      summary: Rechercher un joueur
+      description: Par pseudo Steam ou SteamID64. Cache 5 min.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 64
+          example: Corvid
+      responses:
+        "200":
+          description: Résultats (éventuellement vides)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerSearchResult"
+              example:
+                items:
+                  - steamId: "76561198000000000"
+                    accountId: 39734272
+                    displayName: ExempleJoueur
+                    avatarUrl: null
+                meta:
+                  fetchedAt: 2026-11-16T09:00:00.000Z
+                  sourceUpdatedAt: null
+                  isStale: false
+                  isPartial: false
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}:
+    get:
+      tags:
+        - Joueurs
+      summary: Profil public et statistiques
+      description: Statistiques calculées sur les **parties disponibles** (victoires/défaites). Si l’historique est indisponible, `stats` est entièrement `null` et `meta.isPartial` vaut `true`. Cache profil 15 min, historique 3 min.
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+      responses:
+        "200":
+          description: Profil
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerProfile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/matches:
+    get:
+      tags:
+        - Joueurs
+      summary: Historique des parties (paginé)
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: cursor
+          in: query
+          description: Jeton opaque `nextCursor` de la page précédente, à transmettre tel quel.
+          schema:
+            type: string
+            maxLength: 128
+      responses:
+        "200":
+          description: Page de parties
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchPage"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /tracked-players:
+    get:
+      tags:
+        - Suivis
+      summary: Lister mes suivis
+      description: Uniquement ceux du compte authentifié, du plus récemment modifié au plus ancien.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 'Liste (vide : `{ "items": [] }`)'
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - items
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TrackedPlayer"
+              example:
+                items:
+                  - id: 507f1f77bcf86cd799439012
+                    steamId: "76561198000000000"
+                    alias: Duo régulier
+                    note: Joue souvent en classé
+                    tags:
+                      - duo
+                      - ranked
+                    createdAt: 2026-11-16T09:00:00.000Z
+                    updatedAt: 2026-11-16T09:00:00.000Z
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    post:
+      tags:
+        - Suivis
+      summary: Suivre un joueur
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackedPlayerCreate"
+            example:
+              steamId: "76561198000000000"
+              alias: Duo régulier
+              note: Joue souvent en classé
+              tags:
+                - duo
+                - ranked
+      responses:
+        "201":
+          description: Suivi créé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackedPlayer"
+              example:
+                id: 507f1f77bcf86cd799439012
+                steamId: "76561198000000000"
+                alias: Duo régulier
+                note: Joue souvent en classé
+                tags:
+                  - duo
+                  - ranked
+                createdAt: 2026-11-16T09:00:00.000Z
+                updatedAt: 2026-11-16T09:00:00.000Z
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          description: Joueur déjà suivi par ce compte
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                error:
+                  code: ALREADY_TRACKED
+                  message: Ce joueur est déjà dans votre liste.
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /tracked-players/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        example: 507f1f77bcf86cd799439012
+    get:
+      tags:
+        - Suivis
+      summary: Consulter un suivi
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Suivi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackedPlayer"
+              example:
+                id: 507f1f77bcf86cd799439012
+                steamId: "76561198000000000"
+                alias: Duo régulier
+                note: Joue souvent en classé
+                tags:
+                  - duo
+                  - ranked
+                createdAt: 2026-11-16T09:00:00.000Z
+                updatedAt: 2026-11-16T09:00:00.000Z
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    patch:
+      tags:
+        - Suivis
+      summary: Modifier un suivi (partiel)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrackedPlayerUpdate"
+            example:
+              note: Analyse mise à jour
+      responses:
+        "200":
+          description: Suivi modifié
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackedPlayer"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      tags:
+        - Suivis
+      summary: Supprimer un suivi
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: Supprimé, sans corps
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT HS256 obtenu via la connexion Steam (`#token=` au retour).
+  responses:
+    BadRequest:
+      description: Entrée invalide (champ, identifiant, JSON, PATCH vide…)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: INVALID_INPUT
+              message: "tags : 10 tags maximum"
+    Unauthorized:
+      description: Jeton absent, invalide ou expiré
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: UNAUTHORIZED
+              message: Session absente ou expirée.
+    NotFound:
+      description: Ressource absente ou appartenant à un autre compte (pas de divulgation d'existence)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: NOT_FOUND
+              message: Ressource introuvable.
+    RateLimited:
+      description: Trop de requêtes
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: RATE_LIMITED
+              message: Trop de requêtes, réessayez dans quelques instants.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Secondes
+    UpstreamError:
+      description: Réponse inexploitable du fournisseur de statistiques
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: UPSTREAM_ERROR
+              message: Réponse inexploitable du fournisseur de statistiques.
+    ServiceUnavailable:
+      description: Fournisseur de statistiques indisponible et aucune copie en cache
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          example:
+            error:
+              code: SERVICE_UNAVAILABLE
+              message: Les statistiques sont temporairement indisponibles.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Secondes
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: string
+              enum:
+                - INVALID_INPUT
+                - UNAUTHORIZED
+                - NOT_FOUND
+                - ALREADY_TRACKED
+                - RATE_LIMITED
+                - UPSTREAM_ERROR
+                - SERVICE_UNAVAILABLE
+                - INTERNAL_ERROR
+            message:
+              type: string
+    DataMeta:
+      type: object
+      required:
+        - fetchedAt
+        - sourceUpdatedAt
+        - isStale
+        - isPartial
+      properties:
+        fetchedAt:
+          type: string
+          format: date-time
+          description: Date de collecte
+        sourceUpdatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        isStale:
+          type: boolean
+          description: Copie en cache servie faute de fournisseur
+        isPartial:
+          type: boolean
+          description: Une partie des données est indisponible
+    PublicUser:
+      type: object
+      required:
+        - id
+        - steamId
+        - displayName
+        - avatarUrl
+      properties:
+        id:
+          type: string
+        steamId:
+          type: string
+          pattern: ^\d{17}$
+        displayName:
+          type: string
+          description: "Pseudo Steam (repli : le steamId)"
+        avatarUrl:
+          type:
+            - string
+            - "null"
+          format: uri
+    PlayerSummary:
+      type: object
+      required:
+        - steamId
+        - accountId
+        - displayName
+        - avatarUrl
+      properties:
+        steamId:
+          type: string
+          pattern: ^\d{17}$
+        accountId:
+          type: integer
+          description: SteamID3 (32 bits)
+        displayName:
+          type: string
+        avatarUrl:
+          type:
+            - string
+            - "null"
+          format: uri
+    PlayerSearchResult:
+      type: object
+      required:
+        - items
+        - meta
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlayerSummary"
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    PlayerStats:
+      type: object
+      description: Agrégats sur les parties disponibles ; `null` si inconnu.
+      required:
+        - matchesPlayed
+        - wins
+        - losses
+        - winRate
+        - kills
+        - deaths
+        - assists
+        - kda
+      properties:
+        matchesPlayed:
+          type:
+            - integer
+            - "null"
+        wins:
+          type:
+            - integer
+            - "null"
+        losses:
+          type:
+            - integer
+            - "null"
+        winRate:
+          type:
+            - number
+            - "null"
+          description: En %, 2 décimales
+        kills:
+          type:
+            - integer
+            - "null"
+        deaths:
+          type:
+            - integer
+            - "null"
+        assists:
+          type:
+            - integer
+            - "null"
+        kda:
+          type:
+            - number
+            - "null"
+          description: (K + A) / max(D, 1), 2 décimales
+    PlayerProfile:
+      type: object
+      required:
+        - player
+        - stats
+        - rank
+        - meta
+      properties:
+        player:
+          allOf:
+            - $ref: "#/components/schemas/PlayerSummary"
+            - type: object
+              properties:
+                region:
+                  type:
+                    - string
+                    - "null"
+                  description: Code pays Steam (ex. FR)
+        stats:
+          $ref: "#/components/schemas/PlayerStats"
+        rank:
+          type: object
+          required:
+            - badgeId
+            - name
+          properties:
+            badgeId:
+              type:
+                - integer
+                - "null"
+            name:
+              type:
+                - string
+                - "null"
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    MatchSummary:
+      type: object
+      required:
+        - matchId
+        - playedAt
+        - heroId
+        - heroName
+        - outcome
+        - durationSeconds
+        - kills
+        - deaths
+        - assists
+        - netWorth
+      properties:
+        matchId:
+          type: string
+        playedAt:
+          type: string
+          format: date-time
+        heroId:
+          type: integer
+        heroName:
+          type: string
+          description: "Repli `Héros #<id>` si catalogue indisponible"
+        outcome:
+          type: string
+          enum:
+            - win
+            - loss
+        durationSeconds:
+          type:
+            - integer
+            - "null"
+        kills:
+          type:
+            - integer
+            - "null"
+        deaths:
+          type:
+            - integer
+            - "null"
+        assists:
+          type:
+            - integer
+            - "null"
+        netWorth:
+          type:
+            - integer
+            - "null"
+    MatchPage:
+      type: object
+      required:
+        - items
+        - nextCursor
+        - meta
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MatchSummary"
+        nextCursor:
+          type:
+            - string
+            - "null"
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    TrackedPlayer:
+      type: object
+      required:
+        - id
+        - steamId
+        - alias
+        - note
+        - tags
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        steamId:
+          type: string
+          pattern: ^\d{17}$
+        alias:
+          type: string
+        note:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TrackedPlayerCreate:
+      type: object
+      required:
+        - steamId
+      additionalProperties: false
+      properties:
+        steamId:
+          type: string
+          pattern: ^\d{17}$
+        alias:
+          type: string
+          maxLength: 80
+          description: Trim appliqué
+        note:
+          type: string
+          maxLength: 1000
+          description: Trim appliqué
+        tags:
+          type: array
+          maxItems: 10
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 24
+    TrackedPlayerUpdate:
+      type: object
+      minProperties: 1
+      additionalProperties: false
+      description: "`steamId`, `id`, `ownerId` et dates sont refusés (400)."
+      properties:
+        alias:
+          type: string
+          maxLength: 80
+        note:
+          type: string
+          maxLength: 1000
+        tags:
+          type: array
+          maxItems: 10
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 24

@@ -67,3 +67,11 @@ Contrat à implémenter côté `baroness-back` :
 - Contrat proposé dans `docs/back-groups-contract.md`. Le back est à écrire : collection `groups`, CRUD isolé par compte, route `compare`.
 - « Meilleures actions de la partie » : le front compare la meilleure partie de chaque joueur par KDA. Les événements fins d'une partie (multi-éliminations, moments forts) ne sont pas dans le contrat.
 - L'historique de rang de la comparaison est synthétique en mock. La source réelle reste à trancher avec le back (historique de parties ou snapshots).
+
+## État du back relevé le 16/11/2026 (commit `7f88585`)
+
+- Prêtes et testées côté back : health, Steam OpenID (`/auth/steam`, callback, `/auth/me`), recherche, profil, historique paginé des joueurs, CRUD des suivis, OpenAPI (`/api/openapi.json`, `/api/docs`), CORS, Docker Compose. Le front est aligné sur ces formes (copie figée dans `src/contracts/openapi.yaml`).
+- `player.region` est un code pays Steam (`FR`) : le front le convertit en nom de pays. Le mock renvoie aussi `FR`.
+- `rank` vaut `{ badgeId: null, name: null }` pour l'instant : le front affiche « Non classé » sans icône. Le mock simule le rang complet (tier, sous-rang, image) tel que proposé dans le contrat P1.
+- `heroName` a un repli `Héros #<id>` côté back si le catalogue est indisponible, et il n'y a pas encore de `heroImageUrl` : les portraits de parties dépendent des routes P1.
+- Pas encore côté back : héros, classement, détail de partie, carte, rangs, héros d'un joueur (P1) et groupes. Le front en mode réel affiche pour ces écrans l'état d'erreur ou vide, le mock reste la référence.

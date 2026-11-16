@@ -70,9 +70,11 @@ export function HomePage() {
           </Reveal>
         </div>
 
-        <div className="mt-16 sm:mt-20">
-          <HeroStrip heroes={strip} />
-        </div>
+        {!heroes.isError && (
+          <div className="mt-16 sm:mt-20">
+            <HeroStrip heroes={strip} />
+          </div>
+        )}
       </section>
 
       {heroes.data && ranks.data && (

@@ -1,13 +1,13 @@
 // Génère les fixtures de catalogue (héros, rangs, carte) à partir de Deadlock API.
 // Usage : node scripts/build-fixtures.mjs
-// Données de catalogue réelles (noms, images). Aucun joueur réel : les joueurs et les
+// Données de catalogue réelles (noms, images), en anglais comme dans le jeu. Aucun joueur réel : les joueurs et les
 // statistiques des fixtures sont synthétiques (voir src/mocks/synthetic.ts).
 import fs from "node:fs";
 
 const API = "https://api.deadlock-api.com/v1/assets";
 const out = "src/mocks/fixtures";
 const get = async (path) => {
-  const res = await fetch(`${API}${path}${path.includes("?") ? "&" : "?"}language=french`);
+  const res = await fetch(`${API}${path}`);
   if (!res.ok) throw new Error(`${path}: ${res.status}`);
   return res.json();
 };
@@ -17,19 +17,19 @@ const strip = (html) =>
     .replace(/<svg[\s\S]*?<\/svg>/g, "")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
-    .replace(/([.!?»])([A-ZÀ-Ý])/g, "$1 $2")
+    .replace(/([.!?])([A-Z])/g, "$1 $2")
     .replace(/\s+/g, " ")
     .trim();
 
 const STAT_LABELS = {
-  max_health: "Santé",
-  base_health_regen: "Régénération de santé",
-  max_move_speed: "Vitesse de déplacement",
-  sprint_speed: "Vitesse de sprint",
-  stamina: "Endurance",
-  light_melee_damage: "Mêlée légère",
-  heavy_melee_damage: "Mêlée lourde",
-  reload_speed: "Vitesse de rechargement",
+  max_health: "Health",
+  base_health_regen: "Health regen",
+  max_move_speed: "Move speed",
+  sprint_speed: "Sprint speed",
+  stamina: "Stamina",
+  light_melee_damage: "Light melee",
+  heavy_melee_damage: "Heavy melee",
+  reload_speed: "Reload speed",
 };
 
 const [heroes, abilities, ranks, map] = await Promise.all([

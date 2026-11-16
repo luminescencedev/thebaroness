@@ -1,6 +1,6 @@
 # Contrat front/back : routes P1 (catalogue, classement, partie)
 
-Proposition du front pour les écrans P1 du cahier (F-16 à F-20). Les formes sont dans `src/api/types.ts` (section P1) et les exemples dans les fixtures de `src/mocks/fixtures/`. Les images viennent du catalogue Deadlock (`assets-bucket.deadlock-api.com`) : le back les normalise et renvoie des URLs complètes, le front ne les construit jamais. Les textes sont demandés en français (`?language=french` côté Deadlock API).
+Proposition du front pour les écrans P1 du cahier (F-16 à F-20). Les formes sont dans `src/api/types.ts` (section P1) et les exemples dans les fixtures de `src/mocks/fixtures/`. Les images viennent du catalogue Deadlock (`assets-bucket.deadlock-api.com`) : le back les normalise et renvoie des URLs complètes, le front ne les construit jamais. Les données de jeu (noms de héros, capacités, descriptions, histoire, noms de rangs, rôles) sont en **anglais**, comme dans le jeu : pas de paramètre `language` vers Deadlock API. Seule l'interface du front est en français.
 
 | Route                                | Réponse                                                                                                    |
 | ------------------------------------ | ---------------------------------------------------------------------------------------------------------- |

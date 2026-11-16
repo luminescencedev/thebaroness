@@ -8,7 +8,7 @@ import { Card, EmptyState, Skeleton, buttonStyles, cn } from "@/components/ui";
 import { useMatch } from "@/features/leaderboard/hooks";
 import { NA, formatDateTime, formatDuration, formatInt } from "@/lib/format";
 
-const TEAM_NAMES = { amber: "Main d'Ambre", sapphire: "Flamme de Saphir" } as const;
+const TEAM_NAMES = { amber: "Amber Hand", sapphire: "Sapphire Flame" } as const;
 
 function Team({ team }: { team: MatchTeam }) {
   const win = team.outcome === "win";

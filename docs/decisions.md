@@ -75,3 +75,7 @@ Contrat à implémenter côté `baroness-back` :
 - `rank` vaut `{ badgeId: null, name: null }` pour l'instant : le front affiche « Non classé » sans icône. Le mock simule le rang complet (tier, sous-rang, image) tel que proposé dans le contrat P1.
 - `heroName` a un repli `Héros #<id>` côté back si le catalogue est indisponible, et il n'y a pas encore de `heroImageUrl` : les portraits de parties dépendent des routes P1.
 - Pas encore côté back : héros, classement, détail de partie, carte, rangs, héros d'un joueur (P1) et groupes. Le front en mode réel affiche pour ces écrans l'état d'erreur ou vide, le mock reste la référence.
+
+## Langue des données de jeu
+
+Les données de jeu viennent de Deadlock API en anglais et restent en anglais (noms de héros, capacités, descriptions, histoire, rangs, rôles, équipes Amber Hand et Sapphire Flame). Seule l'interface (libellés, boutons, messages) est en français. Le script `scripts/build-fixtures.mjs` ne demande plus `language=french`.

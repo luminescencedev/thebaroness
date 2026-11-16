@@ -8,7 +8,7 @@
   },
   {
     "tier": 1,
-    "name": "Prosélyte",
+    "name": "Initiate",
     "color": "#6A3E1E",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank01_lg.webp",
     "subranks": [
@@ -22,7 +22,7 @@
   },
   {
     "tier": 2,
-    "name": "Adepte",
+    "name": "Seeker",
     "color": "#882355",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank02_lg.webp",
     "subranks": [
@@ -50,7 +50,7 @@
   },
   {
     "tier": 4,
-    "name": "Sentinelle",
+    "name": "Sentinel",
     "color": "#719C47",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank04_lg.webp",
     "subranks": [
@@ -64,7 +64,7 @@
   },
   {
     "tier": 5,
-    "name": "Mystique",
+    "name": "Mystic",
     "color": "#DDA326",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank05_lg.webp",
     "subranks": [
@@ -78,7 +78,7 @@
   },
   {
     "tier": 6,
-    "name": "Ritualiste",
+    "name": "Ritualist",
     "color": "#EE4F57",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank06_lg.webp",
     "subranks": [
@@ -92,7 +92,7 @@
   },
   {
     "tier": 7,
-    "name": "Émissaire",
+    "name": "Emissary",
     "color": "#B47FEB",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank07_lg.webp",
     "subranks": [
@@ -120,7 +120,7 @@
   },
   {
     "tier": 9,
-    "name": "Augure",
+    "name": "Phantom",
     "color": "#7C7C7C",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank09_lg.webp",
     "subranks": [
@@ -134,7 +134,7 @@
   },
   {
     "tier": 10,
-    "name": "Thaumaturge",
+    "name": "Ascendant",
     "color": "#C39751",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank10_lg.webp",
     "subranks": [
@@ -148,7 +148,7 @@
   },
   {
     "tier": 11,
-    "name": "Éternus",
+    "name": "Eternus",
     "color": "#5CE9A9",
     "imageUrl": "https://assets-bucket.deadlock-api.com/assets-api-res/images/ranks/rank11_lg.webp",
     "subranks": [

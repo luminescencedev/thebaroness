@@ -1,11 +1,12 @@
 import type { HeroRole } from "@/api";
 
+/** Rôles tels que le jeu les nomme (données de jeu en anglais). */
 export const ROLE_LABELS: Record<HeroRole, string> = {
   assassin: "Assassin",
-  brawler: "Bagarreur",
-  marksman: "Tireur",
-  mystic: "Mystique",
-  healer: "Soigneur",
+  brawler: "Brawler",
+  marksman: "Marksman",
+  mystic: "Mystic",
+  healer: "Healer",
 };
 
 export const ROLES = Object.keys(ROLE_LABELS) as HeroRole[];

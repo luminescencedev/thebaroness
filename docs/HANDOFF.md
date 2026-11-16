@@ -8,13 +8,13 @@ Dernière mise à jour : 16/11/2026 (voir `git log -- docs/HANDOFF.md` pour le S
 
 ## Ce que le front attend du back, par priorité
 
-| #   | À faire                                                                                                                                             | Contrat                   | État côté back                   |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------------------------------- |
-| 1   | `GET /api/heroes`, `GET /api/heroes/:heroId`, `GET /api/ranks`, `GET /api/map` (catalogue, images, textes en français)                              | `back-p1-contract.md`     | NON COMMENCÉE (issues #19 à #23) |
-| 2   | `rank` détaillé dans le profil : `tier`, `subrank`, `imageUrl`, `color` en plus de `badgeId` et `name`. Aujourd'hui `{ badgeId: null, name: null }` | `back-p1-contract.md`     | à faire                          |
-| 3   | `heroImageUrl` dans `MatchSummary`                                                                                                                  | `back-p1-contract.md`     | à faire                          |
-| 4   | `GET /api/leaderboard?region=`, `GET /api/matches/:matchId`, `GET /api/players/:steamId/heroes`, `GET /api/heroes/:heroId/stats`                    | `back-p1-contract.md`     | NON COMMENCÉE                    |
-| 5   | Groupes : CRUD `/api/groups` et `GET /api/groups/:id/compare?period=`                                                                               | `back-groups-contract.md` | à faire                          |
+| #   | À faire                                                                                                                                                                | Contrat                   | État côté back                   |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- | -------------------------------- |
+| 1   | `GET /api/heroes`, `GET /api/heroes/:heroId`, `GET /api/ranks`, `GET /api/map` (catalogue, images, textes en anglais : ne pas passer `language=french` à Deadlock API) | `back-p1-contract.md`     | NON COMMENCÉE (issues #19 à #23) |
+| 2   | `rank` détaillé dans le profil : `tier`, `subrank`, `imageUrl`, `color` en plus de `badgeId` et `name`. Aujourd'hui `{ badgeId: null, name: null }`                    | `back-p1-contract.md`     | à faire                          |
+| 3   | `heroImageUrl` dans `MatchSummary`                                                                                                                                     | `back-p1-contract.md`     | à faire                          |
+| 4   | `GET /api/leaderboard?region=`, `GET /api/matches/:matchId`, `GET /api/players/:steamId/heroes`, `GET /api/heroes/:heroId/stats`                                       | `back-p1-contract.md`     | NON COMMENCÉE                    |
+| 5   | Groupes : CRUD `/api/groups` et `GET /api/groups/:id/compare?period=`                                                                                                  | `back-groups-contract.md` | à faire                          |
 
 Ordre conseillé : 1 à 3 d'abord (la landing, les profils et les parties en dépendent), puis 4, puis 5.
 
@@ -37,6 +37,7 @@ Steam OpenID, `/auth/me`, recherche, profil, historique paginé, CRUD des suivis
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
+- 16/11/2026 : toutes les données de jeu sont en anglais (héros, capacités, lore, rangs, rôles). L'interface reste en français. Aucun changement de forme.
 - 16/11/2026 : ajout des routes groupes (`back-groups-contract.md`).
 - 16/11/2026 : ajout des routes P1 catalogue, classement, partie (`back-p1-contract.md`).
 - 16/11/2026 : connexion Steam uniquement (`back-steam-contract.md`), implémentée par le back.

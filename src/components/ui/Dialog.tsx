@@ -32,7 +32,11 @@ export function Dialog({
     <BaseDialog.Root open={open} onOpenChange={onOpenChange}>
       <BaseDialog.Portal>
         <BaseDialog.Backdrop
-          className={cn("fixed inset-0 z-50 bg-black/60", animated && "dialog-backdrop")}
+          className={cn(
+            "fixed inset-0 z-50 bg-[rgb(3_4_6/0.6)]",
+            top && "backdrop-blur-[6px]",
+            animated && "dialog-backdrop",
+          )}
         />
         <BaseDialog.Viewport
           className={cn(
@@ -51,7 +55,9 @@ export function Dialog({
               {title}
             </BaseDialog.Title>
             {description ? (
-              <BaseDialog.Description className="mt-1.5 text-sm text-muted">
+              <BaseDialog.Description
+                className={hideTitle ? "sr-only" : "mt-1.5 text-sm text-muted"}
+              >
                 {description}
               </BaseDialog.Description>
             ) : null}

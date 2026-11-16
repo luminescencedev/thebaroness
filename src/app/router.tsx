@@ -17,10 +17,12 @@ import {
   TrackedPage,
 } from "./lazyPages";
 import { RootLayout } from "./RootLayout";
+import { RouteError } from "./RouteError";
 
 export const routes: RouteObject[] = [
   {
     element: <RootLayout />,
+    errorElement: <RouteError />,
     children: [
       { path: "/", element: <HomePage /> },
       { path: "/search", element: <SearchPage /> },

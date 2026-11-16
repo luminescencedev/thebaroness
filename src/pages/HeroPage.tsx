@@ -113,7 +113,7 @@ export function HeroPage() {
     );
   }
 
-  const { hero, meta } = query.data;
+  const { hero } = query.data;
 
   return (
     <div className="space-y-12">
@@ -220,8 +220,6 @@ export function HeroPage() {
         </h2>
         <MetaStats heroId={heroId} />
       </section>
-
-      <DataMetaNotice meta={meta} />
     </div>
   );
 }

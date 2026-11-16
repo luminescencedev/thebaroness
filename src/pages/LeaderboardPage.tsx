@@ -113,13 +113,14 @@ export function LeaderboardPage() {
       <Tabs.Root value={region} onValueChange={(v) => setRegion(v as LeaderboardRegion)}>
         <Tabs.List
           aria-label="Région"
-          className="mb-6 flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1"
+          className="relative mb-6 flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1"
         >
+          <Tabs.Indicator className="absolute top-1 bottom-1 left-0 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-white/[0.09] shadow-[0_1px_2px_rgb(0_0_0/0.4)] transition-[translate,width] duration-[220ms] ease-[var(--ease-in-out)] motion-reduce:transition-none" />
           {REGIONS.map((r) => (
             <Tabs.Tab
               key={r.value}
               value={r.value}
-              className="pressable hover-text shrink-0 rounded-full px-4 py-1.5 text-sm text-muted data-[selected]:bg-surface-strong data-[selected]:text-text"
+              className="pressable hover-text relative z-10 shrink-0 rounded-full px-4 py-1.5 text-sm text-muted data-[selected]:text-text"
             >
               {r.label}
             </Tabs.Tab>

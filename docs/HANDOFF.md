@@ -49,6 +49,7 @@ Tout est écrit contre `src/api/types.ts` et testé en mock (`npm run dev:mock`)
 
 ## Journal des changements de contrat (du plus récent au plus ancien)
 
+- 16/11/2026 : palette ⌘K refaite (recherche de joueurs en direct via `GET /api/players/search`, récents gardés dans le navigateur, héros, actions, pages), connexion, comparaison de groupe adaptée au mobile. Aucun DTO ni route modifié. Le front appelle `players/search` après 220 ms de pause de frappe, 2 caractères minimum.
 - 16/11/2026 : types alignés sur l'OpenAPI 1.3.0 (`LeaderboardEntry.badge` nullable, `MatchDetail.playedAt` et `winningSide` nullables, score de rang max 72). Décision « données de jeu en anglais, rangs compris ».
 - 16/11/2026 : refonte visuelle d'après les maquettes. Aucun DTO ni route modifié. Le front lit `meta.isStale` (bandeau « Source lente ») et `meta.isPartial`.
 - 16/11/2026 : routes groupes (`back-groups-contract.md`), routes P1 (`back-p1-contract.md`), connexion Steam uniquement (`back-steam-contract.md`).

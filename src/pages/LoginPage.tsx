@@ -1,8 +1,14 @@
-import { Navigate, useLocation, useSearchParams } from "react-router";
+import { Link, Navigate, useLocation, useSearchParams } from "react-router";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { Alert, Card } from "@/components/ui";
 import { SteamButton } from "@/features/auth/SteamButton";
 import { useSession } from "@/features/auth/useSession";
+
+const POINTS = [
+  ["Aucun mot de passe", "Steam vous identifie, nous ne voyons jamais vos identifiants."],
+  ["Données publiques seulement", "Identifiant Steam, pseudo et avatar : rien d'autre."],
+  ["Liste privée", "Vos suivis et vos groupes ne sont visibles que par vous."],
+];
 
 export function LoginPage() {
   useDocumentTitle("Connexion");
@@ -14,21 +20,40 @@ export function LoginPage() {
   if (session) return <Navigate to={from ?? "/tracked"} replace />;
 
   return (
-    <Card className="mx-auto w-full max-w-md p-7 text-center">
-      <h1 className="text-2xl">Connexion</h1>
-      <p className="mt-2 text-sm text-muted">
-        Connectez-vous avec votre compte Steam pour suivre des joueurs. Vous êtes redirigé vers
-        Steam : The Baroness ne voit jamais votre mot de passe.
-      </p>
-      {params.get("error") && (
-        <Alert tone="error" className="mt-5 text-left">
-          La connexion avec Steam a échoué. Réessayez.
-        </Alert>
-      )}
-      <SteamButton returnTo={from} className="mt-6 w-full" />
-      <p className="mt-4 text-xs text-subtle">
-        Nous utilisons seulement votre identifiant public Steam, votre pseudo et votre avatar.
-      </p>
-    </Card>
+    <div className="relative isolate -mt-10 flex min-h-[calc(100dvh-14rem)] flex-col items-center justify-center py-20">
+      <div aria-hidden="true" className="hero-glow absolute inset-x-0 top-0 -z-10 h-80" />
+      <Card className="w-full max-w-md p-8 text-center">
+        <h1 className="text-3xl">Connexion</h1>
+        <p className="mt-2 text-sm text-muted">
+          Connectez-vous avec Steam pour suivre des joueurs et comparer vos amis.
+        </p>
+        {params.get("error") && (
+          <Alert tone="error" className="mt-5 text-left">
+            La connexion avec Steam a échoué. Réessayez.
+          </Alert>
+        )}
+        <SteamButton returnTo={from} className="mt-6 h-12 w-full text-base" />
+        <ul className="mt-7 space-y-3.5 border-t border-border pt-6 text-left">
+          {POINTS.map(([title, text]) => (
+            <li key={title} className="flex gap-3">
+              <span
+                aria-hidden="true"
+                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent-text"
+              />
+              <span className="text-[13px] text-muted">
+                <span className="font-medium text-text">{title}.</span> {text}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </Card>
+      <Link
+        to="/search"
+        className="hover-text pressable mt-6 rounded-md text-sm text-muted underline-offset-4 hover:underline"
+      >
+        Continuer sans compte
+        <span aria-hidden="true"> →</span>
+      </Link>
+    </div>
   );
 }

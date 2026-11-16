@@ -1,4 +1,5 @@
 import { Tabs } from "@base-ui/react/tabs";
+import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { isApiError } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
@@ -10,6 +11,7 @@ import { MatchesTable } from "@/features/matches/MatchesTable";
 import { HeroesTab } from "@/features/players/HeroesTab";
 import { PlayerOverview } from "@/features/players/PlayerOverview";
 import { usePlayer, usePlayerMatches } from "@/features/players/hooks";
+import { rememberPlayer } from "@/features/search/recents";
 import { FollowButton } from "@/features/tracked-players/FollowButton";
 import { formatRegion, timeAgo } from "@/lib/format";
 
@@ -85,6 +87,16 @@ export function PlayerPage() {
   const { steamId = "" } = useParams();
   const player = usePlayer(steamId);
   useDocumentTitle(player.data?.player.displayName ?? "Profil public");
+
+  const viewed = player.data?.player;
+  useEffect(() => {
+    if (viewed)
+      rememberPlayer({
+        steamId: viewed.steamId,
+        displayName: viewed.displayName,
+        avatarUrl: viewed.avatarUrl,
+      });
+  }, [viewed]);
 
   if (player.isPending) {
     return (

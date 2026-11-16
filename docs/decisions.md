@@ -93,3 +93,10 @@ Les données de jeu viennent de Deadlock API en anglais et restent en anglais (n
 - Types : `LeaderboardEntry.badge`, `MatchDetail.playedAt` et `winningSide` nullables, score de rang maximum 72. Écrans adaptés (« Rang non communiqué », « Vainqueur inconnu »).
 - Mock aligné sur les décisions du back : KDA `(K + A) / max(D, 1)`, 503 sur une comparaison sans données, groupes triés par modification.
 - Données de jeu en anglais, noms de rangs compris : le back doit retirer `language=french` (voir `HANDOFF.md`).
+
+## Palette ⌘K, finitions
+
+- Palette : recherche de joueurs en direct (anti-rebond 220 ms, 2 caractères minimum), SteamID64 collé ouvre le profil, héros filtrés en local, actions (suivre, groupe, déconnexion), pages. Sans saisie : récents, actions, pages. Aucune animation à l'ouverture (action clavier fréquente).
+- Récents : derniers profils consultés (SteamID, pseudo, avatar) dans `localStorage`, bouton « Effacer ». Données publiques seulement, jamais le jeton.
+- Filet de sécurité : page d'erreur de route, restauration du défilement, focus rendu au contenu après navigation, favicon et balises de partage.
+- Tests de bout en bout Playwright : les parcours décrits (`e2e/`) datent d'avant la refonte (recherche, onglets du profil, palette) et sont à reprendre. Les tests Vitest (31) sont à jour.

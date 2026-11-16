@@ -239,7 +239,34 @@ export function GroupDetailPage() {
               ))}
             </div>
           </div>
-          <div className="card overflow-x-auto">
+          <ol className="space-y-2 md:hidden" aria-label="Classement du groupe">
+            {sorted.map((m, i) => (
+              <li key={m.steamId} className="card flex flex-col gap-3 p-4">
+                <div className="flex items-center gap-3">
+                  <span className="w-5 text-base font-semibold text-muted tabular-nums">
+                    {i + 1}
+                  </span>
+                  <Avatar name={m.displayName} src={m.avatarUrl} className="size-9 text-xs" />
+                  <Link
+                    to={`/players/${m.steamId}`}
+                    className="min-w-0 flex-1 truncate font-medium hover:underline"
+                  >
+                    {m.displayName}
+                  </Link>
+                  <Climb member={m} />
+                </div>
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pl-8 text-xs text-muted">
+                  <RankBadge name={m.rank?.name} imageUrl={m.rank?.imageUrl} size="sm" label />
+                  <span className="tabular-nums">
+                    {m.wins} V / {m.losses} D
+                  </span>
+                  <span className="tabular-nums">{formatPercent(m.winRate)}</span>
+                  <span className="tabular-nums">KDA {formatDecimal(m.kda)}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <div className="card hidden overflow-x-auto md:block">
             <table className="w-full min-w-[40rem] text-sm">
               <caption className="sr-only">
                 Classement des joueurs du groupe, trié par{" "}

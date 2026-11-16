@@ -6,6 +6,7 @@ import { usePalette } from "@/components/layout/paletteContext";
 import { Button, EmptyState, Kbd, Skeleton } from "@/components/ui";
 import { PlayerRow } from "@/features/players/PlayerRow";
 import { usePlayerSearch } from "@/features/players/hooks";
+import { clearRecents, useRecentPlayers } from "@/features/search/recents";
 import { timeAgo } from "@/lib/format";
 
 export function SearchPage() {
@@ -14,6 +15,7 @@ export function SearchPage() {
   useDocumentTitle(q ? `Recherche : ${q}` : "Recherche");
   const search = usePlayerSearch(q);
   const palette = usePalette();
+  const recents = useRecentPlayers();
   const count = search.data?.items.length ?? 0;
 
   return (
@@ -35,12 +37,32 @@ export function SearchPage() {
 
       <div aria-live="polite">
         {!q ? (
-          <EmptyState
-            icon="search"
-            title="Lancez une recherche"
-            description="Saisissez un pseudo Steam ou un SteamID64 à 17 chiffres."
-            action={<Button onClick={palette.open}>Rechercher un joueur</Button>}
-          />
+          recents.length > 0 ? (
+            <section aria-labelledby="recents" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 id="recents" className="text-base">
+                  Récents
+                </h2>
+                <Button variant="ghost" size="sm" onClick={clearRecents}>
+                  Effacer
+                </Button>
+              </div>
+              <ul className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))]">
+                {recents.map((p) => (
+                  <li key={p.steamId}>
+                    <PlayerRow player={{ ...p, accountId: 0 }} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
+            <EmptyState
+              icon="search"
+              title="Lancez une recherche"
+              description="Saisissez un pseudo Steam ou un SteamID64 à 17 chiffres."
+              action={<Button onClick={palette.open}>Rechercher un joueur</Button>}
+            />
+          )
         ) : search.isPending ? (
           <div
             className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))]"

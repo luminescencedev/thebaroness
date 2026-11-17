@@ -76,7 +76,8 @@ function resolveItems(
   const ids = self?.finalItemIds;
   if (!ids || !catalog) return null;
   const first = new Map<number, number>();
-  for (const p of self?.purchases ?? []) if (!first.has(p.itemId)) first.set(p.itemId, p.atSeconds);
+  for (const p of self?.purchases ?? [])
+    if (!first.has(p.itemId)) first.set(p.itemId, p.atSeconds ?? Number.MAX_SAFE_INTEGER);
   return ids
     .map((id, i) => ({ id, at: first.get(id) ?? Number.MAX_SAFE_INTEGER, i }))
     .sort((a, b) => a.at - b.at || a.i - b.i)

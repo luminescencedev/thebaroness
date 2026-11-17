@@ -78,7 +78,7 @@ Contrat à implémenter côté `baroness-back` :
 
 ## Langue des données de jeu
 
-Les données de jeu viennent de Deadlock API en anglais et restent en anglais (noms de héros, capacités, descriptions, histoire, rangs, rôles, équipes Amber Hand et Sapphire Flame). Seule l'interface (libellés, boutons, messages) est en français. Le script `scripts/build-fixtures.mjs` ne demande plus `language=french`.
+Les données de jeu viennent de Deadlock API en anglais et restent en anglais (noms de héros, capacités, descriptions, histoire, rangs, rôles, équipes Hidden King (`amber`) et Archmother (`sapphire`)). Seule l'interface (libellés, boutons, messages) est en français. Le script `scripts/build-fixtures.mjs` ne demande plus `language=french`.
 
 ## Alignement sur les maquettes (Claude Design)
 

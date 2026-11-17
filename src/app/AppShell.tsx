@@ -8,6 +8,15 @@ import { Footer, MobileMenu, SidebarNav, Topbar } from "@/components/layout";
 /** Positions de défilement par entrée d'historique (le conteneur du panneau défile, pas la fenêtre). */
 const scrollMemory = new Map<string, number>();
 
+const SIDEBAR_KEY = "baroness:sidebar-collapsed";
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
@@ -15,6 +24,18 @@ export function AppShell() {
   const { pathname, key } = useLocation();
   const navType = useNavigationType();
   const first = useRef(true);
+  // Sidebar repliée (bureau) : préférence mémorisée ; le panneau la recouvre sans la déplacer.
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const expanded = collapsed;
+  const toggleSidebar = () =>
+    setCollapsed((v) => {
+      try {
+        localStorage.setItem(SIDEBAR_KEY, v ? "0" : "1");
+      } catch {
+        /* stockage indisponible : la préférence reste valable pour la session */
+      }
+      return !v;
+    });
   const lastKey = useRef(key);
 
   // Mémorise la position avant de quitter une entrée, la restitue en retour arrière, sinon remonte.
@@ -66,13 +87,27 @@ export function AppShell() {
         Aller au contenu
       </a>
 
-      <aside className="hidden min-h-0 lg:block" aria-label="Barre latérale">
-        <SidebarNav onOpenSearch={openSearch} />
+      <aside
+        className="hidden min-h-0 transition-opacity duration-300 motion-reduce:transition-none data-[covered]:opacity-0 lg:block"
+        data-covered={expanded || undefined}
+        aria-label="Barre latérale"
+        inert={expanded || undefined}
+      >
+        <SidebarNav onOpenSearch={openSearch} onCollapse={toggleSidebar} />
       </aside>
 
       <div className="app-stage">
-        <div className="app-panel" data-crumbs={hasCrumbs || undefined}>
-          <Topbar onOpenMenu={() => setMenuOpen(true)} onOpenSearch={openSearch} />
+        <div
+          className="app-panel"
+          data-crumbs={hasCrumbs || undefined}
+          data-expanded={expanded || undefined}
+        >
+          <Topbar
+            onOpenMenu={() => setMenuOpen(true)}
+            onOpenSearch={openSearch}
+            sidebarCollapsed={expanded}
+            onToggleSidebar={toggleSidebar}
+          />
           <div ref={scroller} className="app-scroll">
             <main
               ref={main}

@@ -56,3 +56,8 @@ export function timeAgo(iso: string, now = Date.now()): string {
   if (abs < 86400 * 7) return rtf.format(Math.round(seconds / 86400), "day");
   return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" }).format(new Date(iso));
 }
+
+const compact = new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 1 });
+/** 216 867 donne « 216,9 k » : lecture rapide des grands totaux. */
+export const formatCompact = (v: number | null | undefined): string =>
+  v === null || v === undefined ? NA : compact.format(v);

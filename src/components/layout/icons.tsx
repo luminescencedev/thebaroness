@@ -75,3 +75,14 @@ export const SlashIcon = ({ className, ...p }: P) => (
     <path d="m9 5 7 7-7 7" />
   </Icon>
 );
+export const SidebarIcon = (p: P) => (
+  <Icon {...p}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="3" />
+    <path d="M9.5 4.5v15" />
+  </Icon>
+);
+export const BackIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="m14 6-6 6 6 6" />
+  </Icon>
+);

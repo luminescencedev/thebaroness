@@ -1,25 +1,62 @@
 import { Fragment } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { IconButton, cn } from "@/components/ui";
-import { MenuIcon, SearchIcon, SlashIcon } from "./icons";
+import { BackIcon, MenuIcon, SearchIcon, SidebarIcon, SlashIcon } from "./icons";
 import { useCrumbs } from "./navModel";
 
 interface TopbarProps {
   onOpenMenu: () => void;
   onOpenSearch: () => void;
+  /** Sidebar repliée (bureau) : le bouton d'ouverture apparaît dans le panneau. */
+  sidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
 }
 
 /** Header contextuel du panneau : fil d'Ariane, recherche, menu mobile. */
-export function Topbar({ onOpenMenu, onOpenSearch }: TopbarProps) {
+export function Topbar({
+  onOpenMenu,
+  onOpenSearch,
+  sidebarCollapsed,
+  onToggleSidebar,
+}: TopbarProps) {
   const crumbs = useCrumbs();
   const hasCrumbs = crumbs.length > 1;
+  const navigate = useNavigate();
+  const location = useLocation();
+  // Retour : l'entrée précédente de l'historique, sinon le parent du fil d'Ariane, sinon l'accueil.
+  const parent = crumbs.length > 1 ? crumbs[crumbs.length - 2]?.to : undefined;
+  const back = () => {
+    // La première entrée d'une session porte la clé "default" : rien avant elle dans l'application.
+    if (location.key !== "default") void navigate(-1);
+    else void navigate(parent ?? "/");
+  };
 
   return (
-    <header className={cn("app-topbar", !hasCrumbs && "lg:hidden")}>
+    <header className={cn("app-topbar", !hasCrumbs && !sidebarCollapsed && "lg:hidden")}>
       <div className="app-topbar-in">
         <IconButton label="Ouvrir le menu" onClick={onOpenMenu} className="-ml-2 lg:hidden">
           <MenuIcon />
         </IconButton>
+
+        {sidebarCollapsed && (
+          <IconButton
+            label="Afficher la barre latérale"
+            onClick={onToggleSidebar}
+            className="hidden bg-[#141518]/75 backdrop-blur-[12px] lg:grid"
+          >
+            <SidebarIcon />
+          </IconButton>
+        )}
+
+        {hasCrumbs && (
+          <IconButton
+            label="Retour à la page précédente"
+            onClick={back}
+            className="bg-[#141518]/75 backdrop-blur-[12px]"
+          >
+            <BackIcon />
+          </IconButton>
+        )}
 
         {hasCrumbs && (
           <nav

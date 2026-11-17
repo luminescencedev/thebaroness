@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { Kbd, cn } from "@/components/ui";
+import { IconButton, Kbd, cn } from "@/components/ui";
 import { SteamButton } from "@/features/auth/SteamButton";
 import { useSession } from "@/features/auth/useSession";
-import { SearchIcon } from "./icons";
+import { SearchIcon, SidebarIcon } from "./icons";
 import { exploreItems, isActive, spaceItems, type NavItem } from "./navModel";
 import { UserMenu } from "./UserMenu";
 import { Wordmark } from "./Wordmark";
@@ -70,10 +70,12 @@ interface SidebarNavProps {
   onOpenSearch: () => void;
   /** Fermeture du drawer mobile après navigation. */
   onNavigate?: () => void;
+  /** Desktop : replie la sidebar (le panneau la recouvre). Absent dans le drawer mobile. */
+  onCollapse?: () => void;
 }
 
 /** Contenu de la sidebar, partagé entre le rail desktop et le drawer mobile. */
-export function SidebarNav({ onOpenSearch, onNavigate }: SidebarNavProps) {
+export function SidebarNav({ onOpenSearch, onNavigate, onCollapse }: SidebarNavProps) {
   const session = useSession();
   const { pathname } = useLocation();
   // La page de connexion porte déjà l'appel à l'action : pas de doublon dans la sidebar.
@@ -81,8 +83,13 @@ export function SidebarNav({ onOpenSearch, onNavigate }: SidebarNavProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col px-3.5 pt-5 pb-4">
-      <div className="px-2 pb-5">
+      <div className="flex items-center justify-between gap-2 px-2 pb-5">
         <Wordmark />
+        {onCollapse && (
+          <IconButton label="Masquer la barre latérale" size="sm" onClick={onCollapse}>
+            <SidebarIcon />
+          </IconButton>
+        )}
       </div>
 
       <button

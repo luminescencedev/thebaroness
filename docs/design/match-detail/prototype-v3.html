@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>The Baroness — Match Detail / prototype V3</title>
+<style>
+  :root { --bg:#08090c; --ink:#f1f2f5; --muted:#91949f; --soft:#696d78; --edge:#292b32; --edge-soft:#23252a; --panel:#111216; --well:#15161b; --king:#d6aa66; --mother:#89aaf3; --accent:#a49df9; --green:#7fcea1; --red:#df8b91; --r:19px; color-scheme:dark; }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Geist,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;letter-spacing:-.012em}
+  button,select{font:inherit;color:inherit}
+  button{cursor:pointer}
+  button:focus-visible,select:focus-visible,a:focus-visible,[role=button]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  a{color:inherit;text-decoration:none}
+  .rail{position:fixed;inset:13px auto 13px 13px;width:224px;padding:18px 11px;display:flex;flex-direction:column;z-index:1;background:linear-gradient(165deg,#111216,#0b0c10 65%);border:1px solid #24262c;border-radius:23px;box-shadow:0 16px 48px #0006}
+  .rail-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:710;letter-spacing:-.055em;padding:4px 7px 26px}
+  .rail-mark{width:31px;height:31px;border:1px solid #807bc0;border-radius:10px;display:grid;place-items:center;color:#dad6ff;font-family:Georgia,serif;font-style:italic;font-size:23px;box-shadow:inset 0 1px #fff2;background:linear-gradient(140deg,#403a69,#1c1a29)}
+  .rail-section{margin:11px 10px 8px;color:#747783;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:750}
+  .nav{display:flex;align-items:center;gap:12px;color:#9699a5;padding:11px 12px;border-radius:11px;margin-bottom:3px;font-size:13px}
+  .nav svg{width:16px;height:16px;stroke-width:1.7}
+  .nav.active{background:#222128;color:#f1eefe;box-shadow:inset 0 0 0 1px #ffffff0d}
+  .nav .small-dot{margin-left:auto;width:5px;height:5px;border-radius:100%;background:#a8a1f8}
+  .rail-bottom{margin-top:auto;padding:15px 11px 7px;border-top:1px solid #24262d;color:#8f929d;font-size:11px;line-height:1.6}
+  .main{position:relative;z-index:3;margin:13px 13px 13px 250px;width:calc(100% - 263px);min-height:calc(100vh - 26px);background:#0d0e12;border:1px solid #292b32;border-radius:25px;box-shadow:0 18px 70px #000b, inset 0 1px #ffffff0c;overflow:clip;transition:margin-left .36s cubic-bezier(.22,1,.36,1),width .36s cubic-bezier(.22,1,.36,1),border-radius .36s}
+  .main.expanded{margin-left:13px;width:calc(100% - 26px)}
+  .main:before{content:"";position:absolute;left:0;right:0;top:0;height:150px;pointer-events:none;background:radial-gradient(ellipse 48% 95% at 54% 0, #2b293a34,transparent 80%)}
+  .main-top{height:76px;padding:0 27px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #ffffff0b;position:relative;z-index:3}
+  .crumb{background:#1a1b21b8;border:1px solid #ffffff12;border-radius:999px;padding:9px 15px;color:#d7d8df;font-size:12px;display:flex;gap:10px;align-items:center;backdrop-filter:blur(13px)}
+  .crumb b{color:#f7f7f9;font-weight:650}
+  .crumb .slash{color:#737782}
+  .top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .minor{font-size:11px;color:#8b8d98}
+  .icon-button{width:35px;height:35px;border:1px solid #35363e;background:#1a1b20;border-radius:10px;display:grid;place-items:center;transition:background .15s,border-color .15s;flex-shrink:0}
+  .icon-button:hover{background:#262830;border-color:#484955}
+  .icon-button svg{width:17px;height:17px}
+  .stretch{display:flex;align-items:center;gap:8px;background:#202025;border:1px solid #35353f;border-radius:12px;padding:8px 11px;font-size:11px;color:#d9d9e1;font-weight:600}
+  .stretch:hover{background:#272730}
+  .stretch svg{width:16px;height:16px}
+  .main.expanded .stretch{background:#2c293c;border-color:#49435a;color:#eeeaff}
+  .body{position:relative;padding:20px 26px 32px;max-width:1690px;margin:0 auto}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:720;color:var(--soft)}
+  .heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:19px}
+  h1,h2,h3,p{margin:0}
+  h1{font-size:27px;line-height:1.1;letter-spacing:-.055em;font-weight:660;margin-top:5px}
+  h2{font-size:15px;font-weight:660;letter-spacing:-.026em}
+  .caption{font-size:11px;color:#818590;margin-top:5px;line-height:1.5}
+  .tag{border:1px solid #ffffff13;border-radius:8px;background:#ffffff08;padding:6px 8px;font-size:11px;color:#a6a8b0;white-space:nowrap}
+  .card{background:linear-gradient(180deg,#17181d,#14151a);border:1px solid #2b2d34;border-radius:var(--r);box-shadow:inset 0 1px #ffffff0c;min-width:0}
+  .result{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;padding:18px 25px;min-height:142px;position:relative;overflow:hidden;margin-bottom:16px}
+  .result:before{content:"";position:absolute;inset:0;opacity:.7;background:linear-gradient(90deg,#d6aa660a,transparent 40%,transparent 60%,#89aaf30a);pointer-events:none}
+  .result-team,.result-center{position:relative;z-index:1}
+  .result-team{display:flex;flex-direction:column;gap:8px}
+  .result-team.right{align-items:flex-end;text-align:right}
+  .team-label{font-size:11px;letter-spacing:.11em;font-weight:700;text-transform:uppercase}
+  .team-name{font-size:27px;font-weight:690;letter-spacing:-.05em}
+  .team-meta{font-size:11px;color:#989ba5;display:flex;align-items:center;gap:8px}
+  .team-meta b{font-weight:600;color:#d9d9df}
+  .score{display:flex;align-items:center;gap:14px;justify-content:center;font-size:40px;line-height:1;font-weight:725;letter-spacing:-.075em;font-variant-numeric:tabular-nums}
+  .score em{font-size:16px;color:#565964;font-style:normal;font-weight:400}
+  .result-center{text-align:center}
+  .result-center .minor{margin-top:13px;white-space:nowrap}
+  .board-tools{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:5px 0 11px;flex-wrap:wrap}
+  .inline-controls{display:flex;align-items:center;gap:9px}
+  select{background:#1a1b20;border:1px solid #30323a;border-radius:10px;padding:9px 12px;font-size:11px;color:#d0d1d8;max-width:180px}
+  .scoreboards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-bottom:17px}
+  .board{padding:13px;min-width:0}
+  .board-head{display:flex;justify-content:space-between;gap:8px;align-items:center;border-bottom:1px solid #ffffff0b;padding:1px 3px 12px}
+  .board-name{display:flex;align-items:center;gap:9px;font-weight:680;font-size:13px}
+  .team-dot{width:8px;height:8px;border-radius:50%;background:var(--king);box-shadow:0 0 0 5px #d6aa6610}
+  .board[data-team="mother"] .team-dot{background:var(--mother);box-shadow:0 0 0 5px #89aaf310}
+  .board-sub{font-size:11px;color:#8f919c}
+  .board-col{display:grid;grid-template-columns:minmax(0,1fr) 76px 68px 77px;gap:8px;padding:12px 8px 8px;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#767986;font-weight:690}
+  .board-row{appearance:none;display:grid;grid-template-columns:minmax(0,1fr) 76px 68px 77px;gap:8px;padding:10px 8px;align-items:center;width:100%;background:transparent;border:0;border-top:1px solid #ffffff0a;text-align:left;border-radius:8px;transition:background .15s}
+  .board-row:hover{background:#ffffff0b}
+  .board-row.active{background:#a9a3fa13;box-shadow:inset 0 0 0 1px #aaa1ff3f}
+  .player-cell{display:flex;align-items:center;gap:9px;min-width:0}
+  .portrait{width:33px;height:36px;flex-shrink:0;border-radius:9px;border:1px solid #ffffff13;display:grid;place-items:center;font-weight:740;font-size:10px;letter-spacing:0;color:#f9f6ff;background:linear-gradient(135deg,#5f4d78,#25232c);box-shadow:inset 0 1px #ffffff24}
+  .board[data-team="mother"] .portrait{background:linear-gradient(135deg,#4c6289,#1e2534)}
+  .identity{min-width:0;display:flex;flex-direction:column;gap:3px}
+  .player-name{font-weight:630;font-size:12px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+  .hero-name{font-size:10px;color:#999aa4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mvp-label{color:#beb4ff;font-size:9px;border:1px solid #9683ff4a;background:#9683ff16;padding:2px 4px;border-radius:5px;margin-left:5px}
+  .num{font-size:12px;font-variant-numeric:tabular-nums;color:#e4e4e9;font-weight:550;white-space:nowrap}
+  .num.dim{color:#b0b2bc}
+  .mini-bar{height:3px;border-radius:99px;background:#2a2b32;overflow:hidden;margin-top:6px;max-width:62px}
+  .mini-bar span{display:block;height:100%;border-radius:99px;background:var(--king)}
+  .board[data-team="mother"] .mini-bar span{background:var(--mother)}
+  .build-bits{display:flex;gap:3px;flex-wrap:nowrap}
+  .build-bit{width:12px;height:12px;border-radius:3px;background:#b69b63;border:1px solid #ffffff14}
+  .build-bit.b{background:#639d7d}.build-bit.c{background:#8e78c0}
+  .underboards{font-size:10px;color:#737682;margin:2px 2px 0}
+  .analysis-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(330px,.85fr);gap:14px;align-items:start}
+  .analysis-left,.analysis-right{display:grid;gap:14px;min-width:0}
+  .detail{padding:18px}
+  .detail-top{display:flex;align-items:center;gap:11px;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px}
+  .selected{display:flex;align-items:center;gap:11px;min-width:0}
+  .selected .portrait{width:45px;height:47px;font-size:13px;border-radius:12px}
+  .selected h2{font-size:18px;letter-spacing:-.045em}
+  .detail-switch{display:flex;gap:4px;background:#0f1014;padding:4px;border:1px solid #ffffff12;border-radius:12px}
+  .tab{background:transparent;border:0;border-radius:8px;color:#999ba4;padding:8px 12px;font-size:11px;font-weight:610;white-space:nowrap}
+  .tab.active{background:#27272e;color:#f3f3f7;box-shadow:inset 0 1px #ffffff0e}
+  .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-bottom:16px}
+  .metric-box{padding:12px 11px;background:#1c1d23;border:1px solid #ffffff0b;border-radius:12px;min-width:0}
+  .metric-box .key{color:#91939f;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .metric-box .val{display:block;font-size:19px;font-weight:690;letter-spacing:-.035em;margin-top:6px;font-variant-numeric:tabular-nums}
+  .metric-box .sub{color:#7c7f88;font-size:10px;margin-top:4px}
+  .detail-main{display:grid;grid-template-columns:minmax(0,1fr) 185px;gap:15px;min-height:145px}
+  .small-title{font-size:11px;color:#a4a5ae;font-weight:650;margin-bottom:13px}
+  .progress-line{display:grid;grid-template-columns:104px 1fr 52px;align-items:center;gap:10px;margin:10px 0;font-size:10px;color:#b6b7c0}
+  .track{height:7px;background:#292b32;border-radius:99px;overflow:hidden}
+  .track span{height:100%;display:block;border-radius:99px}
+  .progress-line b{text-align:right;font-weight:620;font-size:11px;color:#e7e7eb;font-variant-numeric:tabular-nums}
+  .rings{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap}
+  .ring{--v:65;--ring:#a49df9;width:80px;height:80px;display:grid;place-items:center;border-radius:50%;background:radial-gradient(farthest-side,#17181d 70%,transparent 72%),conic-gradient(var(--ring) calc(var(--v)*1%),#30313a 0);position:relative}
+  .ring b{font-size:17px;letter-spacing:-.06em}
+  .ring-desc{text-align:center;margin-top:8px;color:#9b9da7;font-size:10px}
+  .grid-view{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:3px 0 16px}
+  .item-tile{aspect-ratio:1;border-radius:8px;border:1px solid #ffffff1b;display:grid;place-items:center;background:#5d4945;color:white;font-weight:710;font-size:10px}
+  .item-tile:nth-child(3n+1){background:#585173}.item-tile:nth-child(3n+2){background:#3f6554}
+  .timeline{display:grid;gap:1px}
+  .purchase{display:grid;grid-template-columns:55px 1fr 68px;align-items:center;gap:12px;padding:10px 4px;border-top:1px solid #ffffff0c;font-size:12px}
+  .purchase .time{font-size:11px;color:#a5a6b1;font-variant-numeric:tabular-nums}
+  .purchase .cost{text-align:right;color:#d9c18b;font-variant-numeric:tabular-nums;font-size:11px}
+  .compare{padding:18px}
+  .compare-title{display:flex;justify-content:space-between;gap:9px;align-items:start;margin-bottom:18px}
+  .dual{display:grid;grid-template-columns:1fr;gap:14px}
+  .dual-row{display:grid;gap:7px}
+  .dual-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#b6b8c3;gap:6px}
+  .dual-head .label{color:#8f919d;font-size:10px}
+  .duotrack{display:flex;gap:3px;height:8px;border-radius:99px;overflow:hidden;background:#292b32}
+  .duotrack span:first-child{background:var(--king);border-radius:99px 2px 2px 99px}
+  .duotrack span:last-child{background:var(--mother);border-radius:2px 99px 99px 2px}
+  .legend{display:flex;gap:15px;color:#898c97;font-size:10px;margin-top:19px}
+  .legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+  .notice{margin-top:14px;font-size:10px;color:#747783;line-height:1.6}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:4px 0;color:#737783;font-size:10px}
+  .toast{position:fixed;right:23px;bottom:23px;padding:11px 15px;border:1px solid #4b455f;background:#22202e;border-radius:12px;box-shadow:0 8px 35px #0008;color:#eeeaff;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none;z-index:10}
+  .toast.show{opacity:1;transform:translateY(0)}
+  @media(max-width:1480px){.analysis-grid{grid-template-columns:minmax(0,1fr)}.detail-main{grid-template-columns:minmax(0,1fr) 185px}}
+  @media(max-width:1080px){.scoreboards{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media(max-width:760px){.rail{display:none}.main,.main.expanded{margin:7px;width:calc(100% - 14px);min-height:calc(100vh - 14px);border-radius:19px}.main-top{padding:0 16px;height:60px}.body{padding:19px 14px}.stretch{display:none}.minor.top-only{display:none}.result{padding:16px;gap:10px}.team-name{font-size:18px}.score{font-size:30px;gap:9px}.result-center .minor{font-size:9px}.heading{align-items:start}.heading .tag{display:none}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.detail-main{grid-template-columns:1fr}.grid-view{grid-template-columns:repeat(6,minmax(0,1fr))}}
+  @media(max-width:480px){.result{grid-template-columns:1fr auto 1fr;min-height:116px;gap:3px}.team-name{font-size:15px}.team-meta{font-size:9px}.team-meta b{display:none}.score{font-size:25px;gap:5px}.result-center .minor{display:none}.board{padding:9px}.board-col,.board-row{grid-template-columns:minmax(0,1fr) 69px 59px;gap:6px}.board-col .dmg,.board-row .dmg{display:none}.board-sub{display:none}.player-name{font-size:11px}.portrait{width:29px;height:33px}.detail{padding:13px}.detail-top{align-items:start}.tab{padding:8px 9px}.grid-view{grid-template-columns:repeat(6,minmax(0,1fr))}.progress-line{grid-template-columns:87px 1fr 42px;gap:7px}.main-top .crumb{padding:9px 11px}.top-right{gap:5px}}
+  @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<aside class="rail" id="rail" aria-label="Navigation de démonstration">
+  <div class="rail-logo"><span class="rail-mark">b</span><span>the baroness<span style="color:#a5a0e9">.</span></span></div>
+  <div class="rail-section">Explorer</div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 10 9-7 9 7v11H3zM9 21v-7h6v7"/></svg>Accueil</div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>Recherche</div>
+  <div class="nav active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 4h18v16H3zM3 9h18M8 4v16"/></svg>Parties <span class="small-dot"></span></div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m5 20 7-16 7 16M8 14h8"/></svg>Héros</div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 21h16M6 21V8l6-5 6 5v13M9 12h6M9 16h6"/></svg>Classement</div>
+  <div class="rail-section">Espace</div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="8" r="4"/><path d="M2 21v-3c0-5 14-5 14 0v3"/></svg>Joueurs suivis</div>
+  <div class="nav"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2 7h20v14H2zM6 7V3h12v4M7 12h10"/></svg>Groupes</div>
+  <div class="rail-bottom">Navigation illustrative du shell<br/>La barre reste fixe lors de l'expansion.</div>
+</aside>
+<main class="main" id="main">
+  <div class="main-top">
+    <div class="crumb">Parties <span class="slash">/</span> <b>#136927164</b></div>
+    <div class="top-right">
+      <span class="minor top-only">Prototype UX · données fictives</span>
+      <button type="button" class="icon-button" id="copyId" aria-label="Copier l'identifiant du match" title="Copier l'identifiant du match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></button>
+      <button type="button" class="stretch" id="expand" aria-expanded="false" title="Étendre ou réduire la page"><svg id="expandIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H5a2 2 0 0 0-2 2v4M15 21h4a2 2 0 0 0 2-2v-4M3 3l6 6M21 21l-6-6"/></svg><span id="expandLabel">Pleine largeur</span></button>
+    </div>
+  </div>
+  <div class="body">
+    <div class="heading"><div><div class="eyebrow">Match detail</div><h1>Résumé de la partie</h1><p class="caption">Un scoreboard lisible d'abord, des analyses visuelles en complément.</p></div><span class="tag">Démo interactive · données fictives</span></div>
+    <section class="card result" aria-label="Résultat de la partie">
+      <div class="result-team"><span class="team-label" style="color:var(--green)">Victoire</span><span class="team-name" style="color:#ecd7b0">Hidden King</span><div class="team-meta">Rang moyen <b>Oracle IV</b></div></div>
+      <div class="result-center"><div class="score"><span style="color:var(--king)" id="scoreKing">42</span><em>:</em><span style="color:var(--mother)" id="scoreMother">31</span></div><div class="minor">Classée · 38:42 · 17 novembre 2026</div></div>
+      <div class="result-team right"><span class="team-label" style="color:var(--red)">Défaite</span><span class="team-name" style="color:#bdd1fb">Archmother</span><div class="team-meta">Rang moyen <b>Phantom VI</b></div></div>
+    </section>
+    <div class="board-tools"><div><h2>Scoreboard</h2><p class="caption">Sélectionne un joueur pour explorer ses performances et ses achats.</p></div><div class="inline-controls"><label for="sort" class="minor">Trier par</label><select id="sort"><option value="net">Valeur nette</option><option value="damage">Dégâts aux héros</option><option value="kda">KDA</option></select></div></div>
+    <div class="scoreboards">
+      <section class="card board" data-team="king" aria-label="Scoreboard Hidden King"><div class="board-head"><div class="board-name"><span class="team-dot"></span>Hidden King</div><span class="board-sub">6 joueurs · Victoire</span></div><div class="board-col"><span>Joueur</span><span>K / D / A</span><span>Net worth</span><span class="dmg">Dégâts</span></div><div id="kingRows"></div></section>
+      <section class="card board" data-team="mother" aria-label="Scoreboard Archmother"><div class="board-head"><div class="board-name"><span class="team-dot"></span>Archmother</div><span class="board-sub">6 joueurs · Défaite</span></div><div class="board-col"><span>Joueur</span><span>K / D / A</span><span>Net worth</span><span class="dmg">Dégâts</span></div><div id="motherRows"></div></section>
+    </div>
+    <div class="analysis-grid">
+      <div class="analysis-left">
+        <section class="card detail" aria-label="Détail du joueur sélectionné">
+          <div class="detail-top"><div class="selected"><div class="portrait" id="detailPortrait">IN</div><div><h2 id="detailName">Fable</h2><div class="caption" id="detailMeta">Infernus · Hidden King</div></div></div><div class="detail-switch" role="tablist" aria-label="Détail joueur"><button type="button" class="tab active" role="tab" aria-selected="true" data-tab="stats">Statistiques</button><button type="button" class="tab" role="tab" aria-selected="false" data-tab="build">Build & achats</button></div></div>
+          <div id="detailStats" role="tabpanel"><div class="metrics" id="metrics"></div><div class="detail-main"><div><p class="small-title">Contribution de fin de partie</p><div id="playerBars"></div></div><div><p class="small-title">Précision & participation</p><div class="rings" id="rings"></div></div></div></div>
+          <div id="detailBuild" role="tabpanel" hidden><p class="small-title">Objets conservés à la fin du match</p><div id="buildItems" class="grid-view"></div><p class="small-title">Chronologie d'achats — démo</p><div id="purchases" class="timeline"></div></div>
+        </section>
+      </div>
+      <div class="analysis-right">
+        <section class="card compare"><div class="compare-title"><div><h2>Comparaison des équipes</h2><p class="caption">Quatre indicateurs, une même échelle par ligne.</p></div><span class="tag">Fin de partie</span></div><div class="dual" id="comparison"></div><div class="legend"><span><i style="background:var(--king)"></i>Hidden King</span><span><i style="background:var(--mother)"></i>Archmother</span></div></section>
+      </div>
+    </div>
+    <div class="foot" style="margin-top:19px"><span>Prototype V3 — structure validable avant intégration React</span><span>Les valeurs illustrent le design, elles ne proviennent pas d'une partie réelle.</span></div>
+  </div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  // Données entièrement fictives pour validation UX. Les champs correspondent aux capacités P1 réelles,
+  // mais aucun nombre, pseudo, achat ou badge présenté ici n'est extrait de Deadlock API.
+  const player = (id, team, name, hero, kd, net, damage, heal, obj, accuracy, crit, items, mvp=0) => ({id,team,name,hero,k:kd[0],d:kd[1],a:kd[2],net,damage,heal,obj,accuracy,crit,items,mvp});
+  const data = [
+    player(1,'king','Fable','Infernus',[12,4,16],22580,34600,2400,8500,69,34,['RF','SB','SM','FL','SH','RC'],1),
+    player(2,'king','Nox','Wraith',[8,5,14],19870,26700,2700,7100,67,27,['TD','CB','VL','IC','RB','SP'],2),
+    player(3,'king','Velvet','Ivy',[6,4,18],17320,19200,10600,6200,61,23,['HS','ST','RC','BF','ME','FX'],3),
+    player(4,'king','Kestrel','Abrams',[5,5,12],15890,16900,5300,5900,58,18,['WB','RS','HB','VT','EG'],4),
+    player(5,'king','Lumi','Kelvin',[7,7,10],14380,16700,8800,4500,54,15,['FM','IS','AM','TE','BS'],5),
+    player(6,'king','Sora','Pocket',[4,6,8],11740,14800,1900,3400,60,26,['ST','MK','SF','AP','VH'],6),
+    player(7,'mother','Quiet','Haze',[10,6,11],20950,31300,1300,7100,72,39,['RF','HC','CB','TR','PS'],1),
+    player(8,'mother','Hex','Vindicta',[7,5,13],18510,27900,2100,6200,71,35,['RL','FX','WP','AP','SP'],2),
+    player(9,'mother','Wisp','Seven',[6,7,14],16970,21800,4100,5800,64,28,['TS','VL','CB','SN','FR'],3),
+    player(10,'mother','Morrow','Bebop',[4,6,11],13380,14300,5700,6100,56,17,['EM','VG','TS','FX'],4),
+    player(11,'mother','Crow','McGinnis',[3,9,13],11420,9800,7300,10100,48,12,['BR','EP','FT','WE'],5),
+    player(12,'mother','Nacre','Dynamo',[1,9,15],9800,7900,9300,4700,47,10,['VG','CS','PL','RF'],6)
+  ];
+  const colors=['#aa88bd','#9384d0','#7c9689','#8995b3','#a88a6e','#83a1a0'];
+  let selected=1, sort='net';
+  const $=id=>document.getElementById(id);
+  const fmt=n=>n>=1000?`${(n/1000).toFixed(1).replace('.0','')}k`:String(n);
+  const escapeHtml=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  const kda=p=>(p.k+p.a)/Math.max(p.d,1);
+  const total=(team,field)=>data.filter(p=>p.team===team).reduce((a,p)=>a+p[field],0);
+  const teamTotal=team=>data.filter(p=>p.team===team).reduce((a,p)=>a+p.k,0);
+  const tip=(p)=>p.mvp===1?'MVP officiel (démonstration)':'';
+  function showToast(message){const node=$('toast');node.textContent=message;node.classList.add('show');clearTimeout(showToast._timer);showToast._timer=setTimeout(()=>node.classList.remove('show'),2100)}
+  function renderBoards(){
+    for(const team of ['king','mother']){
+      const parent=$(team+'Rows');
+      const rows=data.filter(p=>p.team===team).sort((a,b)=>sort==='kda'?kda(b)-kda(a):sort==='damage'?b.damage-a.damage:b.net-a.net);
+      const maxNet=Math.max(...rows.map(p=>p.net));
+      parent.innerHTML=rows.map(p=>`
+        <button type="button" class="board-row ${selected===p.id?'active':''}" aria-pressed="${selected===p.id}" data-player="${p.id}">
+          <span class="player-cell"><span class="portrait" style="background:linear-gradient(135deg,${colors[p.id%6]}a9,#26242f)">${escapeHtml(p.hero.slice(0,2).toUpperCase())}</span><span class="identity"><span class="player-name">${escapeHtml(p.name)}${p.mvp===1?'<span class="mvp-label" title="MVP officiel de la partie (démo)">MVP</span>':''}</span><span class="hero-name">${escapeHtml(p.hero)} · Niv. ${18+(p.id%7)}</span></span></span>
+          <span class="num">${p.k} / ${p.d} / ${p.a}</span>
+          <span><span class="num dim">${fmt(p.net)}</span><span class="mini-bar"><span style="width:${Math.max(8,p.net/maxNet*100)}%"></span></span></span>
+          <span class="num dim dmg">${fmt(p.damage)}</span>
+        </button>`).join('');
+      parent.querySelectorAll('[data-player]').forEach(button=>button.addEventListener('click',()=>{selected=Number(button.dataset.player);renderBoards();renderDetail()}));
+    }
+  }
+  function renderDetail(){
+    const p=data.find(x=>x.id===selected);const team=p.team==='king'?'Hidden King':'Archmother';
+    $('detailPortrait').textContent=p.hero.slice(0,2).toUpperCase();
+    $('detailPortrait').style.background=`linear-gradient(135deg,${colors[p.id%6]}b3,#25232c)`;
+    $('detailName').textContent=p.name;$('detailMeta').textContent=`${p.hero} · ${team}${p.mvp===1?' · MVP':''}`;
+    const kp=Math.min(100,(p.k+p.a)/Math.max(teamTotal(p.team),1)*100);
+    const metrics=[['K / D / A',`${p.k} / ${p.d} / ${p.a}`,'Fin de partie'],['Net worth',fmt(p.net),'Économie'],['Dégâts héros',fmt(p.damage),'Dégâts infligés'],['MVP Valve',`#${p.mvp}`,'Classement de partie']];
+    $('metrics').innerHTML=metrics.map(([key,val,sub])=>`<div class="metric-box"><div class="key">${key}</div><strong class="val">${val}</strong><div class="sub">${sub}</div></div>`).join('');
+    const barRows=[['Dégâts aux héros',p.damage,Math.max(...data.map(x=>x.damage)),'#a49df9'],['Dégâts objectifs',p.obj,Math.max(...data.map(x=>x.obj)),'#d6aa66'],['Soins',p.heal,Math.max(...data.map(x=>x.heal)),'#7fcea1']];
+    $('playerBars').innerHTML=barRows.map(([name,value,max,color])=>`<div class="progress-line"><span>${name}</span><span class="track"><span style="width:${value/max*100}%;background:${color}"></span></span><b>${fmt(value)}</b></div>`).join('');
+    $('rings').innerHTML=[[p.accuracy,'Précision','#a49df9'],[Math.round(kp),'Kill participation','#7fcea1']].map(([v,name,c])=>`<div><div class="ring" style="--v:${v};--ring:${c}"><b>${v}%</b></div><div class="ring-desc">${name}</div></div>`).join('');
+    $('buildItems').innerHTML=p.items.map(code=>`<span class="item-tile" title="Objet fictif ${code}">${escapeHtml(code)}</span>`).join('');
+    $('purchases').innerHTML=p.items.map((code,i)=>`<div class="purchase"><span class="time">${String(Math.floor((i+1)*5.3)).padStart(2,'0')}:${String((i*11+17)%60).padStart(2,'0')}</span><span>Objet <b>${escapeHtml(code)}</b> <span style="color:#777985">· démo</span></span><span class="cost">${[800,1600,3200,6200,9300,12400][i]??'—'} souls</span></div>`).join('');
+  }
+  function renderComparison(){
+    const fields=[['Éliminations','k'],['Valeur nette','net'],['Dégâts aux héros','damage'],['Soins','heal']];
+    $('comparison').innerHTML=fields.map(([label,key])=>{
+      const king=total('king',key),mother=total('mother',key),pct=king/(king+mother)*100;
+      return `<div class="dual-row"><div class="dual-head"><b>${fmt(king)}</b><span class="label">${label}</span><b>${fmt(mother)}</b></div><div class="duotrack" role="img" aria-label="${label}: Hidden King ${king}, Archmother ${mother}"><span style="width:${pct}%"></span><span style="width:${100-pct}%"></span></div></div>`;
+    }).join('');
+  }
+  $('sort').addEventListener('change',e=>{sort=e.target.value;renderBoards()});
+  document.querySelectorAll('.tab').forEach(button=>button.addEventListener('click',()=>{
+    const isBuild=button.dataset.tab==='build';
+    document.querySelectorAll('.tab').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-selected',active?'true':'false')});
+    $('detailStats').hidden=isBuild;$('detailBuild').hidden=!isBuild;
+  }));
+  const main=$('main'),exp=$('expand');
+  exp.addEventListener('click',()=>{
+    const on=main.classList.toggle('expanded');exp.setAttribute('aria-expanded',String(on));$('expandLabel').textContent=on?'Afficher la sidebar':'Pleine largeur';
+    exp.title=on?'Afficher la sidebar':'Étendre la page';
+  });
+  $('copyId').addEventListener('click',async()=>{
+    try{await navigator.clipboard.writeText('136927164');showToast('Identifiant copié')}catch{showToast('ID : 136927164')}
+  });
+  renderBoards();renderDetail();renderComparison();
+})();
+</script>
+</body>
+</html>

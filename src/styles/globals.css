@@ -616,6 +616,25 @@
     border-radius: var(--radius-panel);
   }
 }
+/*
+ * Pleine largeur (page partie, bureau) : le panneau s'étend vers la gauche et recouvre la sidebar, qui
+ * ne bouge pas (colonne de grille inchangée, rendue inerte par AppShell). z-index au-dessus des liens
+ * positionnés de la sidebar.
+ */
+@media (min-width: 1024px) {
+  .app-panel {
+    transition: margin-left 320ms var(--ease-out);
+  }
+  .app-panel[data-expanded] {
+    z-index: 10;
+    margin-left: calc(var(--shell-gap) - var(--sidebar-w));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-panel {
+    transition: none;
+  }
+}
 /* Liseré de lumière en haut du panneau. */
 .app-panel::before {
   content: "";
@@ -737,7 +756,8 @@
   .app-content {
     padding-top: 28px;
   }
-  .app-panel[data-crumbs] .app-content {
+  .app-panel[data-crumbs] .app-content,
+  .app-panel[data-expanded] .app-content {
     padding-top: 60px;
   }
 }

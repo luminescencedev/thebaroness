@@ -60,8 +60,8 @@ describe("recherche et profil", () => {
       await within(panel).findByText(/exemple synthétique du mode démo/, {}, { timeout: 4000 }),
     ).toBeInTheDocument();
     expect(within(panel).getAllByRole("listitem").length).toBeGreaterThan(10);
-    expect(within(panel).getByRole("region", { name: "Sapphire Flame" })).toBeInTheDocument();
-    expect(within(panel).getByRole("region", { name: "Amber Hand" })).toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: "Archmother" })).toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: "Hidden King" })).toBeInTheDocument();
     expect(within(panel).getByRole("link", { name: "Ouvrir la partie" })).toHaveAttribute(
       "href",
       expect.stringMatching(/^\/matches\/\d+$/),

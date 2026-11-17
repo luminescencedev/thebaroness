@@ -410,7 +410,8 @@ export interface MatchPlayerStats {
 
 export interface MatchPurchase {
   itemId: number;
-  atSeconds: number;
+  /** null : heure de l'achat inconnue de la source. */
+  atSeconds: number | null;
   /** null : objet gardé. */
   soldAtSeconds: number | null;
 }
@@ -437,7 +438,7 @@ export interface MatchPlayer {
   stats?: MatchPlayerStats | null;
   purchases?: MatchPurchase[] | null;
   finalItemIds?: number[] | null;
-  abilityUpgrades?: { abilityId: number; atSeconds: number }[] | null;
+  abilityUpgrades?: { abilityId: number; atSeconds: number | null }[] | null;
 }
 
 export interface MatchTeam {

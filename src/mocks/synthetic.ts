@@ -410,7 +410,7 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
     const crit = Math.round(hits * (0.08 + e.next() * 0.3));
     return {
       ...p,
-      mvpRank: e.int(1, 12),
+      mvpRank: 12,
       stats: {
         playerDamage: e.int(18000, 60000),
         damageTaken: e.int(12000, 40000),
@@ -456,6 +456,13 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
       },
     ].sort((a) => (a.side === "amber" ? -1 : 1)) as MatchDetail["teams"],
   };
+  // Classement MVP unique de 1 à 12 (comme Valve), dans l'ordre de valeur nette des deux équipes.
+  detail.teams
+    .flatMap((t) => t.players)
+    .sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0))
+    .forEach((p, i) => {
+      p.mvpRank = i + 1;
+    });
   // Participation aux éliminations de l'équipe, même formule que le back.
   for (const t of detail.teams) {
     const kills = t.players.reduce((n, p) => n + (p.kills ?? 0), 0);

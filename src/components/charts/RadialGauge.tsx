@@ -2,7 +2,8 @@ interface RadialGaugeProps {
   /** Valeur de 0 à 100. */
   value: number | null;
   /** Repère, par exemple 50 % de victoires. */
-  mark?: number;
+  /** Repère en %, null pour ne pas en tracer (par défaut 50). */
+  mark?: number | null;
   size?: number;
   label: string;
   color?: string;
@@ -21,7 +22,7 @@ export function RadialGauge({
   const r = 38;
   const c = 2 * Math.PI * r;
   const v = value === null ? 0 : Math.max(0, Math.min(100, value));
-  const angle = (mark / 100) * 2 * Math.PI - Math.PI / 2;
+  const angle = ((mark ?? 0) / 100) * 2 * Math.PI - Math.PI / 2;
   return (
     <div
       className="relative grid shrink-0 place-items-center"
@@ -54,17 +55,19 @@ export function RadialGauge({
           />
         )}
       </svg>
-      <svg viewBox="0 0 100 100" aria-hidden="true" className="absolute inset-0">
-        <line
-          x1={50 + Math.cos(angle) * 31}
-          y1={50 + Math.sin(angle) * 31}
-          x2={50 + Math.cos(angle) * 46}
-          y2={50 + Math.sin(angle) * 46}
-          stroke="#F4F5F7"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
+      {mark !== null && (
+        <svg viewBox="0 0 100 100" aria-hidden="true" className="absolute inset-0">
+          <line
+            x1={50 + Math.cos(angle) * 31}
+            y1={50 + Math.sin(angle) * 31}
+            x2={50 + Math.cos(angle) * 46}
+            y2={50 + Math.sin(angle) * 46}
+            stroke="#F4F5F7"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
       <div className="relative text-center">{children}</div>
     </div>
   );

@@ -2,12 +2,10 @@ import { Link } from "react-router";
 import { HeroPortrait } from "@/components/media/HeroPortrait";
 import { cn } from "@/components/ui";
 import { NA, formatDecimal, formatInt } from "@/lib/format";
+import { TEAM_META } from "@/lib/teams";
 import type { Participant, ParticipantTeam } from "@/lib/matchModel";
 
-const SIDE = {
-  amber: { label: "Amber Hand", color: "#f5b14c" },
-  sapphire: { label: "Sapphire Flame", color: "#5b9dff" },
-} as const;
+const SIDE = TEAM_META;
 
 const who = (p: Participant) =>
   `${p.displayName} (${p.heroName})${p.isSelf ? ", joueur du profil" : ""}`;

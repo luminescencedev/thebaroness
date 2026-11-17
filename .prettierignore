@@ -5,3 +5,4 @@ public/mockServiceWorker.js
 docs/cahier-des-charges.md
 playwright-report
 test-results
+src/contracts/openapi.yaml

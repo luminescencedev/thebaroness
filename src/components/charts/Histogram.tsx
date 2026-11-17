@@ -35,7 +35,7 @@ export function Histogram({
       </ul>
       <ul className="mt-1.5 flex gap-1.5">
         {bins.map((b, i) => (
-          <li key={b.label} className="flex-1 text-center text-[10px] leading-tight text-subtle">
+          <li key={b.label} className="flex-1 text-center text-[11px] leading-tight text-subtle">
             {b.label}
             {median === i && (
               <span className="block text-series-1">{medianLabel ?? "médiane"}</span>

@@ -1,16 +1,24 @@
 import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { getHeroStats, type HeroSummary } from "@/api";
+import { getHeroStats, type HeroSummary, type ProfileScope } from "@/api";
 import { useHeroes } from "@/features/heroes/hooks";
-import { usePlayerHeroes } from "@/features/leaderboard/hooks";
-import { HISTORY_CAP, usePlayerHistory } from "@/features/players/hooks";
-import { aggregate, heroRows, rolesPlayed, type HeroRow } from "@/lib/stats";
+import {
+  HISTORY_CAP,
+  usePlayerHeroes,
+  usePlayerHistory,
+  usePlayerOverview,
+} from "@/features/players/hooks";
+import { heroRows, type HeroRow } from "@/lib/stats";
 
-/** Tout ce que les trois onglets du profil calculent à partir de l'historique chargé. */
-export function useProfileData(steamId: string) {
-  const history = usePlayerHistory(steamId);
+/**
+ * Données du profil pour UN scope (période + modes). Overview, héros et parties viennent du back avec
+ * le même scope ; seule la courbe et l'activité exploitent les parties chargées (jusqu'à HISTORY_CAP).
+ */
+export function useProfileData(steamId: string, scope: ProfileScope) {
+  const history = usePlayerHistory(steamId, scope);
+  const overview = usePlayerOverview(steamId, scope);
   const catalog = useHeroes();
-  const playerHeroes = usePlayerHeroes(steamId);
+  const playerHeroes = usePlayerHeroes(steamId, scope);
 
   const heroById = useMemo(() => {
     const map = new Map<number, HeroSummary>();
@@ -32,12 +40,7 @@ export function useProfileData(steamId: string) {
   const metaWinRate = new Map<number, number | null>();
   topIds.forEach((id, i) => metaWinRate.set(id, metaQueries[i]?.data?.stats.winRate ?? null));
   const rows: HeroRow[] = heroRows(playerHeroes.data?.items ?? [], metaWinRate);
-  const roles = useMemo(
-    () => rolesPlayed(history.matches, (id) => heroById.get(id)?.role),
-    [history.matches, heroById],
-  );
-  const stats = useMemo(() => aggregate(history.matches), [history.matches]);
   const mainHero = rows[0] ? heroById.get(rows[0].heroId) : undefined;
 
-  return { history, heroById, rows, roles, stats, mainHero, cap: HISTORY_CAP, playerHeroes };
+  return { history, overview, heroById, rows, mainHero, cap: HISTORY_CAP, playerHeroes };
 }

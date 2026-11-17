@@ -43,3 +43,7 @@ export const GroupsPage = lazy(() =>
 export const GroupDetailPage = lazy(() =>
   import("@/pages/GroupDetailPage").then((m) => ({ default: m.GroupDetailPage })),
 );
+
+export const DevUiPage = lazy(() =>
+  import("@/pages/DevUiPage").then((m) => ({ default: m.DevUiPage })),
+);

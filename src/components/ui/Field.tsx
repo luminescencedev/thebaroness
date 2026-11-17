@@ -5,6 +5,8 @@ interface FieldProps {
   label: string;
   error?: string | null;
   hint?: string;
+  /** Information alignée à droite du message (compteur de caractères). */
+  aside?: ReactNode;
   /** Reçoit l'id du champ et les attributs ARIA d'association. */
   children: (props: {
     id: string;
@@ -14,7 +16,7 @@ interface FieldProps {
 }
 
 /** Label + champ + message d'erreur associés (htmlFor, aria-describedby). */
-export function Field({ label, error, hint, children }: FieldProps) {
+export function Field({ label, error, hint, aside, children }: FieldProps) {
   const id = useId();
   const messageId = `${id}-message`;
   const hasMessage = Boolean(error || hint);
@@ -26,15 +28,22 @@ export function Field({ label, error, hint, children }: FieldProps) {
         "aria-describedby": hasMessage ? messageId : undefined,
         invalid: Boolean(error),
       })}
-      {error ? (
-        <p id={messageId} className="text-[13px] text-loss">
-          {error}
-        </p>
-      ) : hint ? (
-        <p id={messageId} className="text-[13px] text-subtle">
-          {hint}
-        </p>
-      ) : null}
+      {(hasMessage || aside) && (
+        <div className="flex items-start justify-between gap-3">
+          {error ? (
+            <p id={messageId} className="text-[13px] text-loss">
+              {error}
+            </p>
+          ) : hint ? (
+            <p id={messageId} className="text-[13px] text-subtle">
+              {hint}
+            </p>
+          ) : (
+            <span />
+          )}
+          {aside && <span className="shrink-0 text-xs text-subtle tabular-nums">{aside}</span>}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Link, Navigate, useLocation, useSearchParams } from "react-router";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
-import { Alert, Card } from "@/components/ui";
+import { Alert, DoubleBezel } from "@/components/ui";
 import { SteamButton } from "@/features/auth/SteamButton";
 import { useSession } from "@/features/auth/useSession";
 
@@ -22,13 +22,17 @@ export function LoginPage() {
   return (
     <div className="relative isolate -mt-10 flex min-h-[calc(100dvh-14rem)] flex-col items-center justify-center py-20">
       <div aria-hidden="true" className="hero-glow absolute inset-x-0 top-0 -z-10 h-80" />
-      <Card className="w-full max-w-md p-8 text-center">
+      <DoubleBezel
+        size="lg"
+        className="w-full max-w-md"
+        innerClassName="p-8 text-center max-sm:p-6"
+      >
         <h1 className="text-3xl">Connexion</h1>
         <p className="mt-2 text-sm text-muted">
           Connectez-vous avec Steam pour suivre des joueurs et comparer vos amis.
         </p>
         {params.get("error") && (
-          <Alert tone="error" className="mt-5 text-left">
+          <Alert tone="error" className="mt-5 text-left" role="alert">
             La connexion avec Steam a échoué. Réessayez.
           </Alert>
         )}
@@ -46,7 +50,7 @@ export function LoginPage() {
             </li>
           ))}
         </ul>
-      </Card>
+      </DoubleBezel>
       <Link
         to="/search"
         className="hover-text pressable mt-6 rounded-md text-sm text-muted underline-offset-4 hover:underline"

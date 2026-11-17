@@ -41,7 +41,11 @@ export function RankBadge({
           className={cn("shrink-0 rounded-full border-2 border-border-strong", sizes[size])}
         />
       )}
-      {label && <span className="text-sm text-text">{name ?? "Non classé"}</span>}
+      {label && (
+        <span className="text-sm tracking-[0.025em] text-text [font-kerning:none]">
+          {name ?? "Non classé"}
+        </span>
+      )}
     </span>
   );
 }

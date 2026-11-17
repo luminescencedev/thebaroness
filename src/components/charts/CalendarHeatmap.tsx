@@ -23,33 +23,39 @@ export function CalendarHeatmap({ weeks }: { weeks: CalendarDay[][] }) {
   const alpha = [0.05, 0.28, 0.5, 0.75, 1];
   return (
     <div>
-      <div className="flex gap-1.5">
-        <div aria-hidden="true" className="mr-1 grid grid-rows-7 gap-1.5 text-[10px] text-subtle">
-          {DAY_LABELS.map((l, i) => (
-            <span key={i} className="grid h-5 place-items-center">
-              {i % 2 === 0 ? l : ""}
-            </span>
-          ))}
-        </div>
-        {weeks.map((week, w) => (
-          <div key={w} className="grid grid-rows-7 gap-1.5">
-            {week.map((d) => (
-              <button
-                key={d.date}
-                type="button"
-                aria-label={describe(d)}
-                onPointerEnter={() => setInfo(d)}
-                onFocus={() => setInfo(d)}
-                onPointerLeave={() => setInfo(null)}
-                onBlur={() => setInfo(null)}
-                className="size-5 rounded-[5px] outline-offset-2"
-                style={{
-                  background: `color-mix(in srgb, var(--series-2) ${alpha[level(d.count)]! * 100}%, rgb(255 255 255 / 0.03))`,
-                }}
-              />
-            ))}
-          </div>
+      <div
+        className="grid grid-flow-col gap-1 pb-1 sm:gap-1.5"
+        style={{
+          gridTemplateRows: "repeat(7, auto)",
+          gridTemplateColumns: `1rem repeat(${weeks.length}, minmax(0, 1.75rem))`,
+        }}
+      >
+        {DAY_LABELS.map((l, i) => (
+          <span
+            key={`l${i}`}
+            aria-hidden="true"
+            className="grid place-items-center text-[11px] text-subtle"
+          >
+            {i % 2 === 0 ? l : ""}
+          </span>
         ))}
+        {weeks.map((week) =>
+          week.map((d) => (
+            <button
+              key={d.date}
+              type="button"
+              aria-label={describe(d)}
+              onPointerEnter={() => setInfo(d)}
+              onFocus={() => setInfo(d)}
+              onPointerLeave={() => setInfo(null)}
+              onBlur={() => setInfo(null)}
+              className="aspect-square w-full rounded-[5px] outline-offset-2"
+              style={{
+                background: `color-mix(in srgb, var(--series-2) ${alpha[level(d.count)]! * 100}%, rgb(255 255 255 / 0.03))`,
+              }}
+            />
+          )),
+        )}
       </div>
       <p className="mt-2 min-h-4 text-xs text-muted" aria-live="polite">
         {info ? describe(info) : "Survolez une case pour le détail."}

@@ -6,37 +6,61 @@ import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
 
 describe("layout", () => {
-  it("affiche wordmark, liens, déclencheur de recherche et pied de page", async () => {
+  it("landing : header avec marque, titre du hero, recherche et mention légale", async () => {
     renderApp("/");
-    await screen.findByRole("heading", { level: 1 });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /the baroness/i }),
+    ).toBeInTheDocument();
 
-    expect(screen.getAllByLabelText("The Baroness, accueil").length).toBeGreaterThan(0);
     const nav = screen.getByRole("navigation", { name: "Navigation principale" });
     expect(within(nav).getByRole("link", { name: "Joueurs" })).toBeInTheDocument();
-    expect(within(nav).queryByRole("link", { name: "Mes suivis" })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Rechercher un joueur" })).toHaveTextContent("⌘K");
-    const header = screen.getByRole("banner");
-    expect(within(header).getByRole("link", { name: "Connexion Steam" })).toHaveAttribute(
+    expect(within(nav).getByRole("link", { name: "The Baroness, accueil" })).toHaveAttribute(
+      "href",
+      "/",
+    );
+    expect(within(nav).getByRole("link", { name: "Connexion Steam" })).toHaveAttribute(
       "href",
       "/api/auth/steam",
     );
     expect(
+      screen.getByRole("searchbox", { name: "Pseudo Steam ou SteamID64" }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByText(/Deadlock API, projet communautaire indépendant de Valve/),
     ).toBeInTheDocument();
+    expect(screen.queryByRole("complementary", { name: "Barre latérale" })).not.toBeInTheDocument();
     expect(document.title).toBe("The Baroness · Deadlock Tracker");
   });
 
-  it("affiche l'email et Mes suivis quand l'utilisateur est connecté", () => {
+  it("shell : sidebar intégrée avec marque, navigation et déclencheur ⌘K", async () => {
+    renderApp("/heroes");
+    await screen.findByRole("heading", { level: 1 });
+
+    const side = screen.getByRole("complementary", { name: "Barre latérale" });
+    expect(within(side).getByLabelText("The Baroness, accueil")).toBeInTheDocument();
+    expect(
+      within(within(side).getByRole("navigation", { name: "Explorer" })).getByRole("link", {
+        name: "Joueurs",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Mon espace" })).not.toBeInTheDocument();
+    expect(within(side).getByRole("button", { name: "Rechercher un joueur" })).toHaveTextContent(
+      "⌘K",
+    );
+    expect(within(side).getByRole("link", { name: "Connexion Steam" })).toBeInTheDocument();
+  });
+
+  it("affiche Mon espace dans la sidebar quand l'utilisateur est connecté", async () => {
     signIn();
-    renderApp("/");
+    renderApp("/heroes");
+    await screen.findByRole("heading", { level: 1 });
 
     expect(screen.getByRole("button", { name: /Compte de Corvid/ })).toBeInTheDocument();
     expect(
-      within(screen.getByRole("navigation", { name: "Navigation principale" })).getByRole("link", {
+      within(screen.getByRole("navigation", { name: "Mon espace" })).getByRole("link", {
         name: "Mes suivis",
       }),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Connexion Steam" })).not.toBeInTheDocument();
   });
 
   it("réagit à une déconnexion", () => {

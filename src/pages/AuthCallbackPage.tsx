@@ -26,12 +26,25 @@ export function AuthCallbackPage() {
   }, [navigate, params]);
 
   if (failure) {
+    const reason = failure instanceof Error ? failure.message : "";
+    const description =
+      reason === "steam"
+        ? "Steam n'a pas validé la connexion. Vous pouvez réessayer."
+        : reason === "no-token"
+          ? "Le lien de connexion est incomplet ou a expiré. Recommencez depuis la page de connexion."
+          : undefined;
     return (
-      <div className="mx-auto max-w-xl space-y-4 text-center">
-        <ErrorState error={failure} title="Connexion impossible" />
-        <Link to="/login" className={buttonStyles("secondary")}>
-          Retour à la connexion
-        </Link>
+      <div className="mx-auto max-w-xl">
+        <ErrorState
+          error={failure}
+          title="Connexion impossible"
+          description={description}
+          extra={
+            <Link to="/login" className={buttonStyles("secondary")}>
+              Retour à la connexion
+            </Link>
+          }
+        />
       </div>
     );
   }

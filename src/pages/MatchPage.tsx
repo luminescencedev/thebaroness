@@ -17,10 +17,14 @@ const TEAMS = {
   sapphire: { name: "Sapphire Flame", color: "#5B9DFF" },
 } as const;
 
+/** Team total, or null when no player has a known value (unknown is never counted as 0). */
 const sum = (
   players: MatchPlayer[],
   key: "kills" | "deaths" | "assists" | "netWorth" | "lastHits" | "denies",
-) => players.reduce((s, p) => s + (p[key] ?? 0), 0);
+): number | null => {
+  const known = players.map((p) => p[key]).filter((v): v is number => v !== null);
+  return known.length === 0 ? null : known.reduce((s, v) => s + v, 0);
+};
 
 function Compare({ teams }: { teams: MatchTeam[] }) {
   const rows: { label: string; key: "netWorth" | "kills" | "lastHits" | "denies" }[] = [
@@ -37,25 +41,37 @@ function Compare({ teams }: { teams: MatchTeam[] }) {
       {rows.map((r) => {
         const va = sum(a.players, r.key);
         const vb = sum(b.players, r.key);
-        const total = va + vb || 1;
+        const known = va !== null && vb !== null;
+        const total = known ? va + vb || 1 : 1;
         return (
           <li key={r.key}>
-            <div className="mb-1.5 flex items-center justify-between text-xs">
+            <div className="mb-1.5 grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-xs">
               <span className="font-semibold tabular-nums" style={{ color: TEAMS.amber.color }}>
                 {formatInt(va)}
               </span>
-              <span className="text-muted">{r.label}</span>
-              <span className="font-semibold tabular-nums" style={{ color: TEAMS.sapphire.color }}>
+              <span className="text-center text-muted">{r.label}</span>
+              <span
+                className="text-right font-semibold tabular-nums"
+                style={{ color: TEAMS.sapphire.color }}
+              >
                 {formatInt(vb)}
               </span>
             </div>
             <div
-              className="flex h-2 gap-0.5 overflow-hidden rounded-full"
+              className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-surface-strong"
               role="img"
-              aria-label={`${r.label} : Amber Hand ${va}, Sapphire Flame ${vb}`}
+              aria-label={`${r.label} : Amber Hand ${va === null ? NA : va}, Sapphire Flame ${vb === null ? NA : vb}`}
             >
-              <span style={{ width: `${(va / total) * 100}%`, background: TEAMS.amber.color }} />
-              <span style={{ width: `${(vb / total) * 100}%`, background: TEAMS.sapphire.color }} />
+              {known && (
+                <>
+                  <span
+                    style={{ width: `${(va / total) * 100}%`, background: TEAMS.amber.color }}
+                  />
+                  <span
+                    style={{ width: `${(vb / total) * 100}%`, background: TEAMS.sapphire.color }}
+                  />
+                </>
+              )}
             </div>
           </li>
         );
@@ -98,7 +114,7 @@ function TeamTable({
           {win ? "Victoire" : "Défaite"}
         </span>
       </h2>
-      <table className="w-full min-w-[34rem] text-sm">
+      <table className="w-full min-w-[34rem] text-sm whitespace-nowrap">
         <caption className="sr-only">Joueurs de la {meta.name}</caption>
         <thead>
           <tr className="text-left text-xs text-subtle">
@@ -147,14 +163,18 @@ function TeamTable({
                         <span className="truncate font-medium">{p.displayName}</span>
                       )}
                       {mvp === p && (
-                        <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-semibold text-warning">
+                        <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-semibold text-warning">
                           MVP
                         </span>
                       )}
                     </span>
                     <span
                       className="block text-xs"
-                      style={{ color: colors.get(p.heroId) ?? "var(--subtle)" }}
+                      style={{
+                        color: colors.get(p.heroId)
+                          ? `color-mix(in srgb, ${colors.get(p.heroId)} 60%, white)`
+                          : "var(--subtle)",
+                      }}
                     >
                       {p.heroName}
                     </span>
@@ -228,11 +248,14 @@ export function MatchPage() {
   const { match, meta } = query.data;
   const colors = new Map((heroes.data?.items ?? []).map((h) => [h.id, h.color]));
   const all = match.teams.flatMap((t) => t.players);
-  const mvp = [...all].sort(
+  const withKda = all.filter((p) => kda(p.kills, p.deaths, p.assists) !== null);
+  const mvp = [...withKda].sort(
     (a, b) => (kda(b.kills, b.deaths, b.assists) ?? -1) - (kda(a.kills, a.deaths, a.assists) ?? -1),
   )[0];
   const winner = match.winningSide ? TEAMS[match.winningSide] : null;
-  const topWorth = [...all].sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0))[0];
+  const topWorth = [...all.filter((p) => p.netWorth !== null)].sort(
+    (a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0),
+  )[0];
 
   return (
     <div className="space-y-6">
@@ -287,7 +310,7 @@ export function MatchPage() {
         <Compare teams={match.teams} />
       </ChartFrame>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid items-start gap-4 min-[1700px]:grid-cols-2">
         {match.teams.map((t) => (
           <TeamTable
             key={t.side}

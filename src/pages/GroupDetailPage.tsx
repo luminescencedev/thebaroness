@@ -136,8 +136,12 @@ export function GroupDetailPage() {
   return (
     <div className="space-y-12">
       <div className="space-y-3">
-        <Link to="/groups" className="text-sm text-muted underline underline-offset-4 hover-text">
-          Mes groupes
+        {/* Le fil d'Ariane du header masque le parent sous 640 px : lien de retour équivalent. */}
+        <Link
+          to="/groups"
+          className="hover-text pressable inline-flex items-center gap-1 rounded-md text-[13px] text-muted sm:hidden"
+        >
+          <span aria-hidden="true">‹</span> Groupes
         </Link>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -315,7 +319,7 @@ export function GroupDetailPage() {
                       </span>
                     </th>
                     <td className="px-2 py-3">
-                      <RankBadge name={m.rank?.name} imageUrl={m.rank?.imageUrl} size="md" label />
+                      <RankBadge name={m.rank?.name} imageUrl={m.rank?.imageUrl} size="sm" label />
                     </td>
                     <td className="px-2 py-3">
                       <Climb member={m} />

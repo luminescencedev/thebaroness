@@ -49,6 +49,8 @@ Le CRUD des suivis est cohérent en mémoire (POST, GET, PATCH, DELETE) et revie
 Le mock n'est jamais actif en production : le code MSW est retiré du build.
 Les tests (`npm test`) utilisent les mêmes handlers via `msw/node`.
 
+Le mock reproduit les règles de l'API v1.9.0 (profil V2 : `overview`, filtres serveur de `matches` et `heroes`, curseur lié aux filtres, horloge fixe `2026-11-16`). Les **objets achetés et le pourcentage de tirs à la tête** n'existent que dans le mock (signalés « exemple synthétique du mode démo ») : le back réel ne les livre pas encore, le front affiche alors `n/d`.
+
 ## Mode réel avec le back
 
 1. Lancer `baroness-back` sur le port 3001 (voir son README).
@@ -96,7 +98,8 @@ src/
   styles/       tokens.css, globals.css
   mocks/        handlers MSW, fixtures JSON
   test/         setup Vitest, utilitaires de rendu
-docs/           cahier des charges, décisions
+docs/           cahier des charges, décisions, HANDOFF avec le back, pack Profil joueur V2 (`docs/design/player-profile-v2/`)
+  contracts/    copie figée de l'OpenAPI du back (`src/contracts/openapi.yaml`, v1.9.0)
 ```
 
 Les choix et écarts par rapport au cahier des charges sont dans [`docs/decisions.md`](docs/decisions.md).

@@ -3,7 +3,7 @@ import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
 import { PageHeader } from "@/components/PageHeader";
-import { EmptyState, Input, Skeleton } from "@/components/ui";
+import { Button, EmptyState, Input, Skeleton } from "@/components/ui";
 import { HeroCard } from "@/features/heroes/HeroCard";
 import { useHeroes } from "@/features/heroes/hooks";
 import { ROLES, ROLE_LABELS } from "@/features/heroes/roles";
@@ -99,7 +99,21 @@ export function HeroesPage() {
           onRetry={() => void heroes.refetch()}
         />
       ) : visible.length === 0 ? (
-        <EmptyState title="Aucun héros" description="Aucun héros ne correspond à ces filtres." />
+        <EmptyState
+          title="Aucun héros"
+          description="Aucun héros ne correspond à ces filtres."
+          action={
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setQuery("");
+                setRole(null);
+              }}
+            >
+              Réinitialiser les filtres
+            </Button>
+          }
+        />
       ) : (
         <>
           <p className="mb-3 text-sm text-muted" aria-live="polite">

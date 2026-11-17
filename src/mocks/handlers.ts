@@ -12,7 +12,6 @@ import {
   allSyntheticPlayers,
   memberStats,
   syntheticMatches,
-  heroBreakdown,
   heroById,
   heroMetaStats,
   heroes,
@@ -22,6 +21,15 @@ import {
 } from "./synthetic";
 import type { ComparePeriod, Group, LeaderboardRegion } from "@/api/types";
 import mapFixture from "./fixtures/map.json";
+import {
+  applied,
+  heroStats,
+  makeCursor,
+  overviewOf,
+  parseServerFilters,
+  readCursor,
+  selectMatches,
+} from "./profileV2";
 
 const API = "/api";
 
@@ -253,15 +261,38 @@ export const handlers = [
     return HttpResponse.json({ group, period, members, meta: meta() });
   }),
 
-  http.get(`${API}/players/:steamId/heroes`, async ({ params }) => {
+  http.get(`${API}/players/:steamId/overview`, async ({ request, params }) => {
     await latency();
     const steamId = String(params.steamId);
     if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
     if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
     const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
     if (!fixture) return notFound("Joueur introuvable.");
+    const parsed = parseServerFilters(new URL(request.url).searchParams, { period: "30d" });
+    if ("error" in parsed) return invalid(parsed.error);
+    const { period, gameMode, matchMode } = parsed.filters;
+    const partial = fixture.partial === true;
     return HttpResponse.json({
-      items: heroBreakdown(matchFixtures[steamId] ?? []),
+      filters: { period: period ?? "30d", gameMode, matchMode },
+      ...overviewOf(matchFixtures[steamId] ?? [], parsed.filters),
+      meta: meta(partial),
+    });
+  }),
+
+  http.get(`${API}/players/:steamId/heroes`, async ({ request, params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    // Sans filtre : tout l'historique (comportement v1.8) ; avec filtres : période et modes.
+    const parsed = parseServerFilters(new URL(request.url).searchParams, { period: null });
+    if ("error" in parsed) return invalid(parsed.error);
+    const f = { ...parsed.filters, heroId: null, outcome: "all" as const };
+    return HttpResponse.json({
+      items: heroStats(selectMatches(matchFixtures[steamId] ?? [], f)),
+      appliedFilters: applied(f),
       meta: meta(fixture.partial === true),
     });
   }),
@@ -279,19 +310,24 @@ export const handlers = [
     const limit = limitRaw === null ? 20 : Number(limitRaw);
     if (!Number.isInteger(limit) || limit < 1 || limit > 50)
       return invalid("limit doit être un entier entre 1 et 50.");
+    const parsed = parseServerFilters(url.searchParams, { period: null });
+    if ("error" in parsed) return invalid(parsed.error);
+    const f = parsed.filters;
     const cursor = url.searchParams.get("cursor");
     let offset = 0;
     if (cursor !== null) {
-      offset = Number(cursor.replace(/^c/, ""));
-      if (!/^c\d+$/.test(cursor)) return invalid("Curseur invalide.");
+      const c = readCursor(cursor, f);
+      if ("error" in c) return invalid(c.error);
+      offset = c.offset;
     }
 
-    const all = matchFixtures[steamId] ?? [];
+    const all = selectMatches(matchFixtures[steamId] ?? [], f);
     const items = all.slice(offset, offset + limit);
     const next = offset + limit;
     return HttpResponse.json({
       items,
-      nextCursor: next < all.length ? `c${next}` : null,
+      nextCursor: next < all.length ? makeCursor(next, f) : null,
+      appliedFilters: applied(f),
       meta: meta(fixture.partial === true),
     });
   }),

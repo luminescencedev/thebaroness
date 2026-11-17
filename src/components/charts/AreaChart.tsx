@@ -40,19 +40,24 @@ export function AreaChart({
 }: AreaChartProps) {
   const gradId = useId();
   const [hover, setHover] = useState<number | null>(null);
-  const defined = points.map((p) => p.value);
-  const filled = defined.map(
-    (v, i) =>
-      v ??
-      defined
-        .slice(0, i)
-        .reverse()
-        .find((x) => x !== null) ??
-      min,
-  );
   if (points.length < 2) return null;
 
-  const { line, area } = smoothPath(filled, 1000, height, 14, min, max);
+  // Valeurs absentes : la courbe est interrompue, jamais reliée à travers un trou.
+  const n = points.length;
+  const runs: { from: number; values: number[] }[] = [];
+  points.forEach((p, i) => {
+    if (p.value === null) return;
+    const last = runs[runs.length - 1];
+    if (last && last.from + last.values.length === i) last.values.push(p.value);
+    else runs.push({ from: i, values: [p.value] });
+  });
+  const segments = runs
+    .filter((r) => r.values.length >= 2)
+    .map((r) => ({
+      x0: (r.from / (n - 1)) * 1000,
+      ...smoothPath(r.values, ((r.values.length - 1) / (n - 1)) * 1000, height, 14, min, max),
+    }));
+  const lone = runs.filter((r) => r.values.length === 1);
   const ticks = [0, 1, 2, 3, 4].map((i) => max - ((max - min) / 4) * i);
   const x = (i: number) => (i / (points.length - 1)) * 100;
   const y = (v: number) =>
@@ -111,7 +116,14 @@ export function AreaChart({
             stroke="rgb(255 255 255 / 0.05)"
             vectorEffect="non-scaling-stroke"
           />
-          <path d={area} fill={`url(#${gradId})`} />
+          {segments.map((sg, i) => (
+            <path
+              key={`a${i}`}
+              d={sg.area}
+              transform={`translate(${sg.x0} 0)`}
+              fill={`url(#${gradId})`}
+            />
+          ))}
           {reference && (
             <path
               d={`M0 ${(y(reference.value) / 100) * height}H1000`}
@@ -120,18 +132,22 @@ export function AreaChart({
               vectorEffect="non-scaling-stroke"
             />
           )}
-          <path
-            d={line}
-            fill="none"
-            stroke={color}
-            strokeWidth="2"
-            vectorEffect="non-scaling-stroke"
-          />
+          {segments.map((sg, i) => (
+            <path
+              key={`l${i}`}
+              d={sg.line}
+              transform={`translate(${sg.x0} 0)`}
+              fill="none"
+              stroke={color}
+              strokeWidth="2"
+              vectorEffect="non-scaling-stroke"
+            />
+          ))}
         </svg>
         {reference && (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute right-1 -translate-y-full rounded bg-bg/80 px-1 text-[10px] text-subtle"
+            className="pointer-events-none absolute right-1 -translate-y-full rounded bg-bg/80 px-1 text-[11px] text-subtle"
             style={{ top: `${y(reference.value)}%` }}
           >
             {reference.label}
@@ -144,6 +160,14 @@ export function AreaChart({
             style={{ left: `${x(best)}%`, top: `${y(points[best]?.value ?? 0)}%` }}
           />
         )}
+        {lone.map((r) => (
+          <span
+            key={`p${r.from}`}
+            aria-hidden="true"
+            className="absolute -mt-[3px] -ml-[3px] size-1.5 rounded-full"
+            style={{ left: `${x(r.from)}%`, top: `${y(r.values[0] ?? 0)}%`, background: color }}
+          />
+        ))}
         {active && hover !== null && active.value !== null && (
           <>
             <span

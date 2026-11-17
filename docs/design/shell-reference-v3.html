@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#090a0c" />
+  <meta name="color-scheme" content="dark" />
+  <title>the baroness. — Prototype UI V3.1</title>
+  <style>
+    :root {
+      /* BARONESS UI — DESIGN TOKENS */
+      --canvas:#090a0c;
+      --panel:#121316;
+      --surface:#191a1e;
+      --surface-up:#1e2024;
+      --surface-hover:#25262b;
+      --border:rgba(255,255,255,.065);
+      --border-up:rgba(255,255,255,.105);
+      --divider:rgba(255,255,255,.055);
+      --text:#f2f2f4;
+      --muted:#a0a1a9;
+      --subtle:#6d7079;
+      --violet:#a095ff;
+      --violet-deep:#786bf0;
+      --cyan:#6faecf;
+      --emerald:#62cba0;
+      --rose:#e48387;
+      --warm:#d7ab79;
+      --radius-xs:8px;
+      --radius-sm:11px;
+      --radius-md:15px;
+      --radius-lg:19px;
+      --radius-panel:26px;
+      --shadow-panel:0 1px 0 rgba(255,255,255,.06) inset,0 0 0 1px rgba(0,0,0,.2),0 32px 90px rgba(0,0,0,.48),0 8px 24px rgba(0,0,0,.22);
+      --shadow-card:inset 0 1px 0 rgba(255,255,255,.03),0 9px 24px rgba(0,0,0,.1);
+      --shadow-popover:inset 0 1px 0 rgba(255,255,255,.06),0 20px 70px rgba(0,0,0,.58),0 0 0 1px rgba(255,255,255,.07);
+      --font:'Geist','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      --ease:cubic-bezier(.2,.8,.25,1);
+      --sidebar:242px;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--canvas)}
+    body{margin:0;min-width:320px;min-height:100dvh;background:var(--canvas);color:var(--text);font:14px/1.45 var(--font);-webkit-font-smoothing:antialiased;letter-spacing:-.012em}
+    button,input{font:inherit;color:inherit}
+    button{cursor:pointer}
+    a{color:inherit;text-decoration:none}
+    svg{display:block}
+    button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--violet);outline-offset:3px}
+    .ico{width:18px;height:18px;flex:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;fill:none}
+    .ico.sm{width:15px;height:15px}.ico.lg{width:20px;height:20px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:-.035em}
+    .num{font-variant-numeric:tabular-nums}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .app{display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100dvh;background:radial-gradient(800px 500px at 75% -40%,rgba(255,255,255,.025),transparent 65%),var(--canvas)}
+    /* Sidebar is NOT floating: same background as the app. */
+    .sidebar{height:100dvh;min-height:0;display:flex;flex-direction:column;padding:24px 13px 17px 17px;background:transparent;position:sticky;top:0;z-index:12}
+    .brand{display:flex;align-items:center;gap:10px;padding:4px 10px 30px}
+    .brand-icon{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;color:#e9e9ec;background:linear-gradient(135deg,#eee,#a8aab2);position:relative;overflow:hidden}
+    .brand-icon:before{content:"";width:28px;height:13px;position:absolute;background:#101115;transform:rotate(-38deg) translate(0,10px)}
+    .brand-name{font-size:16px;font-weight:700;letter-spacing:-.055em;white-space:nowrap}
+    .sidebar-search{margin:0 7px 20px;display:flex;align-items:center;gap:10px;height:37px;border:1px solid rgba(255,255,255,.075);border-radius:11px;background:rgba(255,255,255,.033);color:var(--muted);padding:0 11px;text-align:left;transition:background .18s,border-color .18s}
+    .sidebar-search:hover{background:rgba(255,255,255,.065);border-color:var(--border-up)}
+    .sidebar-search span{flex:1;font-size:12.5px}
+    .kbd{font-family:var(--font);font-size:10px;letter-spacing:0;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);padding:1px 5px;border-radius:5px;color:var(--subtle)}
+    .nav-label{font-size:11px;font-weight:600;color:#6e7079;padding:0 13px;margin:10px 0 7px}
+    .nav-cluster{display:flex;flex-direction:column;gap:2px;margin-bottom:17px}
+    .nav-link{height:37px;width:100%;border:1px solid transparent;border-radius:10px;background:none;color:#989aa3;display:flex;align-items:center;gap:12px;padding:0 12px;font-size:13px;font-weight:560;text-align:left;transition:background .16s var(--ease),color .16s var(--ease),transform .16s var(--ease)}
+    .nav-link .ico{width:17px;height:17px;opacity:.76}
+    .nav-link:hover{background:rgba(255,255,255,.045);color:var(--text)}
+    .nav-link.active{background:rgba(255,255,255,.073);color:#f5f5f6;border-color:rgba(255,255,255,.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.024)}
+    .nav-link.active .ico{opacity:1;color:#e2e2e7}
+    .nav-link .count{margin-left:auto;font-size:11px;color:var(--subtle)}
+    .sidebar-foot{margin-top:auto}
+    .side-divider{height:1px;background:var(--divider);margin:4px 8px 13px}
+    .side-status{display:flex;align-items:center;gap:8px;color:#8b8c96;font-size:11px;padding:9px 13px}
+    .online-dot{width:6px;height:6px;background:var(--emerald);border-radius:50%;box-shadow:0 0 0 3px rgba(98,203,160,.09)}
+    .side-profile{display:flex;align-items:center;gap:10px;padding:10px 9px;border-radius:12px;cursor:pointer}
+    .side-profile:hover{background:rgba(255,255,255,.04)}
+    .mini-avatar{width:31px;height:31px;flex:none;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#45414e,#292932);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700}
+    .side-profile strong{display:block;font-size:12px;font-weight:650}
+    .side-profile small{display:block;color:var(--subtle);font-size:10px}
+    .stage{min-width:0;padding:21px 23px 21px 0;display:flex;align-items:stretch}
+    /* One floating page cloud. Only this part has elevated surface and shadow. */
+    .cloud{min-width:0;flex:1;border:1px solid rgba(255,255,255,.085);border-radius:var(--radius-panel);background:linear-gradient(160deg,rgba(255,255,255,.014),transparent 20%),var(--panel);box-shadow:var(--shadow-panel);overflow:hidden;position:relative;min-height:calc(100dvh - 42px)}
+    .cloud:before{content:"";position:absolute;left:28px;right:28px;top:0;height:1px;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent)}
+    .toolbar{height:62px;display:flex;align-items:center;gap:10px;padding:0 25px;border-bottom:1px solid var(--divider);background:rgba(255,255,255,.008)}
+    .breadcrumbs{display:flex;gap:10px;align-items:center;min-width:0;font-size:12px;color:var(--subtle)}
+    .breadcrumbs .current{color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .breadcrumbs .sep{color:#4b4d54}
+    .toolbar-actions{margin-left:auto;display:flex;gap:7px;align-items:center}
+    .icon-button{width:33px;height:33px;flex:none;display:grid;place-items:center;color:var(--muted);background:transparent;border:1px solid transparent;border-radius:10px;transition:background .16s,color .16s,transform .16s}
+    .icon-button:hover{color:var(--text);background:rgba(255,255,255,.05)}
+    .icon-button:active{transform:scale(.95)}
+    .toolbar-avatar{width:29px;height:29px;border-radius:50%;background:linear-gradient(135deg,#6b596c,#313039);border:2px solid rgba(255,255,255,.08);display:grid;place-items:center;font-size:10px;color:#f0edf5;font-weight:700;margin-left:9px}
+    .workspace{padding:29px clamp(22px,2.6vw,49px) 58px;min-width:0;max-width:1800px;margin:0 auto}
+    .page-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 26px;flex-wrap:wrap}
+    .identity{display:flex;align-items:center;min-width:0;gap:17px}
+    .avatar-large{width:69px;height:69px;border-radius:18px;background:radial-gradient(circle at 35% 22%,#756879,#3b3947 54%,#21232b);border:1px solid rgba(255,255,255,.13);box-shadow:0 5px 18px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.10);display:grid;place-items:center;color:#e5e4eb;font-size:28px;font-weight:650;flex:none}
+    .identity h1{font-size:28px;line-height:1.18;letter-spacing:-.045em;margin:0 0 5px;font-weight:680}
+    .identity-meta{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;flex-wrap:wrap}
+    .dot-sep{font-size:10px;color:#50535b}
+    .tiny-rank{display:inline-flex;align-items:center;gap:6px;color:#c7bfff}
+    .rank-diamond{width:9px;height:9px;background:var(--violet);transform:rotate(45deg);border-radius:2px;box-shadow:0 0 0 3px rgba(160,149,255,.11)}
+    .head-buttons{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{height:36px;padding:0 13px;border:1px solid var(--border-up);border-radius:10px;display:inline-flex;gap:8px;align-items:center;justify-content:center;background:rgba(255,255,255,.042);font-size:12px;font-weight:600;color:#e4e4e8;box-shadow:inset 0 1px 0 rgba(255,255,255,.02);transition:background .16s var(--ease),border-color .16s var(--ease),transform .16s var(--ease)}
+    .btn:hover{background:rgba(255,255,255,.082);border-color:rgba(255,255,255,.16)}
+    .btn:active{transform:scale(.97)}
+    .btn.primary{background:#e9e9ed;border-color:#e9e9ed;color:#141417;box-shadow:0 3px 13px rgba(0,0,0,.22),inset 0 1px 0 #fff}
+    .btn.primary:hover{background:#fff}
+    .btn.followed{background:rgba(160,149,255,.11);border-color:rgba(160,149,255,.2);color:#ccc5ff}
+    .btn .ico{width:15px;height:15px}
+    .tabs{display:flex;gap:24px;border-bottom:1px solid var(--divider);margin-bottom:23px;overflow:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{height:40px;border:0;border-bottom:2px solid transparent;background:none;color:var(--subtle);padding:0 1px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:color .16s}
+    .tab:hover{color:var(--text)}
+    .tab.active{border-bottom-color:#d4d3db;color:#eeeef0}
+    .data-layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:15px;align-items:start}
+    .primary-column,.secondary-column{min-width:0;display:flex;flex-direction:column;gap:15px}
+    .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--divider);border:1px solid var(--border);border-radius:17px;overflow:hidden;box-shadow:var(--shadow-card)}
+    .metric{padding:17px 17px 15px;background:var(--surface);min-width:0}
+    .metric-label{font-size:11px;color:var(--muted);margin-bottom:11px}
+    .metric-value{font-size:26px;font-weight:680;line-height:1;letter-spacing:-.055em;white-space:nowrap;font-variant-numeric:tabular-nums}
+    .metric-foot{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--subtle);margin-top:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .good{color:var(--emerald)}.bad{color:var(--rose)}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.016),transparent 34%),var(--surface);border:1px solid var(--border);border-radius:17px;box-shadow:var(--shadow-card);min-width:0}
+    .card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .card-heading h2{margin:0;font-size:13px;font-weight:650;letter-spacing:-.01em}
+    .card-heading p{margin:5px 0 0;color:var(--subtle);font-size:11px}
+    .chart-card{padding:20px 21px 14px;overflow:hidden}
+    .segmented{display:flex;align-items:center;gap:2px;padding:3px;border:1px solid rgba(255,255,255,.055);background:rgba(0,0,0,.13);border-radius:9px}
+    .segmented button{border:0;background:transparent;border-radius:7px;padding:5px 9px;color:var(--subtle);font-size:11px;font-weight:550;transition:background .15s,color .15s}
+    .segmented button.active{background:rgba(255,255,255,.085);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+    .chart-summary{display:flex;align-items:baseline;gap:9px;margin:19px 0 0}
+    .chart-summary strong{font-size:24px;letter-spacing:-.045em}
+    .chart-summary span{font-size:11px;color:var(--emerald)}
+    .chart-area{position:relative;margin:0 -9px 0}
+    #lineChart{width:100%;height:auto;min-height:200px;overflow:visible;touch-action:pan-y}
+    #lineChart .line{stroke:var(--violet);stroke-width:2.6;stroke-linejoin:round;stroke-linecap:round;fill:none;filter:drop-shadow(0 0 7px rgba(160,149,255,.22))}
+    .chart-hover{position:absolute;transform:translate(-50%,-100%);pointer-events:none;display:none;z-index:5;background:rgba(28,30,35,.96);border:1px solid var(--border-up);padding:7px 10px;box-shadow:var(--shadow-popover);border-radius:10px;white-space:nowrap;font-size:11px}
+    .chart-hover strong{font-size:12px}
+    .chart-foot{display:flex;align-items:center;justify-content:space-between;color:var(--subtle);font-size:10px;padding:2px 6px 0;gap:8px}
+    .chart-foot .legend{display:flex;gap:14px}
+    .legend i{width:7px;height:7px;display:inline-block;border-radius:50%;background:var(--violet);margin-right:5px}
+    .legend .gray{background:#6b6d77}
+    .small-card{padding:17px 18px}
+    .form-dots{display:flex;gap:5px;flex-wrap:wrap;margin-top:17px}
+    .form-dots span{width:19px;height:26px;border-radius:5px;background:rgba(98,203,160,.18);border:1px solid rgba(98,203,160,.27);position:relative}
+    .form-dots span:after{content:"";position:absolute;inset:4px 7px;border-radius:2px;background:var(--emerald)}
+    .form-dots span.loss{background:rgba(228,131,135,.13);border-color:rgba(228,131,135,.22)}
+    .form-dots span.loss:after{background:var(--rose)}
+    .form-footer{display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);font-size:11px;margin-top:13px}
+    .hero-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--divider)}
+    .hero-row:last-child{border-bottom:0;padding-bottom:0}
+    .hero-thumb{width:33px;height:33px;border-radius:9px;display:grid;place-items:center;color:#e2e2ed;font-weight:700;background:linear-gradient(135deg,var(--hero-base),#25252d);border:1px solid rgba(255,255,255,.08);font-size:11px}
+    .hero-info{min-width:0;flex:1}
+    .hero-info strong{display:block;font-size:12px;font-weight:600}
+    .hero-info span{font-size:10.5px;color:var(--subtle)}
+    .hero-rate{font-size:12px;font-weight:650;font-variant-numeric:tabular-nums}
+    .recent-card{overflow:hidden}
+    .table-title{padding:18px 18px 13px;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .table-title h2{font-size:13px;margin:0;font-weight:650}
+    .table-title button{border:0;background:none;color:var(--muted);font-size:11px}
+    .table-title button:hover{color:var(--text)}
+    .match-row{display:grid;grid-template-columns:65px minmax(85px,1.1fr) 1fr 90px 18px;align-items:center;gap:12px;padding:12px 17px;border-bottom:1px solid var(--divider);transition:background .16s;cursor:pointer}
+    .match-row:last-child{border-bottom:0}
+    .match-row:hover{background:rgba(255,255,255,.035)}
+    .result{font-size:11px;font-weight:650;color:var(--emerald)}
+    .result.loss{color:var(--rose)}
+    .match-hero{display:flex;align-items:center;gap:8px;min-width:0;font-size:12px;font-weight:600}
+    .match-hero .hero-thumb{width:29px;height:29px;border-radius:8px}
+    .match-kda{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+    .match-time{font-size:10.5px;color:var(--subtle);text-align:right}
+    .match-arrow{color:var(--subtle)}
+    .stat-divider{height:1px;background:var(--divider);margin:15px 0}
+    .insight{text-align:left;display:flex;gap:11px;align-items:start}
+    .insight-symbol{display:grid;place-items:center;width:28px;height:28px;border:1px solid rgba(255,255,255,.06);border-radius:9px;background:rgba(255,255,255,.04);color:var(--violet);flex:none}
+    .insight strong{font-size:12px;font-weight:600;display:block;margin:1px 0 5px}
+    .insight p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.55}
+    .data-note{font-size:10px;color:var(--subtle);margin:18px 1px 0;line-height:1.55}
+    .mobile-toggle{display:none}
+    /* Secondary screens share the same shell and component grammar. */
+    .secondary-view{display:none}
+    .secondary-view.active{display:block}
+    .profile-view.hidden{display:none}
+    .simple-header{margin:2px 0 25px}
+    .simple-header .eyebrow{font-size:11px;color:var(--subtle);margin-bottom:9px}
+    .simple-header h1{font-size:27px;letter-spacing:-.045em;margin:0 0 5px}
+    .simple-header p{color:var(--muted);font-size:13px;margin:0}
+    .search-input{height:44px;display:flex;gap:10px;align-items:center;border-radius:12px;border:1px solid var(--border-up);background:var(--surface);padding:0 13px;margin-bottom:20px}
+    .search-input input{background:transparent;border:0;outline:none;flex:1;min-width:0;font-size:13px}
+    .list-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .list-tile{padding:15px;border:1px solid var(--border);border-radius:15px;background:var(--surface);transition:background .2s,transform .2s}
+    .list-tile:hover{background:var(--surface-up);transform:translateY(-2px)}
+    .list-tile h3{font-size:14px;margin:12px 0 5px;font-weight:650}
+    .list-tile p{margin:0;color:var(--subtle);font-size:11px}
+    .list-tile .hero-thumb{width:43px;height:43px}
+    .leader-row{display:grid;grid-template-columns:40px 1fr 100px 110px;gap:16px;align-items:center;padding:14px 17px;border-bottom:1px solid var(--divider);font-size:12px}
+    .leader-row:last-child{border:0}
+    .leader-row .idx{color:var(--subtle)}
+    .leader-row .right{text-align:right;color:var(--muted)}
+    .demo-chip{display:inline-flex;gap:5px;align-items:center;padding:5px 9px;border-radius:99px;border:1px solid var(--border);color:var(--subtle);font-size:10px}
+    /* Command palette */
+    .overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.58);backdrop-filter:blur(7px);display:flex;justify-content:center;align-items:flex-start;padding:18vh 16px 16px;opacity:0;pointer-events:none;transition:opacity .17s}
+    .overlay.open{opacity:1;pointer-events:auto}
+    .palette{width:min(100%,540px);border-radius:18px;background:#202126;border:1px solid rgba(255,255,255,.13);box-shadow:var(--shadow-popover);overflow:hidden;transform:translateY(-7px) scale(.985);transition:transform .2s var(--ease)}
+    .overlay.open .palette{transform:none}
+    .palette-search{display:flex;align-items:center;gap:11px;padding:17px;border-bottom:1px solid var(--divider)}
+    .palette-search input{flex:1;background:none;border:0;outline:none;font-size:14px}
+    .palette-list{padding:8px;max-height:315px;overflow:auto}
+    .palette-caption{font-size:10px;font-weight:600;color:var(--subtle);padding:9px 11px;text-transform:uppercase;letter-spacing:.07em}
+    .palette-item{display:flex;align-items:center;gap:11px;width:100%;padding:11px;border:0;border-radius:10px;background:transparent;text-align:left;color:var(--muted)}
+    .palette-item:hover,.palette-item:focus{background:rgba(255,255,255,.07);color:var(--text)}
+    .palette-item .ico{width:17px;height:17px}
+    .palette-item small{margin-left:auto;color:var(--subtle)}
+    .palette-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--divider);padding:10px 16px;font-size:11px;color:var(--subtle)}
+    .mobile-scrim{display:none}
+    .toast{position:fixed;z-index:90;bottom:30px;left:50%;transform:translateX(-50%) translateY(12px);opacity:0;pointer-events:none;padding:10px 15px;background:#26272d;border:1px solid var(--border-up);border-radius:11px;box-shadow:var(--shadow-popover);font-size:12px;color:var(--text);transition:.2s var(--ease)}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media (min-width:1650px){.data-layout{grid-template-columns:minmax(0,1fr) 322px}.workspace{padding-left:54px;padding-right:54px}.stage{padding-right:27px}}
+    @media (max-width:1280px){:root{--sidebar:215px}.stage{padding-right:14px}.workspace{padding-left:25px;padding-right:25px}.data-layout{grid-template-columns:minmax(0,1fr) 255px}.metric{padding:14px 12px}.metric-value{font-size:23px}}
+    @media (max-width:1080px){.data-layout{grid-template-columns:1fr}.secondary-column{display:grid;grid-template-columns:1fr 1fr;gap:12px}.data-note{grid-column:1/-1}.stage{padding-right:12px}.metric-value{font-size:25px}}
+    @media (max-width:820px){.app{display:block}.sidebar{position:fixed;left:0;top:0;width:270px;height:100dvh;background:#111216;box-shadow:var(--shadow-popover);transform:translateX(-104%);transition:transform .24s var(--ease);z-index:60;padding-top:20px}.app.menu-open .sidebar{transform:translateX(0)}.app.menu-open .mobile-scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:50}.stage{padding:12px;display:block}.cloud{min-height:calc(100dvh - 24px);border-radius:22px}.mobile-toggle{display:grid}.toolbar{padding:0 17px}.workspace{padding:24px 24px 42px}.toolbar-avatar{display:none}.list-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:560px){.stage{padding:7px}.cloud{border-radius:20px;min-height:calc(100dvh - 14px)}.toolbar{height:56px;padding:0 13px}.toolbar-actions{gap:1px}.workspace{padding:20px 16px 32px}.page-head{gap:14px;margin-bottom:20px}.identity{gap:11px}.avatar-large{width:51px;height:51px;border-radius:14px;font-size:21px}.identity h1{font-size:23px}.identity-meta{font-size:10.5px;gap:5px}.head-buttons{width:100%}.head-buttons .btn{flex:1}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{padding:15px 13px}.metric-value{font-size:25px}.chart-card{padding:16px 14px 13px}.chart-summary{margin-top:14px}.chart-summary strong{font-size:22px}.secondary-column{display:flex;gap:12px}.match-row{grid-template-columns:60px minmax(70px,1fr) 90px 16px;gap:7px;padding:11px 12px}.match-kda{display:none}.match-time{font-size:10px}.list-grid{grid-template-columns:1fr}.leader-row{grid-template-columns:28px 1fr 60px;gap:8px}.leader-row .last{display:none}.form-dots span{width:17px}.breadcrumbs .parent{display:none}.breadcrumbs .sep{display:none}.data-layout{gap:12px}}
+    @media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+    /* V3.1 ART DIRECTION: the sidebar belongs to the canvas; only the page floats. */
+    .app {
+      background:
+        radial-gradient(620px 540px at 2% 0%, rgba(255,255,255,.046), transparent 79%),
+        radial-gradient(1000px 600px at 88% 118%, rgba(255,255,255,.015), transparent 73%),
+        linear-gradient(115deg,#111215 0%,#0b0c0f 23%,#090a0c 72%,#0b0c0f 100%);
+    }
+    .sidebar {
+      background:radial-gradient(480px 440px at -80px -50px,rgba(255,255,255,.023),transparent 86%);
+    }
+    .cloud {
+      background:
+        radial-gradient(850px 520px at 8% -8%,rgba(255,255,255,.037),transparent 67%),
+        radial-gradient(730px 700px at 108% 100%,rgba(255,255,255,.013),transparent 82%),
+        linear-gradient(165deg,#18191d 0%,#141518 39%,#111215 100%);
+      border-color:rgba(255,255,255,.105);
+      box-shadow:
+        0 34px 100px rgba(0,0,0,.55),
+        -12px 24px 70px rgba(0,0,0,.19),
+        0 1px 0 rgba(255,255,255,.03) inset,
+        0 0 0 1px rgba(0,0,0,.17);
+    }
+    .cloud:before {
+      left:38px;right:38px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.18) 30%,rgba(255,255,255,.06) 78%,transparent);
+    }
+    .card {
+      box-shadow: 0 10px 26px rgba(0,0,0,.13), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .nav-link.active {
+      background:linear-gradient(110deg,rgba(255,255,255,.075),rgba(255,255,255,.034));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 1px 2px rgba(0,0,0,.08);
+    }
+    /* The floating card should retain a small dark gutter even on compact screens. */
+    @media (max-width:820px){
+      .sidebar{background:linear-gradient(160deg,#1b1c20,#111216 74%);}
+    }
+  </style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;visibility:hidden" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.7" cy="10.7" r="6.6"/><path d="m15.5 15.5 4.8 4.8"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.6" y="3.6" width="7" height="7" rx="1.8"/><rect x="13.4" y="3.6" width="7" height="7" rx="1.8"/><rect x="3.6" y="13.4" width="7" height="7" rx="1.8"/><rect x="13.4" y="13.4" width="7" height="7" rx="1.8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="8.7" cy="8.1" r="3"/><path d="M2.8 19c.7-3.1 2.9-5 5.9-5s5.2 1.9 5.9 5"/><path d="M15 5.5a3 3 0 0 1 0 5.8M17.3 14.3c2.1.4 3.5 2.1 3.9 4.7"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c.4-4 2.8-6 7-6s6.6 2 7 6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6L12 2Z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 20.5h18M3.5 18V4"/><path d="m6 16 4.2-5.5 3.2 2.7L20 6"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="m12 2 9 5v10l-9 5-9-5V7l9-5Z"/><path d="m3 7 9 5 9-5M12 12v10"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3.8h12v16.8l-6-4.3-6 4.3V3.8Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M9 15a5 5 0 0 0 7.2.1l3.1-3.1a5 5 0 0 0-7.1-7.1l-1.8 1.7"/><path d="M15 9a5 5 0 0 0-7.2-.1l-3.1 3.1a5 5 0 0 0 7.1 7.1l1.8-1.7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5.2 5.1L20 6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m7 14 5-5 5 5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M5 5 19 19M19 5 5 19"/></symbol>
+</svg>
+<div class="app" id="app">
+  <div class="mobile-scrim" id="mobileScrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <a href="#" class="brand" data-page="profile" aria-label="The Baroness — accueil"><span class="brand-icon" aria-hidden="true"></span><span class="brand-name">the baroness.</span></a>
+    <button class="sidebar-search" id="sidebarSearch"><svg class="ico sm"><use href="#i-search"/></svg><span>Rechercher...</span><kbd class="kbd">⌘ K</kbd></button>
+    <div class="nav-label">Explorer</div>
+    <nav class="nav-cluster" aria-label="Exploration">
+      <button class="nav-link" data-page="discover"><svg class="ico"><use href="#i-grid"/></svg>Vue d’ensemble</button>
+      <button class="nav-link active" data-page="profile"><svg class="ico"><use href="#i-person"/></svg>Joueurs</button>
+      <button class="nav-link" data-page="heroes"><svg class="ico"><use href="#i-spark"/></svg>Héros</button>
+      <button class="nav-link" data-page="ranking"><svg class="ico"><use href="#i-chart"/></svg>Classement</button>
+    </nav>
+    <div class="nav-label">Mon espace</div>
+    <nav class="nav-cluster" aria-label="Espace personnel">
+      <button class="nav-link" data-page="tracked"><svg class="ico"><use href="#i-bookmark"/></svg>Mes suivis<span class="count">8</span></button>
+      <button class="nav-link" data-page="groups"><svg class="ico"><use href="#i-users"/></svg>Groupes<span class="count">2</span></button>
+    </nav>
+    <div class="nav-label">Récemment consulté</div>
+    <nav class="nav-cluster"><button class="nav-link" data-page="profile"><span class="mini-avatar" style="width:21px;height:21px;border-radius:7px;font-size:9px">C</span>Corvid<span class="count">Oracle IV</span></button></nav>
+    <div class="sidebar-foot"><div class="side-divider"></div><div class="side-status"><span class="online-dot"></span>Prototype UI • données fictives</div><div class="side-profile"><span class="mini-avatar">AG</span><span><strong>Compte Steam</strong><small>Mode démonstration</small></span><svg class="ico sm" style="margin-left:auto;color:var(--subtle)"><use href="#i-chevron"/></svg></div></div>
+  </aside>
+  <div class="stage"><div class="cloud" id="cloud">
+    <header class="toolbar"><button class="icon-button mobile-toggle" id="mobileToggle" aria-label="Ouvrir le menu"><svg class="ico lg"><use href="#i-menu"/></svg></button><div class="breadcrumbs"><span class="parent" id="crumbParent">Joueurs</span><span class="sep">/</span><span class="current" id="crumbCurrent">Corvid</span></div><div class="toolbar-actions"><button class="icon-button" id="toolbarSearch" aria-label="Rechercher"><svg class="ico"><use href="#i-search"/></svg></button><button class="icon-button" id="shareTop" aria-label="Partager"><svg class="ico"><use href="#i-link"/></svg></button><button class="icon-button" id="toolbarMore" aria-label="Plus d'options"><svg class="ico"><use href="#i-more"/></svg></button><span class="toolbar-avatar">AG</span></div></header>
+    <div class="workspace" id="workspace">
+      <div class="profile-view" id="profileView">
+        <div class="page-head"><div class="identity"><span class="avatar-large">C</span><div><h1>Corvid</h1><div class="identity-meta"><span class="tiny-rank"><span class="rank-diamond"></span>Oracle IV</span><span class="dot-sep">•</span><span>Europe</span><span class="dot-sep">•</span><span class="num">76561198000000000</span></div></div></div><div class="head-buttons"><button class="btn primary" id="followButton"><svg class="ico"><use href="#i-plus"/></svg><span>Suivre</span></button><button class="btn" id="compareButton"><svg class="ico"><use href="#i-users"/></svg>Comparer</button></div></div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Statistiques du joueur"><button class="tab active" data-tab="overview" role="tab" aria-selected="true">Aperçu</button><button class="tab" data-tab="matches" role="tab" aria-selected="false">Parties</button><button class="tab" data-tab="heroes" role="tab" aria-selected="false">Héros</button></div>
+        <div id="tabOverview">
+          <div class="data-layout"><div class="primary-column">
+            <section class="metrics" aria-label="Indicateurs principaux">
+              <div class="metric"><div class="metric-label">Win rate</div><div class="metric-value">57.8<span style="font-size:16px">%</span></div><div class="metric-foot"><span class="good">↗ 3.2%</span> sur 30 parties</div></div>
+              <div class="metric"><div class="metric-label">KDA moyen</div><div class="metric-value">4.26</div><div class="metric-foot">7.8 / 4.2 / 10.1</div></div>
+              <div class="metric"><div class="metric-label">Parties</div><div class="metric-value">248</div><div class="metric-foot">Dernière : il y a 2 h</div></div>
+              <div class="metric"><div class="metric-label">Forme récente</div><div class="metric-value">7<span style="font-size:16px;color:var(--subtle)"> / 10</span></div><div class="metric-foot"><span class="good">7 victoires</span> · 3 défaites</div></div>
+            </section>
+            <section class="card chart-card" aria-label="Graphique de progression"><div class="card-heading"><div><h2>Progression classée</h2><p>Évolution sur les parties disponibles</p></div><div class="segmented" role="group" aria-label="Période du graphique"><button data-range="7">7J</button><button data-range="30" class="active">30J</button><button data-range="90">90J</button></div></div><div class="chart-summary"><strong id="chartNumber">+118</strong><span id="chartChange">↗ sur les 30 dernières parties</span></div><div class="chart-area" id="chartArea"><div class="chart-hover" id="chartHover"></div><svg id="lineChart" viewBox="0 0 720 228" role="img" aria-label="Courbe de progression du rang" tabindex="0"></svg></div><div class="chart-foot"><span class="legend"><span><i></i>Progression</span><span><i class="gray"></i>Référence</span></span><span id="chartFoot">30 parties</span></div></section>
+            <section class="card recent-card"><div class="table-title"><h2>Parties récentes</h2><button id="allMatches">Tout voir <svg class="ico sm" style="display:inline-block;vertical-align:middle"><use href="#i-arrow"/></svg></button></div><div id="matchList"></div></section>
+          </div><aside class="secondary-column"><section class="card small-card"><div class="card-heading"><div><h2>Forme récente</h2><p>10 dernières parties</p></div></div><div class="form-dots" aria-label="7 victoires et 3 défaites" id="formDots"></div><div class="form-footer"><span>7 victoires · 3 défaites</span><span class="good">70%</span></div></section><section class="card small-card"><div class="card-heading"><div><h2>Héros favoris</h2><p>Sur les parties analysées</p></div></div><div class="hero-row"><span class="hero-thumb" style="--hero-base:#75607f">V</span><div class="hero-info"><strong>Vindicta</strong><span>42 parties</span></div><span class="hero-rate">62.4%</span></div><div class="hero-row"><span class="hero-thumb" style="--hero-base:#566a83">P</span><div class="hero-info"><strong>Pocket</strong><span>31 parties</span></div><span class="hero-rate">58.1%</span></div><div class="hero-row"><span class="hero-thumb" style="--hero-base:#766756">D</span><div class="hero-info"><strong>Dynamo</strong><span>24 parties</span></div><span class="hero-rate">54.2%</span></div></section><section class="card small-card"><div class="card-heading" style="margin-bottom:15px"><div><h2>À retenir</h2><p>Synthèse sur les matchs disponibles</p></div></div><div class="insight"><span class="insight-symbol"><svg class="ico sm"><use href="#i-chart"/></svg></span><div><strong>Progression positive</strong><p>Le taux de victoire augmente sur les 30 derniers matchs disponibles.</p></div></div><div class="stat-divider"></div><div class="insight"><span class="insight-symbol"><svg class="ico sm"><use href="#i-spark"/></svg></span><div><strong>Vindicta ressort</strong><p>Le héros le plus joué affiche aussi le meilleur win rate.</p></div></div></section><p class="data-note">Prototype visuel avec données entièrement fictives. Les métriques et l’historique ne représentent aucun joueur réel.</p></aside></div>
+        </div>
+        <div id="tabMatches" style="display:none"><section class="card recent-card"><div class="table-title"><h2>Historique des parties</h2><span class="demo-chip">10 dernières parties</span></div><div id="matchListFull"></div></section></div>
+        <div id="tabHeroes" style="display:none"><div class="simple-header"><h1>Héros joués</h1><p>Analyse fictive des héros utilisés par Corvid.</p></div><div class="list-grid" id="playerHeroGrid"></div></div>
+      </div>
+      <div class="secondary-view" id="secondaryView"></div>
+    </div>
+  </div></div>
+</div>
+<div class="overlay" id="overlay" aria-hidden="true"><div class="palette" role="dialog" aria-modal="true" aria-label="Recherche et navigation"><div class="palette-search"><svg class="ico"><use href="#i-search"/></svg><input id="commandInput" type="search" placeholder="Rechercher une page ou un joueur..." aria-label="Rechercher" autocomplete="off"/><span class="kbd">Esc</span></div><div class="palette-list" id="paletteList"></div><div class="palette-footer"><span>↑↓ naviguer · Entrée ouvrir</span><span>the baroness.</span></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(()=>{
+  const $=id=>document.getElementById(id);
+  const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
+  const icon=(name,cls='ico')=>`<svg class="${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+  const matches=[['win','Vindicta','14 / 5 / 11','il y a 2 h','#75607f'],['win','Pocket','8 / 4 / 17','hier','#566a83'],['loss','Dynamo','3 / 8 / 12','hier','#766756'],['win','Vindicta','12 / 3 / 9','il y a 2 j','#75607f'],['win','Ivy','6 / 5 / 21','il y a 2 j','#64766e'],['loss','Wraith','7 / 11 / 5','il y a 3 j','#6b5b7b'],['win','Vindicta','16 / 2 / 9','il y a 3 j','#75607f'],['win','Pocket','9 / 4 / 11','il y a 4 j','#566a83'],['win','Kelvin','5 / 3 / 19','il y a 4 j','#5e7380'],['loss','Seven','7 / 8 / 8','il y a 5 j','#85715f']];
+  const heroes=[['Vindicta','42 parties','62.4%','#75607f'],['Pocket','31 parties','58.1%','#566a83'],['Dynamo','24 parties','54.2%','#766756'],['Ivy','19 parties','57.9%','#64766e'],['Wraith','16 parties','50.0%','#6b5b7b'],['Seven','13 parties','53.8%','#85715f']];
+  let currentPage='profile',following=false,chartRange=30,selectedChartPoint=null,chartValues=[];
+  let toastTimer;
+  const toast=msg=>{const n=$('toast');n.textContent=msg;n.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>n.classList.remove('show'),2200)};
+  function row(m){let [r,h,k,t,c]=m;return `<div class="match-row" tabindex="0" role="button" data-match="1" aria-label="${r==='win'?'Victoire':'Défaite'} avec ${h}"><span class="result ${r==='loss'?'loss':''}">${r==='win'?'Victoire':'Défaite'}</span><span class="match-hero"><span class="hero-thumb" style="--hero-base:${c}">${h[0]}</span>${h}</span><span class="match-kda num">${k}</span><span class="match-time">${t}</span>${icon('arrow','ico sm match-arrow')}</div>`}
+  $('matchList').innerHTML=matches.slice(0,4).map(row).join('');$('matchListFull').innerHTML=matches.map(row).join('');
+  $('formDots').innerHTML=['win','win','loss','win','win','win','loss','win','loss','win'].map(x=>`<span class="${x==='loss'?'loss':''}" title="${x==='loss'?'Défaite':'Victoire'}"></span>`).join('');
+  $('playerHeroGrid').innerHTML=heroes.map(([name,games,rate,color])=>`<article class="list-tile"><span class="hero-thumb" style="--hero-base:${color}">${name[0]}</span><h3>${name}</h3><p>${games} · ${rate} win rate</p></article>`).join('');
+  const data={7:[41,46,43,48,54,52,60,57,66,68],30:[29,35,32,38,42,40,46,43,52,49,55,53,60,57,65,62,68,70],90:[20,23,22,28,26,29,35,32,36,39,37,44,43,45,50,48,53,55,54,61,58,63,67,65,70]};
+  function chartPath(pts){return pts.map((p,i)=>`${i===0?'M':'L'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ')}
+  function renderChart(range){chartRange=range;const values=data[range];chartValues=values;const left=21,right=699,top=24,bottom=194;const pts=values.map((n,i)=>[left+i*(right-left)/(values.length-1),bottom-(n-15)/(78-15)*(bottom-top)]);const d=chartPath(pts);const area=d+` L ${right} ${bottom} L ${left} ${bottom} Z`;const grid=[50,97,144,191].map(y=>`<line x1="21" x2="699" y1="${y}" y2="${y}" stroke="rgba(255,255,255,.065)" stroke-width="1"/>`).join('');const end=pts.at(-1);$('lineChart').innerHTML=`<defs><linearGradient id="barChartFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#a095ff" stop-opacity=".23"/><stop offset="100%" stop-color="#a095ff" stop-opacity="0"/></linearGradient></defs>${grid}<line x1="21" y1="108" x2="699" y2="108" stroke="#878894" stroke-opacity=".32" stroke-dasharray="4 6"/><path d="${area}" fill="url(#barChartFill)"/><path d="${d}" class="line"/><circle cx="${end[0]}" cy="${end[1]}" r="6" fill="var(--violet)" stroke="#221e31" stroke-width="4"/><line id="chartCursorLine" x1="0" x2="0" y1="24" y2="194" stroke="#e7e3ff" opacity="0" stroke-dasharray="3 5"/><circle id="chartCursorDot" cx="0" cy="0" r="5.5" fill="#eeeaff" stroke="#7a70cd" stroke-width="2" opacity="0"/><rect x="0" y="0" width="720" height="205" fill="transparent" id="chartPointerSurface"/>`;window._chartPts=pts;$('chartNumber').textContent=range===7?'+32':range===30?'+118':'+286';$('chartChange').textContent=`↗ sur les ${range} dernières parties`;$('chartFoot').textContent=`${range} parties disponibles`;$('chartHover').style.display='none';$$('[data-range]').forEach(x=>{x.classList.toggle('active',Number(x.dataset.range)===range);x.setAttribute('aria-pressed',String(Number(x.dataset.range)===range))});}
+  renderChart(30);
+  function pointAt(i){const pts=window._chartPts,p=pts[i];if(!p)return;selectedChartPoint=i;const svg=$('lineChart'),rect=svg.getBoundingClientRect(),container=$('chartArea').getBoundingClientRect(),x=rect.left+p[0]*rect.width/720-container.left,y=rect.top+p[1]*rect.height/228-container.top;const tip=$('chartHover');tip.style.display='block';tip.style.left=`${Math.max(68,Math.min(container.width-68,x))}px`;tip.style.top=`${Math.max(35,y-8)}px`;tip.innerHTML=`<span style="color:var(--subtle)">Partie ${i+1}</span><br/><strong>Indice : ${chartValues[i]}</strong>`;$('chartCursorLine').setAttribute('x1',p[0]);$('chartCursorLine').setAttribute('x2',p[0]);$('chartCursorLine').setAttribute('opacity','1');$('chartCursorDot').setAttribute('cx',p[0]);$('chartCursorDot').setAttribute('cy',p[1]);$('chartCursorDot').setAttribute('opacity','1')}
+  function hidePoint(){if($('chartHover'))$('chartHover').style.display='none';$('chartCursorLine')?.setAttribute('opacity','0');$('chartCursorDot')?.setAttribute('opacity','0');selectedChartPoint=null}
+  $('lineChart').addEventListener('pointermove',e=>{let r=$('lineChart').getBoundingClientRect();let x=(e.clientX-r.left)*720/r.width;let i=window._chartPts.reduce((best,p,j)=>Math.abs(p[0]-x)<Math.abs(window._chartPts[best][0]-x)?j:best,0);pointAt(i)});$('lineChart').addEventListener('pointerleave',hidePoint);
+  $('lineChart').addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();pointAt(Math.max(0,Math.min(window._chartPts.length-1,(selectedChartPoint??window._chartPts.length-1)+(e.key==='ArrowRight'?1:-1))))}});
+  $$('[data-range]').forEach(b=>b.addEventListener('click',()=>renderChart(Number(b.dataset.range))));
+  function switchTab(tab){for(let [key,id] of [['overview','tabOverview'],['matches','tabMatches'],['heroes','tabHeroes']])$(id).style.display=key===tab?'':'none';$$('[data-tab]').forEach(b=>{b.classList.toggle('active',b.dataset.tab===tab);b.setAttribute('aria-selected',String(b.dataset.tab===tab))})}
+  $$('[data-tab]').forEach(x=>x.addEventListener('click',()=>switchTab(x.dataset.tab)));
+  const pages={discover:['Explorer','Vue d’ensemble'],profile:['Joueurs','Corvid'],heroes:['Explorer','Héros'],ranking:['Compétitif','Classement'],tracked:['Mon espace','Mes suivis'],groups:['Mon espace','Groupes']};
+  const viewTemplates={
+    discover:()=>`<div class="simple-header"><div class="eyebrow">Vue d’ensemble</div><h1>Tout Deadlock, au même endroit.</h1><p>Explorez les joueurs, leurs performances et la méta. Version de démonstration.</p></div><div class="metrics"><div class="metric"><div class="metric-label">Joueurs suivis</div><div class="metric-value">8</div><div class="metric-foot">dans votre espace</div></div><div class="metric"><div class="metric-label">Groupes</div><div class="metric-value">2</div><div class="metric-foot">comparaisons privées</div></div><div class="metric"><div class="metric-label">Héros</div><div class="metric-value">29</div><div class="metric-foot">catalogue de démo</div></div><div class="metric"><div class="metric-label">Région</div><div class="metric-value">EU</div><div class="metric-foot">classement global</div></div></div><div style="height:16px"></div><div class="card small-card"><div class="card-heading"><div><h2>Accès rapide</h2><p>Retrouvez les principales vues du tracker.</p></div></div><div class="list-grid" style="margin-top:17px"><button class="list-tile" data-page="profile" style="color:inherit;text-align:left"><div class="hero-thumb" style="--hero-base:#565066">C</div><h3>Profil Corvid</h3><p>Statistiques, parties, progression</p></button><button class="list-tile" data-page="heroes" style="color:inherit;text-align:left"><div class="hero-thumb" style="--hero-base:#52496b">H</div><h3>Catalogue des héros</h3><p>Win rates et sélection</p></button><button class="list-tile" data-page="ranking" style="color:inherit;text-align:left"><div class="hero-thumb" style="--hero-base:#6a6559">#</div><h3>Classement régional</h3><p>Explorer les meilleures places</p></button></div></div>`,
+    heroes:()=>`<div class="simple-header"><div class="eyebrow">Explorer</div><h1>Héros</h1><p>Catalogue compact et cohérent avec les autres vues du produit.</p></div><label class="search-input">${icon('search')}<input placeholder="Rechercher un héros…" id="heroSearch"/></label><div class="list-grid" id="heroCatalogue">${heroes.concat([['Ivy','19 parties','57.9%','#64766e'],['Infernus','16 parties','54.0%','#8a6255'],['Kelvin','21 parties','55.3%','#5e7380']]).map(([name,games,rate,color])=>`<article class="list-tile" data-hero="${name.toLowerCase()}"><span class="hero-thumb" style="--hero-base:${color}">${name[0]}</span><h3>${name}</h3><p>${games} · ${rate} win rate</p></article>`).join('')}</div>`,
+    ranking:()=>`<div class="simple-header"><div class="eyebrow">Compétitif</div><h1>Classement</h1><p>Top joueurs en Europe — données fictives pour tester l'interface.</p></div><section class="card"><div class="table-title"><h2>Europe · Général</h2><span class="demo-chip">Saison actuelle</span></div>${[['Corvid','Oracle IV','57.8%'],['Mistral','Oracle III','56.9%'],['Sable','Oracle II','54.7%'],['Meridian','Phantom VI','54.2%'],['Lumen','Phantom V','53.8%']].map(([name,rank,win],i)=>`<div class="leader-row"><span class="idx mono">${String(i+1).padStart(2,'0')}</span><span style="font-weight:600">${name}<small style="display:block;color:var(--subtle);font-weight:400;margin-top:3px">${rank}</small></span><span class="right">${win}</span><span class="right last">${2000-i*42} pts</span></div>`).join('')}</section>`,
+    tracked:()=>`<div class="simple-header"><div class="eyebrow">Mon espace</div><h1>Mes suivis</h1><p>Retrouvez vos joueurs et leur forme récente, dans un espace privé.</p></div><section class="card"><div class="table-title"><h2>8 joueurs</h2><button data-page="profile">Voir Corvid ${icon('arrow','ico sm')}</button></div>${[['Corvid','Oracle IV','7 victoires / 10'],['Mistral','Oracle III','6 victoires / 10'],['Sable','Oracle II','5 victoires / 10']].map(([name,rank,last],i)=>`<div class="leader-row"><span class="idx mono">${String(i+1).padStart(2,'0')}</span><span style="font-weight:600">${name}<small style="display:block;color:var(--subtle);font-weight:400;margin-top:3px">${rank}</small></span><span class="right">${last}</span><span class="right last">${icon('arrow')}</span></div>`).join('')}</section>`,
+    groups:()=>`<div class="simple-header"><div class="eyebrow">Mon espace</div><h1>Groupes</h1><p>Comparez la progression de vos amis dans une interface lisible.</p></div><div class="list-grid"><article class="list-tile"><div class="hero-thumb" style="--hero-base:#5f5878">E</div><h3>Evening stack</h3><p>5 joueurs · rangs, KDA et progression</p></article><article class="list-tile"><div class="hero-thumb" style="--hero-base:#485e65">S</div><h3>Sunday games</h3><p>3 joueurs · statistiques partagées</p></article></div>`
+  };
+  function navigate(page){if(!pages[page])return;currentPage=page;$('profileView').classList.toggle('hidden',page!=='profile');$('secondaryView').classList.toggle('active',page!=='profile');if(page!=='profile')$('secondaryView').innerHTML=viewTemplates[page]();$('crumbParent').textContent=pages[page][0];$('crumbCurrent').textContent=pages[page][1];$$('.nav-link').forEach(x=>x.classList.toggle('active',x.dataset.page===page));$('cloud').scrollTop=0;window.scrollTo({top:0,behavior:'instant'});document.title=`${pages[page][1]} — the baroness.`;closeMenu();if(page==='heroes')$('heroSearch')?.addEventListener('input',e=>$$('[data-hero]').forEach(n=>n.style.display=n.dataset.hero.includes(e.target.value.toLowerCase())?'':'none'))}
+  document.addEventListener('click',e=>{let p=e.target.closest('[data-page]');if(p){e.preventDefault();navigate(p.dataset.page)}let m=e.target.closest('[data-match]');if(m)toast('Détail de partie : composant à concevoir dans la prochaine étape')});
+  $('allMatches').addEventListener('click',()=>switchTab('matches'));
+  $('followButton').addEventListener('click',()=>{following=!following;const b=$('followButton');b.classList.toggle('followed',following);b.classList.toggle('primary',!following);b.innerHTML=`${icon(following?'check':'plus')}<span>${following?'Suivi':'Suivre'}</span>`;toast(following?'Corvid ajouté aux suivis (démo)':'Corvid retiré des suivis (démo)')});
+  $('compareButton').addEventListener('click',()=>navigate('groups'));
+  $('shareTop').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);toast('Lien du prototype copié')}catch{toast('Partage non disponible dans ce navigateur')}});
+  $('toolbarMore').addEventListener('click',()=>toast('Menu d’actions : à concevoir après validation du shell'));
+  $('mobileToggle').addEventListener('click',()=>$('app').classList.add('menu-open'));
+  $('mobileScrim').addEventListener('click',closeMenu);
+  function closeMenu(){$('app').classList.remove('menu-open')}
+  const commands=[['Vue d’ensemble','discover','grid'],['Profil Corvid','profile','person'],['Héros','heroes','spark'],['Classement','ranking','chart'],['Mes suivis','tracked','bookmark'],['Groupes','groups','users']];
+  function drawCommands(query=''){const list=commands.filter(c=>c[0].toLowerCase().includes(query.toLowerCase()));$('paletteList').innerHTML=`<div class="palette-caption">Navigation rapide</div>${list.map(([label,page,ic])=>`<button class="palette-item" data-command="${page}">${icon(ic)}<span>${label}</span><small>Ouvrir</small></button>`).join('')||'<p style="padding:12px;color:var(--subtle)">Aucun résultat</p>'}`}
+  function openPalette(){drawCommands();$('overlay').classList.add('open');$('overlay').setAttribute('aria-hidden','false');$('commandInput').value='';setTimeout(()=>$('commandInput').focus(),20)}
+  function closePalette(){$('overlay').classList.remove('open');$('overlay').setAttribute('aria-hidden','true')}
+  $('sidebarSearch').addEventListener('click',openPalette);$('toolbarSearch').addEventListener('click',openPalette);$('commandInput').addEventListener('input',e=>drawCommands(e.target.value));$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closePalette()});$('paletteList').addEventListener('click',e=>{const b=e.target.closest('[data-command]');if(b){navigate(b.dataset.command);closePalette()}});
+  document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();$('overlay').classList.contains('open')?closePalette():openPalette()}if(e.key==='Escape'){closePalette();closeMenu()}if(e.key==='Enter'&&document.activeElement===$('commandInput')){const first=$('[data-command]');if(first){navigate(first.dataset.command);closePalette()}}});
+})();
+</script>
+</body>
+</html>

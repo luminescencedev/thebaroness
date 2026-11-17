@@ -7,27 +7,76 @@ import { signIn } from "@/test/session";
 import { renderApp } from "@/test/render";
 
 describe("recherche et profil", () => {
-  it("affiche les résultats puis le profil de Corvid", async () => {
+  it("affiche les résultats puis le profil de Corvid avec le rang collé au pseudo", async () => {
     renderApp("/search?q=corvid");
     const link = await screen.findByRole("link", { name: /^Corvid(?! Jr)/ });
     await userEvent.click(link);
 
-    expect(await screen.findByRole("heading", { name: "Corvid", level: 1 })).toBeInTheDocument();
-    expect((await screen.findAllByText("Oracle 4")).length).toBeGreaterThan(0);
-    expect(await screen.findByText(/24 V · 18 D/, {}, { timeout: 4000 })).toBeInTheDocument();
+    const title = await screen.findByRole("heading", { name: "Corvid", level: 1 });
+    // Pseudo et rang partagent le même conteneur : jamais séparés dans un coin du header.
+    expect(within(title.parentElement as HTMLElement).getByText("Oracle IV")).toBeInTheDocument();
+    expect(await screen.findByText("Performance", {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(screen.getByText("Rang et modes")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("tab", { name: /Parties/ }));
     expect((await screen.findAllByText("Victoire")).length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Défaite").length).toBeGreaterThan(0);
   });
 
-  it("l'onglet vit dans l'URL et la liste des parties se déroule", async () => {
+  it("l'onglet vit dans l'URL, les filtres réduisent la liste et la ligne se déplie", async () => {
     renderApp(`/players/${SCENARIOS.steamIdFull}?tab=matches`);
     expect(await screen.findByRole("tab", { name: /Parties/, selected: true })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(20), {
+    await waitFor(() => expect(screen.getAllByRole("listitem").length).toBeGreaterThan(20), {
       timeout: 4000,
     });
-    await userEvent.click(await screen.findByRole("button", { name: "Afficher 30 de plus" }));
-    await waitFor(() => expect(screen.getAllByRole("row").length).toBeGreaterThan(40));
+    expect(screen.getByText(/parties chargées/)).toHaveTextContent(
+      "Filtré et paginé par le serveur",
+    );
+
+    await userEvent.click(screen.getByRole("radio", { name: "Défaites" }));
+    await waitFor(() => expect(screen.queryAllByText("Victoire")).toHaveLength(0), {
+      timeout: 4000,
+    });
+    expect((await screen.findAllByText("Défaite")).length).toBeGreaterThan(0);
+
+    const toggle = screen.getAllByRole("button", {
+      name: /Afficher le détail de la partie/,
+    })[0] as HTMLElement;
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getAllByRole("link", { name: "Ouvrir la partie" }).length).toBeGreaterThan(0);
+  });
+
+  it("déplie une partie : build, participants et lien vers la partie", async () => {
+    renderApp(`/players/${SCENARIOS.steamIdFull}?tab=matches`);
+    const toggle = (
+      await screen.findAllByRole("button", { name: /Afficher le détail de la partie/ })
+    )[0] as HTMLElement;
+    await userEvent.click(toggle);
+    const panel = document.getElementById(
+      toggle.getAttribute("aria-controls") as string,
+    ) as HTMLElement;
+    // Build du mode démo : repère « exemple synthétique », puis objets nommés.
+    expect(
+      await within(panel).findByText(/exemple synthétique du mode démo/, {}, { timeout: 4000 }),
+    ).toBeInTheDocument();
+    expect(within(panel).getAllByRole("listitem").length).toBeGreaterThan(10);
+    expect(within(panel).getByRole("region", { name: "Sapphire Flame" })).toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: "Amber Hand" })).toBeInTheDocument();
+    expect(within(panel).getByRole("link", { name: "Ouvrir la partie" })).toHaveAttribute(
+      "href",
+      expect.stringMatching(/^\/matches\/\d+$/),
+    );
+    // Repli : le panneau reste dans le DOM mais devient inerte.
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(panel).toHaveAttribute("inert");
+  });
+
+  it("navigation segmentée : l'onglet suit l'URL et le retour arrière", async () => {
+    const { router } = renderApp(`/players/${SCENARIOS.steamIdFull}`);
+    await userEvent.click(await screen.findByRole("tab", { name: "Héros" }));
+    await waitFor(() => expect(router.state.location.search).toBe("?tab=heroes"));
+    expect(screen.getByRole("tab", { name: "Héros", selected: true })).toBeInTheDocument();
   });
 
   it("gère zéro résultat et service indisponible", async () => {
@@ -43,7 +92,7 @@ describe("recherche et profil", () => {
     expect(
       await screen.findByText(/Données partielles/, {}, { timeout: 3000 }),
     ).toBeInTheDocument();
-    expect(await screen.findByText("Aucune partie disponible")).toBeInTheDocument();
+    expect(await screen.findByText("Aucune partie sur cette période")).toBeInTheDocument();
   });
 
   it("affiche joueur introuvable en 404", async () => {

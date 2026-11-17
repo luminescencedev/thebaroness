@@ -1,3 +1,5 @@
 export { Footer } from "./Footer";
-export { Nav } from "./Nav";
+export { MobileMenu } from "./MobileMenu";
+export { SidebarNav } from "./SidebarNav";
+export { Topbar } from "./Topbar";
 export { Wordmark } from "./Wordmark";

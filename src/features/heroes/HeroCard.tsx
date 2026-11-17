@@ -31,15 +31,20 @@ export function HeroCard({ hero }: { hero: HeroSummary }) {
         <span className="block truncate text-base font-semibold tracking-[-0.03em] text-text">
           {hero.name}
         </span>
-        <span
-          className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium"
-          style={{
-            background: `color-mix(in srgb, ${hero.color} 22%, transparent)`,
-            color: hero.color,
-          }}
-        >
-          {ROLE_LABELS[hero.role]}
-          {hero.gunTag && <span className="text-text/70">· {hero.gunTag}</span>}
+        <span className="mt-1.5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <span
+            className="inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[11px] font-medium"
+            style={{
+              background: "rgb(9 10 12 / 0.72)",
+              borderColor: `color-mix(in srgb, ${hero.color} 55%, transparent)`,
+              color: `color-mix(in srgb, ${hero.color} 40%, white)`,
+            }}
+          >
+            {ROLE_LABELS[hero.role]}
+          </span>
+          {hero.gunTag && (
+            <span className="min-w-0 text-[11px] leading-tight text-text/80">{hero.gunTag}</span>
+          )}
         </span>
       </span>
     </Link>

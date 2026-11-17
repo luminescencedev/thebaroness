@@ -82,6 +82,8 @@ export function OverviewLayout({
           <RecentPerformance
             matches={matches}
             overview={overview}
+            steamId={profile.player.steamId}
+            scope={scope}
             scopeText={scopeLabel(scope)}
             historyLoading={historyLoading}
           />

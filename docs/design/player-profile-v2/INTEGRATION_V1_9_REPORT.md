@@ -110,3 +110,13 @@ Débordement horizontal contrôlé par script à 320, 390, 768, 1024, 1280, 1440
 | Production                                                                                    | Le back de production n'a pas v1.10.0 avant son déploiement : widgets vides ou « n/d », sans erreur bloquante |
 
 Choix : `heroCritRate` est affiché comme HS avec l'infobulle « tirs critiques sur héros : tirs à la tête » (à confirmer par le back) ; l'ancien contrat proposé (`items`, `headshotPct`) est retiré des types, le mock reproduit désormais les vraies formes (`finalItemIds`, `stats`, catalogue `/items`). La courbe lit au plus 50 parties (la limite de 200 servait à l'activité). Tests : 92 unitaires et d'intégration (nouveaux : résolution du build, KP/MVP/HS, calendrier depuis `/activity`, routes P1, widgets), 16 e2e. Captures `p1-*.png`. Limite : le graphique de progression de rang peut être plat ou vide selon les badges fournis par la source.
+
+## Addendum : phase P2 (back `ebaabd2`, OpenAPI v1.11.0)
+
+| Fonctionnalité                                                                               | Statut                                                                        |
+| -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Tendance N contre N (`/trends`), fenêtre = courbe 10 / 20 / 50, hors période                 | **Intégrée, testée sur back Docker** (valeurs identiques à l'exemple du back) |
+| Statistiques d'objets, builds de héros, paires d'objets (routes répondent 200 sur le Docker) | Contrat recopié ; **aucune interface** (pages Items et Builds à décider)      |
+| `rolling` de `/trends`                                                                       | Non utilisé                                                                   |
+
+Tests : 96 unitaires et d'intégration (4 nouveaux : tendance, comparaison inégale, taille hors bornes, widget).

@@ -33,6 +33,7 @@ import {
   rankHistoryOf,
   readCursor,
   relationshipsOf,
+  trendsOf,
   selectMatches,
 } from "./profileV2";
 
@@ -293,6 +294,26 @@ export const handlers = [
     if (!["all", "ranked", "unranked"].includes(mm)) return invalid("matchMode invalide.");
     return HttpResponse.json({
       ...activityOf(matchFixtures[steamId] ?? [], weeks, gm as "all", mm as "all"),
+      meta: meta(fixture.partial === true),
+    });
+  }),
+
+  http.get(`${API}/players/:steamId/trends`, async ({ request, params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    const q = new URL(request.url).searchParams;
+    const size = q.get("size") === null ? 20 : Number(q.get("size"));
+    if (!Number.isInteger(size) || size < 5 || size > 50) return invalid("size : 5 à 50.");
+    const gm = q.get("gameMode") ?? "all";
+    const mm = q.get("matchMode") ?? "all";
+    if (!["all", "normal", "street_brawl"].includes(gm)) return invalid("gameMode invalide.");
+    if (!["all", "ranked", "unranked"].includes(mm)) return invalid("matchMode invalide.");
+    return HttpResponse.json({
+      ...trendsOf(matchFixtures[steamId] ?? [], size, gm as "all", mm as "all"),
       meta: meta(fixture.partial === true),
     });
   }),

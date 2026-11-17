@@ -1,11 +1,11 @@
 # Copie figée du contrat OpenAPI du backend
-# Source : thebaroness-back, docs/openapi.yaml v1.10.0, commit 1805949 (17/11/2026)
-# Généré depuis src/docs/openapi.ts (v1.10.0) par `npm run openapi`.
+# Source : thebaroness-back, docs/openapi.yaml v1.11.0, commit ebaabd2 (17/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.11.0) par `npm run openapi`.
 # Ne pas modifier à la main.
 openapi: 3.1.0
 info:
   title: thebaroness API
-  version: 1.10.0
+  version: 1.11.0
   description: "API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l'espace privé est stocké dans MongoDB. Erreurs : `{ \"error\": { \"code\", \"message\" } }`. Inconnu = `null`, jamais 0."
 servers:
   - url: /api
@@ -696,6 +696,379 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PlayerRelationships"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /items/stats:
+    get:
+      tags:
+        - Catalogue
+      summary: Statistiques d’utilisation des items
+      description: "Agrégats Deadlock API (`/v1/analytics/item-stats`, mode de jeu normal) sur les parties analysées : achats, victoires, joueurs, reventes, heures moyennes. Seuil de la source : 20 parties par item. Cache 1 h par jeu de filtres."
+      parameters:
+        - name: period
+          in: query
+          description: Borne basse arrondie à l’heure (vers le passé)
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+            default: 30d
+        - name: matchMode
+          in: query
+          description: "Absent : tous types de partie"
+          schema:
+            type: string
+            enum:
+              - ranked
+              - unranked
+        - name: heroId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Statistiques
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - filters
+                  - items
+                  - meta
+                properties:
+                  filters:
+                    $ref: "#/components/schemas/AnalyticsFilters"
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ItemStats"
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /items/{itemId}/stats:
+    get:
+      tags:
+        - Catalogue
+      summary: Statistiques d’un item
+      description: "`stats: null` et note `below_source_threshold` si l’item a moins de 20 parties sur les filtres. 404 si l’item n’existe pas dans le catalogue."
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: period
+          in: query
+          description: Borne basse arrondie à l’heure (vers le passé)
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+            default: 30d
+        - name: matchMode
+          in: query
+          description: "Absent : tous types de partie"
+          schema:
+            type: string
+            enum:
+              - ranked
+              - unranked
+        - name: heroId
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Statistiques
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - itemId
+                  - filters
+                  - stats
+                  - notes
+                  - meta
+                properties:
+                  itemId:
+                    type: integer
+                  filters:
+                    $ref: "#/components/schemas/AnalyticsFilters"
+                  stats:
+                    oneOf:
+                      - type: "null"
+                      - $ref: "#/components/schemas/ItemStats"
+                  notes:
+                    type: array
+                    items:
+                      type: string
+                      enum:
+                        - below_source_threshold
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /heroes/{heroId}/builds:
+    get:
+      tags:
+        - Catalogue
+      summary: Builds publiés d’un héros
+      description: "Builds publiés en jeu (`/v1/builds`), une entrée par build (sa version la plus récente). La source ne renseigne que le compteur du tri demandé : `favorites` est rempli avec `sort=favorites`, `weeklyFavorites` avec `sort=weekly_favorites`. Les `itemId` se résolvent avec `/items`. Cache 1 h."
+      parameters:
+        - name: heroId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - favorites
+              - weekly_favorites
+              - updated_at
+              - published_at
+            default: favorites
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        "200":
+          description: Builds
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - heroId
+                  - sort
+                  - items
+                  - meta
+                properties:
+                  heroId:
+                    type: integer
+                  sort:
+                    type: string
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HeroBuild"
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /heroes/{heroId}/item-pairs:
+    get:
+      tags:
+        - Catalogue
+      summary: Paires d’items achetées ensemble par un héros
+      description: Agrégats Deadlock API (`item-permutation-stats`, paires, mode normal), par volume décroissant. `itemId` ne garde que les paires qui le contiennent. Cache 1 h.
+      parameters:
+        - name: heroId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: period
+          in: query
+          description: Borne basse arrondie à l’heure (vers le passé)
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+            default: 30d
+        - name: matchMode
+          in: query
+          description: "Absent : tous types de partie"
+          schema:
+            type: string
+            enum:
+              - ranked
+              - unranked
+        - name: itemId
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Paires
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - heroId
+                  - filters
+                  - items
+                  - meta
+                properties:
+                  heroId:
+                    type: integer
+                  filters:
+                    type: object
+                    required:
+                      - period
+                      - matchMode
+                      - gameMode
+                      - itemId
+                      - from
+                    properties:
+                      period:
+                        type: string
+                        enum:
+                          - 7d
+                          - 30d
+                      matchMode:
+                        type: string
+                        enum:
+                          - all
+                          - ranked
+                          - unranked
+                      gameMode:
+                        type: string
+                        enum:
+                          - normal
+                      itemId:
+                        type:
+                          - integer
+                          - "null"
+                      from:
+                        type: string
+                        format: date-time
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - itemIds
+                        - matches
+                        - wins
+                        - losses
+                        - winRate
+                      properties:
+                        itemIds:
+                          type: array
+                          minItems: 2
+                          maxItems: 2
+                          items:
+                            type: integer
+                        matches:
+                          type: integer
+                        wins:
+                          type: integer
+                        losses:
+                          type: integer
+                        winRate:
+                          type:
+                            - number
+                            - "null"
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/trends:
+    get:
+      tags:
+        - Joueurs
+      summary: "Tendances : N dernières parties contre les N précédentes"
+      description: Depuis l’historique en cache. `previous` est null s’il n’y a pas `size` parties avant les `size` dernières (jamais de comparaison inégale). Winrate glissant sur 10 parties, défini à partir de la 10e partie.
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+        - name: size
+          in: query
+          schema:
+            type: integer
+            minimum: 5
+            maximum: 50
+            default: 20
+        - name: gameMode
+          in: query
+          description: "Mode de jeu (axe indépendant de `matchMode`) : `normal` inclut classées et non classées. Une partie au mode inconnu n’est retenue que sous `all`."
+          schema:
+            type: string
+            enum:
+              - all
+              - normal
+              - street_brawl
+            default: all
+        - name: matchMode
+          in: query
+          description: Type de partie. Une partie au type inconnu n’est retenue que sous `all`.
+          schema:
+            type: string
+            enum:
+              - all
+              - ranked
+              - unranked
+            default: all
+      responses:
+        "200":
+          description: Tendances
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerTrends"
         "400":
           $ref: "#/components/responses/BadRequest"
         "404":
@@ -2456,6 +2829,389 @@ components:
           type: integer
           minimum: 0
           description: Nombre de parties utilisées pour le net worth par minute.
+    AnalyticsFilters:
+      type: object
+      required:
+        - period
+        - heroId
+        - matchMode
+        - gameMode
+        - from
+      properties:
+        period:
+          type: string
+          enum:
+            - 7d
+            - 30d
+        heroId:
+          type:
+            - integer
+            - "null"
+        matchMode:
+          type: string
+          enum:
+            - all
+            - ranked
+            - unranked
+        gameMode:
+          type: string
+          enum:
+            - normal
+        from:
+          type: string
+          format: date-time
+          description: Borne basse effective
+    ItemStats:
+      type: object
+      required:
+        - itemId
+        - matches
+        - wins
+        - losses
+        - winRate
+        - players
+        - sold
+        - sellRate
+        - avgBuyTimeSeconds
+        - avgSellTimeSeconds
+      properties:
+        itemId:
+          type: integer
+        matches:
+          type: integer
+          description: Parties où l’item a été acheté
+        wins:
+          type: integer
+        losses:
+          type: integer
+        winRate:
+          type:
+            - number
+            - "null"
+        players:
+          type:
+            - integer
+            - "null"
+          description: Joueurs distincts
+        sold:
+          type:
+            - integer
+            - "null"
+          description: Parties où il a été revendu
+        sellRate:
+          type:
+            - number
+            - "null"
+          description: "`sold / matches × 100`"
+        avgBuyTimeSeconds:
+          type:
+            - integer
+            - "null"
+        avgSellTimeSeconds:
+          type:
+            - integer
+            - "null"
+          description: null si jamais revendu
+    HeroBuild:
+      type: object
+      required:
+        - buildId
+        - heroId
+        - name
+        - description
+        - authorSteamId
+        - language
+        - version
+        - publishedAt
+        - updatedAt
+        - favorites
+        - weeklyFavorites
+        - categories
+      properties:
+        buildId:
+          type: integer
+        heroId:
+          type: integer
+        name:
+          type:
+            - string
+            - "null"
+        description:
+          type:
+            - string
+            - "null"
+        authorSteamId:
+          type:
+            - string
+            - "null"
+        language:
+          type:
+            - integer
+            - "null"
+          description: Langue Valve (0 = anglais)
+        version:
+          type:
+            - integer
+            - "null"
+        publishedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        updatedAt:
+          type:
+            - string
+            - "null"
+          format: date-time
+        favorites:
+          type:
+            - integer
+            - "null"
+          description: Renseigné avec `sort=favorites`
+        weeklyFavorites:
+          type:
+            - integer
+            - "null"
+          description: Renseigné avec `sort=weekly_favorites`
+        categories:
+          type: array
+          items:
+            type: object
+            required:
+              - name
+              - description
+              - items
+            properties:
+              name:
+                type:
+                  - string
+                  - "null"
+                description: Ex. « Early Game », ou nom libre de l’auteur
+              description:
+                type:
+                  - string
+                  - "null"
+              items:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - itemId
+                    - annotation
+                  properties:
+                    itemId:
+                      type: integer
+                    annotation:
+                      type:
+                        - string
+                        - "null"
+    PlayerTrends:
+      type: object
+      required:
+        - filters
+        - recent
+        - previous
+        - delta
+        - rolling
+        - coverage
+        - meta
+      properties:
+        filters:
+          type: object
+          required:
+            - size
+            - gameMode
+            - matchMode
+          properties:
+            size:
+              type: integer
+            gameMode:
+              type: string
+              enum:
+                - all
+                - normal
+                - street_brawl
+            matchMode:
+              type: string
+              enum:
+                - all
+                - ranked
+                - unranked
+        recent:
+          type: object
+          description: Agrégat d’un bloc (mêmes règles que `/overview`)
+          required:
+            - matches
+            - wins
+            - losses
+            - winRate
+            - kills
+            - deaths
+            - assists
+            - kda
+            - kdaSampleSize
+            - avgNetWorthPerMinute
+            - netWorthPerMinuteSampleSize
+            - avgDurationSeconds
+            - durationSampleSize
+          properties:
+            matches:
+              type: integer
+            wins:
+              type: integer
+            losses:
+              type: integer
+            winRate:
+              type:
+                - number
+                - "null"
+            kills:
+              type:
+                - integer
+                - "null"
+            deaths:
+              type:
+                - integer
+                - "null"
+            assists:
+              type:
+                - integer
+                - "null"
+            kda:
+              type:
+                - number
+                - "null"
+            kdaSampleSize:
+              type: integer
+            avgNetWorthPerMinute:
+              type:
+                - number
+                - "null"
+            netWorthPerMinuteSampleSize:
+              type: integer
+            avgDurationSeconds:
+              type:
+                - integer
+                - "null"
+            durationSampleSize:
+              type: integer
+        previous:
+          oneOf:
+            - type: "null"
+            - type: object
+              description: Agrégat d’un bloc (mêmes règles que `/overview`)
+              required:
+                - matches
+                - wins
+                - losses
+                - winRate
+                - kills
+                - deaths
+                - assists
+                - kda
+                - kdaSampleSize
+                - avgNetWorthPerMinute
+                - netWorthPerMinuteSampleSize
+                - avgDurationSeconds
+                - durationSampleSize
+              properties:
+                matches:
+                  type: integer
+                wins:
+                  type: integer
+                losses:
+                  type: integer
+                winRate:
+                  type:
+                    - number
+                    - "null"
+                kills:
+                  type:
+                    - integer
+                    - "null"
+                deaths:
+                  type:
+                    - integer
+                    - "null"
+                assists:
+                  type:
+                    - integer
+                    - "null"
+                kda:
+                  type:
+                    - number
+                    - "null"
+                kdaSampleSize:
+                  type: integer
+                avgNetWorthPerMinute:
+                  type:
+                    - number
+                    - "null"
+                netWorthPerMinuteSampleSize:
+                  type: integer
+                avgDurationSeconds:
+                  type:
+                    - integer
+                    - "null"
+                durationSampleSize:
+                  type: integer
+        delta:
+          type: object
+          description: "`recent − previous`, null si l’un des deux est inconnu"
+          required:
+            - winRate
+            - kda
+            - avgNetWorthPerMinute
+          properties:
+            winRate:
+              type:
+                - number
+                - "null"
+            kda:
+              type:
+                - number
+                - "null"
+            avgNetWorthPerMinute:
+              type:
+                - number
+                - "null"
+        rolling:
+          type: array
+          description: Winrate des 10 dernières parties à chaque partie, du plus ancien au plus récent
+          items:
+            type: object
+            required:
+              - at
+              - matchId
+              - winRate
+            properties:
+              at:
+                type: string
+                format: date-time
+              matchId:
+                type: string
+              winRate:
+                type: number
+        coverage:
+          type: object
+          required:
+            - eligibleMatches
+            - rollingWindow
+            - notes
+          properties:
+            eligibleMatches:
+              type: integer
+            rollingWindow:
+              type: integer
+            notes:
+              type: array
+              items:
+                type: string
+                enum:
+                  - insufficient_history
+                  - history_stale
+        meta:
+          $ref: "#/components/schemas/DataMeta"
     CatalogItem:
       type: object
       required:

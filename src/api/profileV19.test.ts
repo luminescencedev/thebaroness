@@ -6,6 +6,7 @@ import {
   getPlayerHeroes,
   getPlayerRankHistory,
   getPlayerRelationships,
+  getPlayerTrends,
   getPlayerMatches,
   getPlayerOverview,
   type MatchSummary,
@@ -230,5 +231,27 @@ describe("phase P1 (v1.10.0)", () => {
       (e: unknown) => e,
     );
     expect((bad as ApiError).status).toBe(400);
+  });
+});
+
+describe("tendances (v1.11.0)", () => {
+  it("N dernières contre N précédentes, écart = récent moins précédent", async () => {
+    const t = await getPlayerTrends(ID, { size: 20 });
+    expect(t.recent.matches).toBe(20);
+    expect(t.previous?.matches).toBe(20);
+    expect(t.delta?.winRate).toBeCloseTo((t.recent.winRate ?? 0) - (t.previous?.winRate ?? 0), 1);
+    expect(t.coverage.notes).toEqual([]);
+  });
+
+  it("pas assez de parties : pas de comparaison inégale, note insufficient_history", async () => {
+    const t = await getPlayerTrends(ID, { size: 30 });
+    expect(t.previous).toBeNull();
+    expect(t.delta).toBeNull();
+    expect(t.coverage.notes).toContain("insufficient_history");
+  });
+
+  it("taille hors bornes : 400", async () => {
+    const e = await getPlayerTrends(ID, { size: 3 }).catch((x: unknown) => x);
+    expect((e as ApiError).status).toBe(400);
   });
 });

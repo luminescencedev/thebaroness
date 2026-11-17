@@ -189,4 +189,22 @@ describe("profil branché sur le back v1.9.0", () => {
     expect(within(panel).getByRole("region", { name: "Build complet" })).toBeInTheDocument();
     expect(rec.log.filter((u) => u.pathname.endsWith("/api/items")).length).toBe(1);
   });
+
+  it("tendance N contre N : suit la fenêtre de la courbe et refuse une comparaison inégale", async () => {
+    rec = recordRequests();
+    renderApp(`/players/${ID}`);
+    expect(
+      await screen.findByLabelText(
+        /Tendance : 20 dernières parties contre les 20 précédentes/,
+        {},
+        { timeout: 4000 },
+      ),
+    ).toBeInTheDocument();
+    expect(rec.of("/trends")[0]?.searchParams.get("size")).toBe("20");
+    await userEvent.click(screen.getByRole("radio", { name: "50" }));
+    expect(
+      await screen.findByText(/Pas assez de parties pour comparer 50 contre 50/),
+    ).toBeInTheDocument();
+    expect(rec.of("/trends").some((u) => u.searchParams.get("size") === "50")).toBe(true);
+  });
 });

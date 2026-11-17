@@ -5,6 +5,7 @@ import type {
   PlayerActivity,
   PlayerOverview,
   PlayerRelationships,
+  PlayerTrends,
   PlayerProfile,
   PlayerSearchResponse,
   ProfileScope,
@@ -76,6 +77,17 @@ export const getPlayerRelationships = (
   signal?: AbortSignal,
 ) =>
   request<PlayerRelationships>(`/players/${encodeURIComponent(steamId)}/relationships`, {
+    query: params,
+    signal,
+  });
+
+/** Tendance « N dernières parties contre les N précédentes », sur tout l'historique (sans période). */
+export const getPlayerTrends = (
+  steamId: SteamId,
+  params: { size?: number; gameMode?: string; matchMode?: string } = {},
+  signal?: AbortSignal,
+) =>
+  request<PlayerTrends>(`/players/${encodeURIComponent(steamId)}/trends`, {
     query: params,
     signal,
   });

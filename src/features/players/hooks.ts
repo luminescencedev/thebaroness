@@ -9,6 +9,7 @@ import {
   getPlayerOverview,
   getPlayerRankHistory,
   getPlayerRelationships,
+  getPlayerTrends,
   refreshPlayer,
   searchPlayers,
   type ProfileScope,
@@ -126,7 +127,7 @@ export function useRefreshPlayer(steamId: string) {
       void qc.invalidateQueries({ queryKey: playerKeys.matchesAll(steamId) });
       void qc.invalidateQueries({ queryKey: ["players", steamId, "heroes"] });
       void qc.invalidateQueries({ queryKey: ["players", steamId, "overview"] });
-      for (const k of ["activity", "rank-history", "relationships"])
+      for (const k of ["activity", "rank-history", "relationships", "trends"])
         void qc.invalidateQueries({ queryKey: ["players", steamId, k] });
     },
   });
@@ -175,6 +176,21 @@ export function usePlayerRelationships(steamId: string, scope: ProfileScope) {
     queryKey: ["players", steamId, "relationships", scope.period, gameMode],
     queryFn: ({ signal }) =>
       getPlayerRelationships(steamId, { period: scope.period, gameMode, limit: 6 }, signal),
+    enabled: steamId !== "",
+    retry: false,
+  });
+}
+
+/** Tendance N contre N (N = fenêtre de la courbe). Indépendante de la période du scope, suit ses modes. */
+export function usePlayerTrends(steamId: string, scope: ProfileScope, size: number) {
+  return useQuery({
+    queryKey: ["players", steamId, "trends", size, scope.gameMode, scope.matchMode],
+    queryFn: ({ signal }) =>
+      getPlayerTrends(
+        steamId,
+        { size, gameMode: scope.gameMode, matchMode: scope.matchMode },
+        signal,
+      ),
     enabled: steamId !== "",
     retry: false,
   });

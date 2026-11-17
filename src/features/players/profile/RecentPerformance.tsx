@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import type { MatchSummary } from "@/api";
-import { AreaChart, ChartFrame, type AreaPoint } from "@/components/charts";
+import { AreaChart, ChartFrame, DeltaChip, type AreaPoint } from "@/components/charts";
 import { DoubleBezel, Segmented, Skeleton } from "@/components/ui";
-import type { usePlayerOverview } from "@/features/players/hooks";
+import type { ProfileScope } from "@/api";
+import { usePlayerTrends, type usePlayerOverview } from "@/features/players/hooks";
 import { formatDate, formatDecimal, formatDuration, formatInt, formatPercent } from "@/lib/format";
 import { matchKda, netPerMinute } from "@/lib/stats";
 
@@ -34,6 +35,59 @@ function Kpi({
   );
 }
 
+/** Tendance officielle N dernières contre N précédentes : tout l'historique du format et du type du scope, hors période. */
+function TrendRow({ trends, size }: { trends: ReturnType<typeof usePlayerTrends>; size: number }) {
+  const d = trends.data;
+  if (trends.isPending || trends.isError || !d) return null;
+  return (
+    <div
+      className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-subtle"
+      aria-label={`Tendance : ${size} dernières parties contre les ${size} précédentes`}
+    >
+      <span>
+        Tendance : {size} dernières contre {size} précédentes
+        <span className="text-subtle"> (hors période)</span>
+      </span>
+      {d.delta === null ? (
+        <span>
+          Pas assez de parties pour comparer {size} contre {size}.
+        </span>
+      ) : (
+        <>
+          <span className="inline-flex items-center gap-1.5">
+            Victoires
+            <DeltaChip
+              value={d.delta.winRate}
+              unit=" pts"
+              digits={1}
+              threshold={0.5}
+              context="face aux parties précédentes"
+            />
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            KDA
+            <DeltaChip
+              value={d.delta.kda}
+              digits={2}
+              threshold={0.05}
+              context="face aux parties précédentes"
+            />
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            Net/min
+            <DeltaChip
+              value={d.delta.avgNetWorthPerMinute}
+              digits={0}
+              threshold={10}
+              context="face aux parties précédentes"
+            />
+          </span>
+        </>
+      )}
+    </div>
+  );
+}
+
 /**
  * Synthèse officielle du back pour le périmètre choisi (4 KPI), puis courbe des N dernières parties de ce
  * même périmètre. Les KPI ne dépendent jamais de la fenêtre 10 / 20 / 50 de la courbe.
@@ -43,7 +97,11 @@ export function RecentPerformance({
   overview,
   scopeText,
   historyLoading,
+  steamId,
+  scope,
 }: {
+  steamId: string;
+  scope: ProfileScope;
   matches: MatchSummary[];
   overview: ReturnType<typeof usePlayerOverview>;
   scopeText: string;
@@ -55,6 +113,7 @@ export function RecentPerformance({
   const windowed = useMemo(() => matches.slice(0, size), [matches, size]);
   const chrono = useMemo(() => [...windowed].reverse(), [windowed]);
   const sum = overview.data?.summary;
+  const trends = usePlayerTrends(steamId, scope, size);
 
   const points: AreaPoint[] = useMemo(() => {
     // Victoires glissantes sur 10 parties : la fenêtre ne démarre qu'à la 5e partie de la période.
@@ -192,6 +251,7 @@ export function RecentPerformance({
               ]}
             />
           </div>
+          <TrendRow trends={trends} size={size} />
           <div className="mt-3">
             <ChartFrame
               id={`recent-${win}-${metric}`}

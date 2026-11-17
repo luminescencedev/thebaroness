@@ -636,3 +636,37 @@ export interface PlayerRelationships {
   coverage: { requestedFrom: string | null; notes: string[] };
   meta: DataMeta;
 }
+
+/* ---------- Phase P2 (OpenAPI 1.11.0) ---------- */
+
+export interface TrendBlock {
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  kills: number | null;
+  deaths: number | null;
+  assists: number | null;
+  kda: number | null;
+  kdaSampleSize: number;
+  avgNetWorthPerMinute: number | null;
+  netWorthPerMinuteSampleSize: number;
+  avgDurationSeconds: number | null;
+  durationSampleSize: number;
+}
+
+/** `recent` = les `size` dernières parties, `previous` = les `size` d'avant (null si pas assez : jamais de comparaison inégale). */
+export interface PlayerTrends {
+  filters: { size: number; gameMode: GameModeFilter; matchMode: MatchModeFilter };
+  recent: TrendBlock;
+  previous: TrendBlock | null;
+  delta: {
+    winRate: number | null;
+    kda: number | null;
+    avgNetWorthPerMinute: number | null;
+  } | null;
+  /** Winrate des 10 dernières parties à chaque partie, à partir de la 10e. */
+  rolling: { at: string; matchId: string; winRate: number }[];
+  coverage: { eligibleMatches: number; rollingWindow: number; notes: string[] };
+  meta: DataMeta;
+}

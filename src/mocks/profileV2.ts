@@ -394,3 +394,74 @@ export function relationshipsOf(
     opponents: rows.filter((_, i) => i % 2 === 1).slice(0, limit),
   };
 }
+
+/* ---------- Phase P2 (OpenAPI 1.11.0) ---------- */
+import type { PlayerTrends, TrendBlock } from "@/api/types";
+
+function trendBlock(list: MatchSummary[]): TrendBlock {
+  const s = summarize(list);
+  return {
+    matches: s.matches,
+    wins: s.wins,
+    losses: s.losses,
+    winRate: s.winRate,
+    kills: s.kills,
+    deaths: s.deaths,
+    assists: s.assists,
+    kda: s.kda,
+    kdaSampleSize: s.kdaSampleSize,
+    avgNetWorthPerMinute: s.avgNetWorthPerMinute,
+    netWorthPerMinuteSampleSize: s.netWorthPerMinuteSampleSize,
+    avgDurationSeconds: s.avgDurationSeconds,
+    durationSampleSize: s.durationSampleSize,
+  };
+}
+
+/** N dernières contre N précédentes ; `previous` null s'il n'y en a pas N : jamais de comparaison inégale. */
+export function trendsOf(
+  all: MatchSummary[],
+  size: number,
+  gameMode: GameModeFilter,
+  matchMode: MatchModeFilter,
+): Omit<PlayerTrends, "meta"> {
+  const list = selectMatches(all, {
+    period: null,
+    gameMode,
+    matchMode,
+    heroId: null,
+    outcome: "all",
+  });
+  const recent = trendBlock(list.slice(0, size));
+  const previous = list.length >= size * 2 ? trendBlock(list.slice(size, size * 2)) : null;
+  const diff = (a: number | null, b: number | null) =>
+    a === null || b === null ? null : Math.round((a - b) * 100) / 100;
+  const chrono = [...list.slice(0, size * 2)].reverse();
+  const rolling = chrono
+    .map((m, i) => ({ m, i }))
+    .filter(({ i }) => i >= 9)
+    .map(({ m, i }) => ({
+      at: m.playedAt,
+      matchId: m.matchId,
+      winRate: round2(
+        (chrono.slice(i - 9, i + 1).filter((x) => x.outcome === "win").length / 10) * 100,
+      ),
+    }));
+  return {
+    filters: { size, gameMode, matchMode },
+    recent,
+    previous,
+    delta: previous
+      ? {
+          winRate: diff(recent.winRate, previous.winRate),
+          kda: diff(recent.kda, previous.kda),
+          avgNetWorthPerMinute: diff(recent.avgNetWorthPerMinute, previous.avgNetWorthPerMinute),
+        }
+      : null,
+    rolling,
+    coverage: {
+      eligibleMatches: list.length,
+      rollingWindow: 10,
+      notes: previous ? [] : ["insufficient_history"],
+    },
+  };
+}

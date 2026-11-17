@@ -272,6 +272,26 @@ export function calendar(matches: MatchSummary[], now = new Date(), weeks = 12):
   );
 }
 
+/** Même grille que `calendar`, depuis les jours déjà agrégés par le back (`GET /players/:id/activity`). */
+export function calendarFromDays(
+  days: { date: string; matches: number; wins: number; losses: number }[],
+  weeks = 12,
+): CalendarDay[][] {
+  const byDay = new Map(
+    days.map((d) => [d.date, { date: d.date, count: d.matches, wins: d.wins, losses: d.losses }]),
+  );
+  const last = days.at(-1)?.date;
+  const today = last ? new Date(`${last}T00:00:00Z`) : new Date();
+  const mondayOffset = (today.getUTCDay() + 6) % 7;
+  const start = new Date(today.getTime() - (mondayOffset + (weeks - 1) * 7) * 86400000);
+  return Array.from({ length: weeks }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => {
+      const key = dayKey(new Date(start.getTime() + (w * 7 + d) * 86400000));
+      return byDay.get(key) ?? { date: key, count: 0, wins: 0, losses: 0 };
+    }),
+  );
+}
+
 /** Parties par heure locale (Europe/Paris par défaut), et heure la plus active. */
 export function hourDistribution(
   matches: MatchSummary[],

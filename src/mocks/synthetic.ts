@@ -16,10 +16,11 @@ import type {
   HeroMetaStats,
   LeaderboardEntry,
   LeaderboardRegion,
+  CatalogItem,
   ItemCategory,
   MatchDetail,
-  MatchItem,
   MatchPlayer,
+  MatchPurchase,
   MatchSummary,
   PlayerStats,
   RankTier,
@@ -295,51 +296,65 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
 }
 
 /**
- * Catalogue d'objets SYNTHETIQUE (noms de jeu, identifiants fictifs) pour développer le build des
- * parties tant que le back ne livre pas `items`. Aucune icône : le front dessine une tuile de repli.
+ * Catalogue d'objets SYNTHETIQUE (noms de jeu, identifiants fictifs 9 000 000+) servi par le mock de
+ * `GET /items`. Aucune icône : le front dessine une tuile de repli, jamais une fausse image.
  */
-const ITEM_CATALOG: { name: string; category: ItemCategory }[] = [
-  { name: "Basic Magazine", category: "weapon" },
-  { name: "Close Quarters", category: "weapon" },
-  { name: "Headshot Booster", category: "weapon" },
-  { name: "High-Velocity Mag", category: "weapon" },
-  { name: "Quicksilver Reload", category: "weapon" },
-  { name: "Rapid Rounds", category: "weapon" },
-  { name: "Berserker", category: "weapon" },
-  { name: "Extra Health", category: "vitality" },
-  { name: "Extra Regen", category: "vitality" },
-  { name: "Fleetfoot", category: "vitality" },
-  { name: "Melee Charge", category: "vitality" },
-  { name: "Enchanter's Barrier", category: "vitality" },
-  { name: "Healing Rite", category: "vitality" },
-  { name: "Improved Spirit", category: "spirit" },
-  { name: "Mystic Burst", category: "spirit" },
-  { name: "Spirit Strike", category: "spirit" },
-  { name: "Mystic Vulnerability", category: "spirit" },
-  { name: "Slowing Hex", category: "spirit" },
-  { name: "Echo Shard", category: "spirit" },
-  { name: "Superior Cooldown", category: "spirit" },
+const ITEM_NAMES: { name: string; slot: ItemCategory }[] = [
+  { name: "Basic Magazine", slot: "weapon" },
+  { name: "Close Quarters", slot: "weapon" },
+  { name: "Headshot Booster", slot: "weapon" },
+  { name: "High-Velocity Mag", slot: "weapon" },
+  { name: "Quicksilver Reload", slot: "weapon" },
+  { name: "Rapid Rounds", slot: "weapon" },
+  { name: "Berserker", slot: "weapon" },
+  { name: "Extra Health", slot: "vitality" },
+  { name: "Extra Regen", slot: "vitality" },
+  { name: "Fleetfoot", slot: "vitality" },
+  { name: "Melee Charge", slot: "vitality" },
+  { name: "Enchanter's Barrier", slot: "vitality" },
+  { name: "Healing Rite", slot: "vitality" },
+  { name: "Improved Spirit", slot: "spirit" },
+  { name: "Mystic Burst", slot: "spirit" },
+  { name: "Spirit Strike", slot: "spirit" },
+  { name: "Mystic Vulnerability", slot: "spirit" },
+  { name: "Slowing Hex", slot: "spirit" },
+  { name: "Echo Shard", slot: "spirit" },
+  { name: "Superior Cooldown", slot: "spirit" },
 ];
 
-export function syntheticBuild(seed: number): MatchItem[] {
+export const syntheticCatalog: CatalogItem[] = ITEM_NAMES.map((it, i) => ({
+  id: 9_000_000 + i,
+  className: `synthetic_${i}`,
+  name: it.name,
+  type: "upgrade",
+  slot: it.slot,
+  tier: (i % 4) + 1,
+  cost: 800 * ((i % 4) + 1),
+  isActive: false,
+  shopable: true,
+  disabled: false,
+  heroIds: [],
+  componentIds: [],
+  imageUrl: null,
+}));
+
+/** Achats et objets finaux synthétiques d'un joueur (déterministes). */
+export function syntheticBuild(seed: number, durationSeconds: number) {
   const r = seeded(seed);
   const count = r.int(8, 12);
   const used = new Set<number>();
-  const items: MatchItem[] = [];
-  while (items.length < count) {
-    const i = r.int(0, ITEM_CATALOG.length - 1);
+  const purchases: MatchPurchase[] = [];
+  while (purchases.length < count) {
+    const i = r.int(0, syntheticCatalog.length - 1);
     if (used.has(i)) continue;
     used.add(i);
-    const base = ITEM_CATALOG[i] as { name: string; category: ItemCategory };
-    items.push({
+    purchases.push({
       itemId: 9_000_000 + i,
-      name: base.name,
-      tier: items.length < 3 ? r.int(1, 2) : items.length < 7 ? r.int(2, 3) : r.int(3, 4),
-      category: base.category,
-      iconUrl: null,
+      atSeconds: 60 + purchases.length * Math.floor(durationSeconds / (count + 2)),
+      soldAtSeconds: null,
     });
   }
-  return items;
+  return { purchases, finalItemIds: purchases.map((p) => p.itemId) };
 }
 
 /** Détail d'une partie de Corvid : 6 joueurs par équipe, adversaires synthétiques. */
@@ -387,19 +402,43 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
   };
   const corvidWins = summary.outcome === "win";
   const base = Number(summary.matchId) % 1_000_000;
-  // Build et tirs à la tête : tirage séparé, pour ne pas décaler les valeurs historiques.
+  // Build, MVP et statistiques de fin de partie : tirage séparé, pour ne pas décaler les valeurs historiques.
   const enrich = (p: MatchPlayer, i: number): MatchPlayer => {
     const e = seeded(base * 31 + p.heroId * 11 + i * 97 + 5);
+    const shots = e.int(300, 900);
+    const hits = Math.round(shots * (0.4 + e.next() * 0.25));
+    const crit = Math.round(hits * (0.08 + e.next() * 0.3));
     return {
       ...p,
-      headshotPct: Math.round(e.next() * 300) / 10 + 4,
-      items: syntheticBuild(base + p.heroId * 7 + i * 13),
+      mvpRank: e.int(1, 12),
+      stats: {
+        playerDamage: e.int(18000, 60000),
+        damageTaken: e.int(12000, 40000),
+        objectiveDamage: e.int(2000, 14000),
+        creepDamage: e.int(20000, 60000),
+        neutralDamage: e.int(8000, 28000),
+        healing: e.int(0, 12000),
+        selfHealing: e.int(0, 9000),
+        teammateHealing: e.int(0, 6000),
+        damageMitigated: e.int(5000, 30000),
+        heroBulletsHit: hits,
+        heroBulletsHitCrit: crit,
+        heroCritRate: Math.round((crit / hits) * 10000) / 100,
+        shotsHit: hits + e.int(100, 400),
+        shotsMissed: e.int(100, 500),
+        accuracy: Math.round((40 + e.next() * 25) * 100) / 100,
+        headshotKills: e.int(0, 6),
+        creepKills: p.lastHits,
+        neutralKills: e.int(10, 40),
+      },
+      ...syntheticBuild(base + p.heroId * 7 + i * 13, duration),
+      abilityUpgrades: [],
     };
   };
   const sortWorth = (list: MatchPlayer[]) =>
     list.map(enrich).sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0));
 
-  return {
+  const detail: MatchDetail = {
     matchId: summary.matchId,
     playedAt: summary.playedAt,
     durationSeconds: summary.durationSeconds,
@@ -417,6 +456,17 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
       },
     ].sort((a) => (a.side === "amber" ? -1 : 1)) as MatchDetail["teams"],
   };
+  // Participation aux éliminations de l'équipe, même formule que le back.
+  for (const t of detail.teams) {
+    const kills = t.players.reduce((n, p) => n + (p.kills ?? 0), 0);
+    for (const p of t.players)
+      p.killParticipation = kills
+        ? Math.round((((p.kills ?? 0) + (p.assists ?? 0)) / kills) * 10000) / 100
+        : null;
+    t.averageBadge = null;
+    t.averageRankName = null;
+  }
+  return detail;
 }
 
 export const rankScore = (tier: number, subrank: number) => tier * 6 + subrank;

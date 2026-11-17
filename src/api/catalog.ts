@@ -2,6 +2,7 @@ import { request } from "./client";
 import type {
   HeroDetailResponse,
   HeroListResponse,
+  ItemListResponse,
   HeroStatsResponse,
   LeaderboardRegion,
   MapAssets,
@@ -40,3 +41,9 @@ export const getPlayerHeroes = (steamId: SteamId, scope?: ProfileScope, signal?:
   });
 
 export const getMap = (signal?: AbortSignal) => request<MapAssets>("/map", { signal });
+
+/** Catalogue des objets (une requête pour tout le catalogue, jamais un appel par objet). */
+export const getItems = (
+  params: { type?: "upgrade" | "ability" | "weapon" } = {},
+  signal?: AbortSignal,
+) => request<ItemListResponse>("/items", { query: params, signal });

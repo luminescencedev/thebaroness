@@ -81,6 +81,9 @@ export function TeamsTable({ teams }: { teams: ParticipantTeam[] }) {
               aria-hidden="true"
             />
             {SIDE[t.side].label}
+            {t.averageRankName && (
+              <span className="font-normal text-subtle">rang moyen {t.averageRankName}</span>
+            )}
             <span className={t.outcome === "win" ? "text-win" : "text-loss"}>
               {t.outcome === "win" ? "Victoire" : "Défaite"}
             </span>

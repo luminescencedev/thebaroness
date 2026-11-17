@@ -1,11 +1,11 @@
 # Copie figée du contrat OpenAPI du backend
-# Source : thebaroness-back, docs/openapi.yaml v1.9.0, commit 215075d (17/11/2026)
-# Généré depuis src/docs/openapi.ts (v1.9.0) par `npm run openapi`.
+# Source : thebaroness-back, docs/openapi.yaml v1.10.0, commit 1805949 (17/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.10.0) par `npm run openapi`.
 # Ne pas modifier à la main.
 openapi: 3.1.0
 info:
   title: thebaroness API
-  version: 1.9.0
+  version: 1.10.0
   description: "API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l'espace privé est stocké dans MongoDB. Erreurs : `{ \"error\": { \"code\", \"message\" } }`. Inconnu = `null`, jamais 0."
 servers:
   - url: /api
@@ -536,6 +536,287 @@ paths:
           $ref: "#/components/responses/RateLimited"
         "502":
           $ref: "#/components/responses/UpstreamError"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/rank-history:
+    get:
+      tags:
+        - Joueurs
+      summary: Historique de rang observé
+      description: "Un point par partie classée dont le badge est connu (`ranked_display_badge`), du plus ancien au plus récent. Aucune interpolation ni MMR : les parties classées sans badge sont comptées dans `coverage.missingBadge`. `score = tier × 6 + subrank` (échelle des comparaisons de groupe)."
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - season
+            default: season
+      responses:
+        "200":
+          description: Points de rang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RankHistory"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/activity:
+    get:
+      tags:
+        - Joueurs
+      summary: Activité par jour (heatmap)
+      description: Un jour UTC par case, du plus ancien au plus récent (aujourd’hui inclus) ; les jours sans partie valent 0 (l’historique de la source est complet).
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+        - name: weeks
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 52
+            default: 12
+        - name: gameMode
+          in: query
+          description: "Mode de jeu (axe indépendant de `matchMode`) : `normal` inclut classées et non classées. Une partie au mode inconnu n’est retenue que sous `all`."
+          schema:
+            type: string
+            enum:
+              - all
+              - normal
+              - street_brawl
+            default: all
+        - name: matchMode
+          in: query
+          description: Type de partie. Une partie au type inconnu n’est retenue que sous `all`.
+          schema:
+            type: string
+            enum:
+              - all
+              - ranked
+              - unranked
+            default: all
+      responses:
+        "200":
+          description: Jours
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerActivity"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /players/{steamId}/relationships:
+    get:
+      tags:
+        - Joueurs
+      summary: Coéquipiers et adversaires fréquents
+      description: "Agrégats Deadlock API (`mate-stats`, `enemy-stats`) : parties communes et victoires DU JOUEUR DEMANDÉ. Un joueur souvent rencontré n’est pas un ami Steam ; `sameParty=true` ne garde que les parties jouées dans le même groupe (information de la source). Un seul mode par requête (la source n’agrège pas). Cache 10 min."
+      parameters:
+        - name: steamId
+          in: path
+          required: true
+          description: SteamID64 (17 chiffres), toujours transmis en chaîne.
+          schema:
+            type: string
+            pattern: ^\d{17}$
+          example: "76561198957316510"
+        - name: period
+          in: query
+          description: "`7d` et `30d` : fenêtre glissante UTC depuis l’instant de la requête. `season` : depuis le début de la saison classée courante (source Deadlock API) ; si inconnu, aucune borne et `meta.isPartial`. Absent : tout l’historique (comportement v1.8)."
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - season
+        - name: gameMode
+          in: query
+          schema:
+            type: string
+            enum:
+              - normal
+              - street_brawl
+            default: normal
+        - name: sameParty
+          in: query
+          description: "Coéquipiers : seulement les parties jouées dans le même groupe"
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+            default: "false"
+        - name: minMatches
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 2
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+      responses:
+        "200":
+          description: Relations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerRelationships"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /items:
+    get:
+      tags:
+        - Catalogue
+      summary: Catalogue des items (objets, capacités, armes)
+      description: Catalogue normalisé, instantané immuable par version du client Deadlock (`clientVersion`, la plus récente par défaut, relue chaque heure). `id` = identifiant des achats de `/matches/{matchId}`.
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum:
+              - upgrade
+              - ability
+              - weapon
+        - name: slot
+          in: query
+          schema:
+            type: string
+            enum:
+              - weapon
+              - vitality
+              - spirit
+        - name: tier
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+        - name: shopable
+          in: query
+          schema:
+            type: string
+            enum:
+              - "true"
+              - "false"
+        - name: clientVersion
+          in: query
+          description: "Version du client (anciennes parties) ; absente : la plus récente"
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Items
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - clientVersion
+                  - items
+                  - meta
+                properties:
+                  clientVersion:
+                    type:
+                      - integer
+                      - "null"
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CatalogItem"
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /items/{itemId}:
+    get:
+      tags:
+        - Catalogue
+      summary: Un item
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+        - name: clientVersion
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Item
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - clientVersion
+                  - item
+                  - meta
+                properties:
+                  clientVersion:
+                    type:
+                      - integer
+                      - "null"
+                  item:
+                    $ref: "#/components/schemas/CatalogItem"
+                  meta:
+                    $ref: "#/components/schemas/DataMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
   /players/{steamId}/overview:
@@ -1834,6 +2115,12 @@ components:
         - netWorth
         - lastHits
         - denies
+        - mvpRank
+        - killParticipation
+        - stats
+        - purchases
+        - finalItemIds
+        - abilityUpgrades
       properties:
         steamId:
           type:
@@ -1877,6 +2164,154 @@ components:
         denies:
           type:
             - integer
+            - "null"
+        mvpRank:
+          type:
+            - integer
+            - "null"
+          description: Classement MVP calculé par Valve (1 = meilleur) ; null si absent de la source.
+        killParticipation:
+          type:
+            - number
+            - "null"
+          description: "`(kills + assists) / éliminations de l’équipe × 100`, 2 décimales ; null si une valeur de l’équipe est inconnue."
+        stats:
+          oneOf:
+            - type: "null"
+            - $ref: "#/components/schemas/MatchPlayerStats"
+          description: Statistiques de fin de partie (dernier relevé de la source) ; null si absentes.
+        purchases:
+          type:
+            - array
+            - "null"
+          description: Achats d’objets (type `upgrade` du catalogue `/items`), par heure d’achat. null si catalogue ou évènements indisponibles.
+          items:
+            type: object
+            required:
+              - itemId
+              - atSeconds
+              - soldAtSeconds
+            properties:
+              itemId:
+                type: integer
+                description: Identifiant de `/items/{itemId}`
+              atSeconds:
+                type:
+                  - integer
+                  - "null"
+                description: Seconde de jeu de l’achat
+              soldAtSeconds:
+                type:
+                  - integer
+                  - "null"
+                description: Seconde de revente, null si gardé
+        finalItemIds:
+          type:
+            - array
+            - "null"
+          items:
+            type: integer
+          description: Objets achetés et jamais revendus (inventaire de fin), dans l’ordre d’achat.
+        abilityUpgrades:
+          type:
+            - array
+            - "null"
+          description: Montées de capacités (type `ability` du catalogue), par heure.
+          items:
+            type: object
+            required:
+              - abilityId
+              - atSeconds
+            properties:
+              abilityId:
+                type: integer
+              atSeconds:
+                type:
+                  - integer
+                  - "null"
+    MatchPlayerStats:
+      type: object
+      description: Valeurs de fin de partie ; toute valeur absente de la source vaut null.
+      properties:
+        playerDamage:
+          type:
+            - number
+            - "null"
+          description: Dégâts infligés aux héros
+        damageTaken:
+          type:
+            - number
+            - "null"
+          description: Dégâts subis des héros
+        objectiveDamage:
+          type:
+            - number
+            - "null"
+          description: Dégâts aux objectifs (gardiens, walkers…)
+        creepDamage:
+          type:
+            - number
+            - "null"
+        neutralDamage:
+          type:
+            - number
+            - "null"
+        healing:
+          type:
+            - number
+            - "null"
+          description: Soins prodigués (total)
+        selfHealing:
+          type:
+            - number
+            - "null"
+        teammateHealing:
+          type:
+            - number
+            - "null"
+        damageMitigated:
+          type:
+            - number
+            - "null"
+        heroBulletsHit:
+          type:
+            - number
+            - "null"
+          description: Balles ayant touché un héros
+        heroBulletsHitCrit:
+          type:
+            - number
+            - "null"
+          description: Dont coups critiques (tirs à la tête)
+        heroCritRate:
+          type:
+            - number
+            - "null"
+          description: "`heroBulletsHitCrit / heroBulletsHit × 100`"
+        shotsHit:
+          type:
+            - number
+            - "null"
+        shotsMissed:
+          type:
+            - number
+            - "null"
+        accuracy:
+          type:
+            - number
+            - "null"
+          description: "`shotsHit / (shotsHit + shotsMissed) × 100`, toutes cibles"
+        headshotKills:
+          type:
+            - number
+            - "null"
+        creepKills:
+          type:
+            - number
+            - "null"
+        neutralKills:
+          type:
+            - number
             - "null"
     MatchDetail:
       type: object
@@ -1942,6 +2377,8 @@ components:
             required:
               - side
               - outcome
+              - averageBadge
+              - averageRankName
               - players
             properties:
               side:
@@ -1954,6 +2391,16 @@ components:
                 enum:
                   - win
                   - loss
+              averageBadge:
+                type:
+                  - integer
+                  - "null"
+                description: Badge moyen de l’équipe (tier × 10 + subrank) ; null si inconnu.
+              averageRankName:
+                type:
+                  - string
+                  - "null"
+                description: Ex. « Phantom 4 »
               players:
                 type: array
                 items:
@@ -2009,6 +2456,374 @@ components:
           type: integer
           minimum: 0
           description: Nombre de parties utilisées pour le net worth par minute.
+    CatalogItem:
+      type: object
+      required:
+        - id
+        - className
+        - name
+        - type
+        - slot
+        - tier
+        - cost
+        - isActive
+        - shopable
+        - disabled
+        - heroIds
+        - componentIds
+        - imageUrl
+      properties:
+        id:
+          type: integer
+        className:
+          type: string
+        name:
+          type:
+            - string
+            - "null"
+        type:
+          type:
+            - string
+            - "null"
+          enum:
+            - upgrade
+            - ability
+            - weapon
+            - null
+        slot:
+          type:
+            - string
+            - "null"
+          description: "`weapon`, `vitality`, `spirit` pour les objets"
+        tier:
+          type:
+            - integer
+            - "null"
+        cost:
+          type:
+            - integer
+            - "null"
+        isActive:
+          type:
+            - boolean
+            - "null"
+        shopable:
+          type: boolean
+        disabled:
+          type: boolean
+        heroIds:
+          type: array
+          items:
+            type: integer
+        componentIds:
+          type: array
+          items:
+            type: integer
+          description: Objets dont celui-ci est l’amélioration
+        imageUrl:
+          type:
+            - string
+            - "null"
+          description: Icône de boutique (objets) ou icône (capacités)
+    RankHistory:
+      type: object
+      required:
+        - period
+        - points
+        - coverage
+        - meta
+      properties:
+        period:
+          type: string
+          enum:
+            - 7d
+            - 30d
+            - season
+        points:
+          type: array
+          items:
+            type: object
+            required:
+              - at
+              - matchId
+              - badge
+              - tier
+              - subrank
+              - score
+              - name
+              - imageUrl
+              - outcome
+            properties:
+              at:
+                type: string
+                format: date-time
+              matchId:
+                type: string
+              badge:
+                type: integer
+                description: tier × 10 + subrank (Valve)
+              tier:
+                type: integer
+              subrank:
+                type: integer
+              score:
+                type: integer
+                description: tier × 6 + subrank (1 à 72)
+              name:
+                type:
+                  - string
+                  - "null"
+                description: null sans catalogue des rangs
+              imageUrl:
+                type:
+                  - string
+                  - "null"
+              outcome:
+                type: string
+                enum:
+                  - win
+                  - loss
+        coverage:
+          type: object
+          required:
+            - requestedFrom
+            - requestedTo
+            - rankedMatches
+            - pointCount
+            - missingBadge
+            - isPartial
+            - notes
+          properties:
+            requestedFrom:
+              type:
+                - string
+                - "null"
+              format: date-time
+            requestedTo:
+              type: string
+              format: date-time
+            rankedMatches:
+              type: integer
+              description: Parties classées de la période
+            pointCount:
+              type: integer
+            missingBadge:
+              type: integer
+              description: Parties classées sans badge dans la source
+            isPartial:
+              type: boolean
+            notes:
+              type: array
+              items:
+                type: string
+                enum:
+                  - season_start_unknown
+                  - badge_missing_on_some_ranked_matches
+                  - history_stale
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    PlayerActivity:
+      type: object
+      required:
+        - weeks
+        - filters
+        - days
+        - summary
+        - coverage
+        - meta
+      properties:
+        weeks:
+          type: integer
+        filters:
+          type: object
+          required:
+            - gameMode
+            - matchMode
+          properties:
+            gameMode:
+              type: string
+              enum:
+                - all
+                - normal
+                - street_brawl
+            matchMode:
+              type: string
+              enum:
+                - all
+                - ranked
+                - unranked
+        days:
+          type: array
+          items:
+            type: object
+            required:
+              - date
+              - matches
+              - wins
+              - losses
+            properties:
+              date:
+                type: string
+                format: date
+                description: Jour UTC
+              matches:
+                type: integer
+              wins:
+                type: integer
+              losses:
+                type: integer
+        summary:
+          type: object
+          required:
+            - matches
+            - wins
+            - losses
+            - activeDays
+          properties:
+            matches:
+              type: integer
+            wins:
+              type: integer
+            losses:
+              type: integer
+            activeDays:
+              type: integer
+        coverage:
+          type: object
+          required:
+            - from
+            - to
+            - timezone
+            - excludedUnknownMode
+            - notes
+          properties:
+            from:
+              type:
+                - string
+                - "null"
+              format: date
+            to:
+              type:
+                - string
+                - "null"
+              format: date
+            timezone:
+              type: string
+              enum:
+                - UTC
+            excludedUnknownMode:
+              type: integer
+            notes:
+              type: array
+              items:
+                type: string
+                enum:
+                  - history_stale
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    RelatedPlayer:
+      type: object
+      required:
+        - steamId
+        - displayName
+        - avatarUrl
+        - matches
+        - wins
+        - losses
+        - winRate
+      properties:
+        steamId:
+          type: string
+        displayName:
+          type: string
+          description: "Pseudo Steam, repli : SteamID"
+        avatarUrl:
+          type:
+            - string
+            - "null"
+        matches:
+          type: integer
+          description: Parties communes
+        wins:
+          type: integer
+          description: Victoires du joueur demandé dans ces parties
+        losses:
+          type: integer
+        winRate:
+          type:
+            - number
+            - "null"
+    PlayerRelationships:
+      type: object
+      required:
+        - appliedFilters
+        - teammates
+        - opponents
+        - coverage
+        - meta
+      properties:
+        appliedFilters:
+          type: object
+          required:
+            - period
+            - gameMode
+            - sameParty
+            - minMatches
+            - limit
+          properties:
+            period:
+              type:
+                - string
+                - "null"
+              enum:
+                - 7d
+                - 30d
+                - season
+                - null
+            gameMode:
+              type: string
+              enum:
+                - normal
+                - street_brawl
+            sameParty:
+              type: boolean
+            minMatches:
+              type: integer
+            limit:
+              type: integer
+        teammates:
+          type:
+            - array
+            - "null"
+          items:
+            $ref: "#/components/schemas/RelatedPlayer"
+          description: Par parties communes décroissantes ; null si la source est indisponible
+        opponents:
+          type:
+            - array
+            - "null"
+          items:
+            $ref: "#/components/schemas/RelatedPlayer"
+        coverage:
+          type: object
+          required:
+            - requestedFrom
+            - notes
+          properties:
+            requestedFrom:
+              type:
+                - string
+                - "null"
+              format: date-time
+              description: Borne basse transmise à la source (arrondie à 10 min vers le passé)
+            notes:
+              type: array
+              items:
+                type: string
+                enum:
+                  - season_start_unknown
+        meta:
+          $ref: "#/components/schemas/DataMeta"
     AppliedFilters:
       type: object
       required:

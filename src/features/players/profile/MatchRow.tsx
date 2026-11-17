@@ -71,6 +71,7 @@ type Detail = {
   isPending: boolean;
   isError: boolean;
   refetch: () => unknown;
+  buildPending: boolean;
 };
 
 function ExpandedPanel({ match: m, detail }: { match: MatchSummary; detail: Detail }) {
@@ -93,12 +94,31 @@ function ExpandedPanel({ match: m, detail }: { match: MatchSummary; detail: Deta
           }
         />
         <Stat label="Participation (KP)" value={en ? formatPercent(en.kp) : NA} />
-        <Stat label="Tirs à la tête" value={en ? formatPercent(en.hsPct) : NA} />
+        <Stat label="Tirs critiques (tête)" value={en ? formatPercent(en.hsPct) : NA} />
         <Stat
           label="Position (valeur nette)"
           value={en?.netPosition ? `${en.netPosition.rank} sur ${en.netPosition.of}` : NA}
         />
       </dl>
+
+      {en?.stats && (
+        <dl
+          aria-label="Statistiques de fin de partie"
+          className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs @md:grid-cols-4 @3xl:grid-cols-8"
+        >
+          <Stat
+            label="Classement MVP (Valve)"
+            value={en.mvpRank === null ? NA : `${en.mvpRank} sur 12`}
+          />
+          <Stat label="Dégâts aux héros" value={formatInt(en.stats.playerDamage)} />
+          <Stat label="Dégâts subis" value={formatInt(en.stats.damageTaken)} />
+          <Stat label="Soins" value={formatInt(en.stats.healing)} />
+          <Stat label="Dégâts aux objectifs" value={formatInt(en.stats.objectiveDamage)} />
+          <Stat label="Précision" value={formatPercent(en.stats.accuracy)} />
+          <Stat label="Éliminations en tête" value={formatInt(en.stats.headshotKills)} />
+          <Stat label="Dégâts atténués" value={formatInt(en.stats.damageMitigated)} />
+        </dl>
+      )}
 
       {detail.isPending && <Skeleton className="h-28 rounded-xl" />}
       {detail.isError && (
@@ -313,7 +333,7 @@ export function MatchRow({
                   <dd>{en?.kp == null ? NA : `${Math.round(en.kp)} %`}</dd>
                 </div>
                 <div className="flex gap-1">
-                  <dt>HS</dt>
+                  <dt title="Tirs critiques sur héros : tirs à la tête">HS</dt>
                   <dd>
                     {en?.hsPct == null ? NA : `${formatDecimal(en.hsPct).replace(",00", "")} %`}
                   </dd>
@@ -324,7 +344,7 @@ export function MatchRow({
         </dl>
 
         <div className="hidden @[760px]:block">
-          {loading ? (
+          {loading || detail.buildPending ? (
             <Skeleton className="h-[55px] w-[171px] rounded-md" />
           ) : (
             <BuildGrid items={en?.items ?? null} />

@@ -5,6 +5,14 @@ import { GAME_MODES, MATCH_MODES, PERIODS } from "../scope";
 export const periodLong = (s: ProfileScope) =>
   PERIODS.find((p) => p.value === s.period)?.long ?? "";
 
+/** Format et type seulement (sans la période) : « Normal · Classée ». Vide si tout est sélectionné. */
+export function modeScopeLabel(s: ProfileScope): string {
+  return scopeLabel({ ...s, period: "30d" })
+    .split(" · ")
+    .slice(1)
+    .join(" · ");
+}
+
 /** « 30 derniers jours · Normal · Classée » : le périmètre, en clair, pour les titres de widgets. */
 export function scopeLabel(s: ProfileScope): string {
   const parts = [periodLong(s)];

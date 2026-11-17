@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   ApiError,
+  getItems,
+  getPlayerActivity,
   getPlayerHeroes,
+  getPlayerRankHistory,
+  getPlayerRelationships,
   getPlayerMatches,
   getPlayerOverview,
   type MatchSummary,
@@ -172,5 +176,59 @@ describe("héros v1.9.0", () => {
     expect(total(all)).toBe(42);
     expect(total(d7)).toBeLessThan(total(all));
     expect(all.appliedFilters?.period).toBeNull();
+  });
+});
+
+describe("phase P1 (v1.10.0)", () => {
+  it("catalogue des objets en une requête, ids stables résolvables", async () => {
+    const r = await getItems({ type: "upgrade" });
+    expect(r.items.length).toBeGreaterThan(10);
+    const ids = new Set(r.items.map((i) => i.id));
+    expect(ids.size).toBe(r.items.length);
+    const detail = await (
+      await import("@/api")
+    ).getMatch((await getPlayerMatches(ID, { limit: 1 })).items[0]!.matchId);
+    const finals = detail.match.teams.flatMap((t) =>
+      t.players.flatMap((p) => p.finalItemIds ?? []),
+    );
+    expect(finals.length).toBeGreaterThan(0);
+    expect(finals.every((id) => ids.has(id))).toBe(true);
+  });
+
+  it("détail de partie : participation, MVP, statistiques et badge moyen", async () => {
+    const id = (await getPlayerMatches(ID, { limit: 1 })).items[0]!.matchId;
+    const { match } = await (await import("@/api")).getMatch(id);
+    const p = match.teams[0]!.players[0]!;
+    expect(p.killParticipation).toBeGreaterThan(0);
+    expect(p.stats?.heroCritRate).not.toBeUndefined();
+    expect("averageBadge" in match.teams[0]!).toBe(true);
+  });
+
+  it("activité : un objet par jour sur 12 semaines, jours vides à 0", async () => {
+    const a = await getPlayerActivity(ID, { weeks: 12 });
+    expect(a.days).toHaveLength(84);
+    expect(a.days.some((d) => d.matches === 0)).toBe(true);
+    expect(a.summary.matches).toBe(a.days.reduce((s, d) => s + d.matches, 0));
+    const ranked = await getPlayerActivity(ID, { weeks: 12, matchMode: "ranked" });
+    expect(ranked.summary.matches).toBeLessThan(a.summary.matches);
+  });
+
+  it("historique de rang : points ordonnés, badges manquants comptés, aucune interpolation", async () => {
+    const h = await getPlayerRankHistory(ID, "season");
+    expect(h.coverage.pointCount).toBe(h.points.length);
+    expect(h.coverage.pointCount + h.coverage.missingBadge).toBe(h.coverage.rankedMatches);
+    const times = h.points.map((p) => Date.parse(p.at));
+    expect([...times].sort((a, b) => a - b)).toEqual(times);
+    expect(h.points.every((p) => p.score === p.tier * 6 + p.subrank)).toBe(true);
+  });
+
+  it("coéquipiers et adversaires ; gameMode « all » refusé", async () => {
+    const r = await getPlayerRelationships(ID, { period: "30d", gameMode: "normal", limit: 3 });
+    expect(r.teammates!.length).toBeLessThanOrEqual(3);
+    expect(r.appliedFilters.gameMode).toBe("normal");
+    const bad = await getPlayerRelationships(ID, { gameMode: "all" as never }).catch(
+      (e: unknown) => e,
+    );
+    expect((bad as ApiError).status).toBe(400);
   });
 });

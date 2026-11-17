@@ -4,9 +4,66 @@ import { DoubleBezel, Skeleton } from "@/components/ui";
 import { formatPercent } from "@/lib/format";
 import { modeComboLabel } from "@/lib/modes";
 import { rankLabel } from "@/lib/rank";
-import type { usePlayerOverview } from "@/features/players/hooks";
+import { AreaChart, type AreaPoint } from "@/components/charts";
+import { useRanks } from "@/features/heroes/hooks";
+import type { usePlayerOverview, usePlayerRankHistory } from "@/features/players/hooks";
+import { formatDate } from "@/lib/format";
+import { ROMAN } from "@/lib/stats";
 import { periodLong } from "./scopeText";
 import type { ProfileScope } from "@/api";
+
+/** Progression observée sur de vraies parties classées : un point par partie dont la source donne le badge. */
+function RankProgress({ history }: { history: ReturnType<typeof usePlayerRankHistory> }) {
+  const ranks = useRanks();
+  if (history.isPending || history.isError || !history.data) return null;
+  const { points, coverage } = history.data;
+  const nameOf = (score: number) => {
+    const s = Math.round(score);
+    const tier = Math.floor((s - 1) / 6);
+    const sub = s - tier * 6;
+    const base = ranks.data?.items.find((r) => r.tier === tier)?.name;
+    return base ? `${base} ${ROMAN[sub] ?? sub}` : String(s);
+  };
+  const chart: AreaPoint[] = points.map((p) => ({
+    value: p.score,
+    title: p.name,
+    lines: [formatDate(p.at), p.outcome === "win" ? "Victoire" : "Défaite"],
+  }));
+  const scores = points.map((p) => p.score);
+  // Bornes entières, étendue multiple de 4 : les 5 graduations tombent sur des rangs distincts.
+  const lo = Math.min(...scores) - 1;
+  const span = Math.max(4, Math.ceil((Math.max(...scores) + 1 - lo) / 4) * 4);
+  const hi = lo + span;
+  return (
+    <div className="mt-4 border-t border-divider pt-3">
+      <p className="text-xs text-subtle">Progression du rang classé</p>
+      {points.length < 2 ? (
+        <p className="mt-1.5 text-xs text-subtle">
+          {coverage.rankedMatches === 0
+            ? "Aucune partie classée sur cette période."
+            : `Pas assez de parties classées avec badge connu (${points.length} sur ${coverage.rankedMatches}).`}
+        </p>
+      ) : (
+        <div className="mt-2">
+          <AreaChart
+            points={chart}
+            format={nameOf}
+            ariaLabel={`Rang classé sur ${points.length} parties, de ${nameOf(scores[0] ?? 0)} à ${nameOf(scores[scores.length - 1] ?? 0)}`}
+            min={lo}
+            max={hi}
+            height={96}
+          />
+          <p className="mt-1.5 text-[11px] leading-relaxed text-subtle">
+            {points.length} partie{points.length > 1 ? "s" : ""} classée
+            {points.length > 1 ? "s" : ""} avec badge connu sur {coverage.rankedMatches}
+            {coverage.missingBadge > 0 ? ` (${coverage.missingBadge} sans badge, non tracées)` : ""}
+            . Aucun MMR : seulement le rang observé.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Rang officiel (indépendant des filtres) et bilan par combinaison format x type, calculé par le back
@@ -16,10 +73,12 @@ export function RankModesWidget({
   profile,
   overview,
   scope,
+  rankHistory,
 }: {
   profile: PlayerProfile;
   overview: ReturnType<typeof usePlayerOverview>;
   scope: ProfileScope;
+  rankHistory: ReturnType<typeof usePlayerRankHistory>;
 }) {
   const { rank } = profile;
   const label = rankLabel(rank.name, rank.subrank);
@@ -84,6 +143,7 @@ export function RankModesWidget({
           })}
         </ul>
       )}
+      <RankProgress history={rankHistory} />
       {data && (
         <p className="mt-3 text-[11px] leading-relaxed text-subtle">
           {periodLong(scope)} : {data.coverage.includedMatches} partie

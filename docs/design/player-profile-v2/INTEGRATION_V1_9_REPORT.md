@@ -95,3 +95,18 @@ Débordement horizontal contrôlé par script à 320, 390, 768, 1024, 1280, 1440
 - Le badge du nombre de parties sur l'onglet Parties a été retiré (le total est inconnu).
 - `modeBreakdown`, `aggregate`, `matchesMode` et `MODE_FILTERS` ne sont plus utilisés par le profil ; conservés et testés, à supprimer lors d'un nettoyage.
 - Vérifier la production après le déploiement du back v1.9.0.
+
+## Addendum : phase P1 (back `1805949`, OpenAPI v1.10.0)
+
+| Fonctionnalité                                                                                | Statut                                                                                                        |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Build réel (objets finaux, ordre d'achat, icônes) via `GET /items` (1 requête, cache 1 h)     | **Intégré, testé sur back Docker**                                                                            |
+| CS, KP (valeur du back), MVP Valve, dégâts, soins, précision, tirs critiques (HS)             | **Intégrés, testés sur back Docker**                                                                          |
+| Rang moyen par équipe (`averageRankName`)                                                     | Intégré (souvent `null` en non classé)                                                                        |
+| Activité 12 semaines (`/activity`) suivant format et type du scope                            | **Intégrée, testée sur back Docker**                                                                          |
+| Progression du rang (`/rank-history`)                                                         | **Intégrée, testée sur back Docker** (peu de points quand la source omet le badge)                            |
+| Joués avec et contre (`/relationships`)                                                       | **Intégré, testé sur back Docker**                                                                            |
+| `abilityUpgrades`, ventes d'objets, `/items/{id}`, stats d'objets, builds, tendances 20 vs 20 | Non utilisé ou non livré                                                                                      |
+| Production                                                                                    | Le back de production n'a pas v1.10.0 avant son déploiement : widgets vides ou « n/d », sans erreur bloquante |
+
+Choix : `heroCritRate` est affiché comme HS avec l'infobulle « tirs critiques sur héros : tirs à la tête » (à confirmer par le back) ; l'ancien contrat proposé (`items`, `headshotPct`) est retiré des types, le mock reproduit désormais les vraies formes (`finalItemIds`, `stats`, catalogue `/items`). La courbe lit au plus 50 parties (la limite de 200 servait à l'activité). Tests : 92 unitaires et d'intégration (nouveaux : résolution du build, KP/MVP/HS, calendrier depuis `/activity`, routes P1, widgets), 16 e2e. Captures `p1-*.png`. Limite : le graphique de progression de rang peut être plat ou vide selon les badges fournis par la source.

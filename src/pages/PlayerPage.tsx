@@ -130,11 +130,13 @@ function Body({
                 profile={profile}
                 scope={scope}
                 overview={overview}
+                activity={data.activity}
+                rankHistory={data.rankHistory}
+                relationships={data.relationships}
                 matches={history.matches}
                 historyLoading={history.isPending}
                 rows={data.rows}
                 heroById={data.heroById}
-                capped={history.capped}
                 scopeQuery={scopeQuery}
                 onSeeMatches={() => setTab("matches")}
               />

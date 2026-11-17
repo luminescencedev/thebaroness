@@ -368,19 +368,51 @@ export interface LeaderboardResponse {
 
 export type TeamSide = "amber" | "sapphire";
 
-/**
- * Objet acheté. PROPOSÉ au back (pas encore dans OpenAPI 1.8.0) : le front lit `items` s'il existe,
- * sinon affiche « n/d ». Les identifiants restent exploitables pour de futures pages Items et Builds.
- */
+/** Catégorie d'un objet (slot du catalogue). */
 export type ItemCategory = "weapon" | "vitality" | "spirit";
 
+/**
+ * Objet du build tel que l'affiche l'interface : `itemId` du détail de partie résolu avec
+ * `GET /items` (v1.10.0). Modèle de présentation, pas un DTO.
+ */
 export interface MatchItem {
   itemId: number;
   name: string;
-  /** 1 à 4. */
+  /** 1 à 5 (catalogue). */
   tier: number;
   category: ItemCategory;
   iconUrl: string | null;
+}
+
+/** Dernier relevé de fin de partie (v1.10.0). Chaque valeur peut être null. */
+export interface MatchPlayerStats {
+  playerDamage: number | null;
+  damageTaken: number | null;
+  objectiveDamage: number | null;
+  creepDamage: number | null;
+  neutralDamage: number | null;
+  healing: number | null;
+  selfHealing: number | null;
+  teammateHealing: number | null;
+  damageMitigated: number | null;
+  heroBulletsHit: number | null;
+  heroBulletsHitCrit: number | null;
+  /** Critiques sur balles touchant un héros, en pourcentage. */
+  heroCritRate: number | null;
+  shotsHit: number | null;
+  shotsMissed: number | null;
+  /** Précision toutes cibles, en pourcentage. */
+  accuracy: number | null;
+  headshotKills: number | null;
+  creepKills: number | null;
+  neutralKills: number | null;
+}
+
+export interface MatchPurchase {
+  itemId: number;
+  atSeconds: number;
+  /** null : objet gardé. */
+  soldAtSeconds: number | null;
 }
 
 export interface MatchPlayer {
@@ -396,15 +428,24 @@ export interface MatchPlayer {
   netWorth: number | null;
   lastHits: number | null;
   denies: number | null;
-  /** PROPOSÉ : pourcentage de tirs à la tête (0 à 100). Absent tant que le back ne le livre pas. */
-  headshotPct?: number | null;
-  /** PROPOSÉ : objets achetés, dans l'ordre d'achat. Absent tant que le back ne les livre pas. */
-  items?: MatchItem[] | null;
+  /**
+   * v1.10.0 (absents sur un back v1.9, d'où `?`) : classement MVP calculé par Valve (1 = meilleur),
+   * participation aux éliminations en %, statistiques de fin de partie, achats, objets finaux.
+   */
+  mvpRank?: number | null;
+  killParticipation?: number | null;
+  stats?: MatchPlayerStats | null;
+  purchases?: MatchPurchase[] | null;
+  finalItemIds?: number[] | null;
+  abilityUpgrades?: { abilityId: number; atSeconds: number }[] | null;
 }
 
 export interface MatchTeam {
   side: TeamSide;
   outcome: MatchOutcome;
+  /** v1.10.0 : badge moyen fourni par la source (null si inconnu, fréquent en non classé). */
+  averageBadge?: number | null;
+  averageRankName?: string | null;
   players: MatchPlayer[];
 }
 
@@ -492,5 +533,106 @@ export interface GroupCompareResponse {
   group: Group;
   period: ComparePeriod;
   members: GroupMemberStats[];
+  meta: DataMeta;
+}
+
+/* ---------- Phase P1 (OpenAPI 1.10.0) ---------- */
+
+export interface CatalogItem {
+  id: number;
+  className: string;
+  name: string;
+  type: "upgrade" | "ability" | "weapon";
+  slot: ItemCategory | null;
+  tier: number | null;
+  cost: number | null;
+  isActive: boolean;
+  shopable: boolean;
+  disabled: boolean;
+  heroIds: number[];
+  componentIds: number[];
+  imageUrl: string | null;
+}
+
+export interface ItemListResponse {
+  clientVersion: number;
+  items: CatalogItem[];
+  meta: DataMeta;
+}
+
+export interface RankHistoryPoint {
+  at: string;
+  matchId: string;
+  badge: number;
+  tier: number;
+  subrank: number;
+  /** tier * 6 + subrank. */
+  score: number;
+  name: string;
+  imageUrl: string | null;
+  outcome: MatchOutcome;
+}
+
+export interface RankHistory {
+  period: StatPeriod;
+  points: RankHistoryPoint[];
+  coverage: {
+    requestedFrom: string | null;
+    requestedTo: string;
+    rankedMatches: number;
+    pointCount: number;
+    /** Parties classées sans badge fourni par la source. */
+    missingBadge: number;
+    isPartial: boolean;
+    notes: string[];
+  };
+  meta: DataMeta;
+}
+
+export interface ActivityDay {
+  date: string;
+  matches: number;
+  wins: number;
+  losses: number;
+}
+
+export interface PlayerActivity {
+  weeks: number;
+  filters: { gameMode: GameModeFilter; matchMode: MatchModeFilter };
+  days: ActivityDay[];
+  summary: { matches: number; wins: number; losses: number; activeDays: number };
+  coverage: {
+    from: string;
+    to: string;
+    timezone: string;
+    excludedUnknownMode: number;
+    notes: string[];
+  };
+  meta: DataMeta;
+}
+
+export interface RelatedPlayer {
+  steamId: SteamId;
+  displayName: string;
+  avatarUrl: string | null;
+  matches: number;
+  /** Victoires du joueur demandé dans les parties communes. */
+  wins: number;
+  losses: number;
+  winRate: number | null;
+}
+
+export interface PlayerRelationships {
+  appliedFilters: {
+    period: StatPeriod | null;
+    gameMode: "normal" | "street_brawl";
+    sameParty: boolean;
+    minMatches: number;
+    limit: number;
+  };
+  /** null : source indisponible (voir meta.isPartial). */
+  teammates: RelatedPlayer[] | null;
+  opponents: RelatedPlayer[] | null;
+  coverage: { requestedFrom: string | null; notes: string[] };
   meta: DataMeta;
 }

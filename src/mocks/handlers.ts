@@ -18,16 +18,21 @@ import {
   leaderboard,
   matchDetail,
   ranks,
+  rankFor,
+  syntheticCatalog,
 } from "./synthetic";
 import type { ComparePeriod, Group, LeaderboardRegion } from "@/api/types";
 import mapFixture from "./fixtures/map.json";
 import {
+  activityOf,
   applied,
   heroStats,
   makeCursor,
   overviewOf,
   parseServerFilters,
+  rankHistoryOf,
   readCursor,
+  relationshipsOf,
   selectMatches,
 } from "./profileV2";
 
@@ -259,6 +264,102 @@ export const handlers = [
     });
     if (members.length === 0) return unavailable();
     return HttpResponse.json({ group, period, members, meta: meta() });
+  }),
+
+  http.get(`${API}/items`, async ({ request }) => {
+    await latency();
+    const type = new URL(request.url).searchParams.get("type");
+    if (type && !["upgrade", "ability", "weapon"].includes(type)) return invalid("type invalide.");
+    return HttpResponse.json({
+      clientVersion: 6861,
+      items: type && type !== "upgrade" ? [] : syntheticCatalog,
+      meta: meta(),
+    });
+  }),
+
+  http.get(`${API}/players/:steamId/activity`, async ({ request, params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    const q = new URL(request.url).searchParams;
+    const weeks = q.get("weeks") === null ? 12 : Number(q.get("weeks"));
+    if (!Number.isInteger(weeks) || weeks < 1 || weeks > 52) return invalid("weeks : 1 à 52.");
+    const gm = q.get("gameMode") ?? "all";
+    const mm = q.get("matchMode") ?? "all";
+    if (!["all", "normal", "street_brawl"].includes(gm)) return invalid("gameMode invalide.");
+    if (!["all", "ranked", "unranked"].includes(mm)) return invalid("matchMode invalide.");
+    return HttpResponse.json({
+      ...activityOf(matchFixtures[steamId] ?? [], weeks, gm as "all", mm as "all"),
+      meta: meta(fixture.partial === true),
+    });
+  }),
+
+  http.get(`${API}/players/:steamId/rank-history`, async ({ request, params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    const period = new URL(request.url).searchParams.get("period") ?? "season";
+    if (!["7d", "30d", "season"].includes(period)) return invalid("period invalide.");
+    const rank = fixture.rank;
+    const current =
+      typeof rank.tier === "number" && typeof rank.subrank === "number"
+        ? { tier: rank.tier, subrank: rank.subrank }
+        : null;
+    const data = current
+      ? rankHistoryOf(matchFixtures[steamId] ?? [], period as "7d", current, (t, s) => {
+          const r = rankFor(t, s);
+          return { name: r.name ?? `Rang ${t}`, imageUrl: r.imageUrl ?? null };
+        })
+      : null;
+    return HttpResponse.json({
+      ...(data ?? {
+        period,
+        points: [],
+        coverage: {
+          requestedFrom: null,
+          requestedTo: new Date().toISOString(),
+          rankedMatches: 0,
+          pointCount: 0,
+          missingBadge: 0,
+          isPartial: false,
+          notes: [],
+        },
+      }),
+      meta: meta(fixture.partial === true),
+    });
+  }),
+
+  http.get(`${API}/players/:steamId/relationships`, async ({ request, params }) => {
+    await latency();
+    const steamId = String(params.steamId);
+    if (!STEAM_ID_RE.test(steamId)) return invalid("Identifiant Steam invalide.");
+    if (steamId === SCENARIOS.steamIdUnavailable) return unavailable();
+    const fixture = playerFixtures.find((p) => p.player.steamId === steamId);
+    if (!fixture) return notFound("Joueur introuvable.");
+    const q = new URL(request.url).searchParams;
+    const gameMode = q.get("gameMode") ?? "normal";
+    if (!["normal", "street_brawl"].includes(gameMode))
+      return invalid("gameMode : normal ou street_brawl.");
+    const period = q.get("period");
+    if (period !== null && !["7d", "30d", "season"].includes(period))
+      return invalid("period invalide.");
+    const limit = q.get("limit") === null ? 10 : Number(q.get("limit"));
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50) return invalid("limit : 1 à 50.");
+    const pool = allSyntheticPlayers.filter((p) => p.steamId !== steamId);
+    const { teammates, opponents } = relationshipsOf(pool, limit, Number(steamId.slice(-2)));
+    return HttpResponse.json({
+      appliedFilters: { period, gameMode, sameParty: false, minMatches: 2, limit },
+      teammates,
+      opponents,
+      coverage: { requestedFrom: null, notes: [] },
+      meta: meta(fixture.partial === true),
+    });
   }),
 
   http.get(`${API}/players/:steamId/overview`, async ({ request, params }) => {

@@ -1,4 +1,12 @@
-import type { MatchDetail, MatchItem, MatchPlayer, MatchSummary, MatchTeam } from "@/api/types";
+import type {
+  CatalogItem,
+  MatchDetail,
+  MatchItem,
+  MatchPlayer,
+  MatchPlayerStats,
+  MatchSummary,
+  MatchTeam,
+} from "@/api/types";
 
 /**
  * Modèle de présentation d'une partie enrichie. Tout est dérivé de MatchDetail (réel) ; une valeur que le
@@ -31,9 +39,16 @@ export interface MatchEnrichment {
   csPerMin: number | null;
   /** Participation aux éliminations, en pourcentage : (K + A) / éliminations de l'équipe. */
   kp: number | null;
-  /** Tirs à la tête, en pourcentage. Pas encore livré par le back : null en production. */
+  /** Tirs critiques sur héros (tête), en pourcentage : `stats.heroCritRate` du back. */
   hsPct: number | null;
-  /** Build du joueur ; null tant que le back ne livre pas `items`. */
+  /** Classement MVP calculé par Valve (1 = meilleur), null si absent. */
+  mvpRank: number | null;
+  /** Relevé de fin de partie du joueur, null si absent. */
+  stats: MatchPlayerStats | null;
+  /**
+   * Objets finaux (jamais revendus), dans l'ordre du premier achat. null si le back ne livre pas les
+   * objets ou si le catalogue n'est pas disponible : l'interface affiche « n/d », jamais un faux build.
+   */
   items: MatchItem[] | null;
   /** Position par valeur nette parmi tous les joueurs de la partie. */
   netPosition: { rank: number; of: number } | null;
@@ -53,10 +68,32 @@ function isOwner(p: MatchPlayer, s: MatchSummary, ownerSteamId: string | undefin
   );
 }
 
+/** Résout les objets finaux avec le catalogue `GET /items`. Un identifiant absent du catalogue est ignoré. */
+function resolveItems(
+  self: MatchPlayer | null,
+  catalog: Map<number, CatalogItem> | null | undefined,
+): MatchItem[] | null {
+  const ids = self?.finalItemIds;
+  if (!ids || !catalog) return null;
+  const first = new Map<number, number>();
+  for (const p of self?.purchases ?? []) if (!first.has(p.itemId)) first.set(p.itemId, p.atSeconds);
+  return ids
+    .map((id, i) => ({ id, at: first.get(id) ?? Number.MAX_SAFE_INTEGER, i }))
+    .sort((a, b) => a.at - b.at || a.i - b.i)
+    .flatMap(({ id }) => {
+      const c = catalog.get(id);
+      if (!c || !c.slot) return [];
+      return [
+        { itemId: id, name: c.name, tier: c.tier ?? 1, category: c.slot, iconUrl: c.imageUrl },
+      ];
+    });
+}
+
 export function enrichMatch(
   summary: MatchSummary,
   detail: MatchDetail,
   ownerSteamId?: string,
+  catalog?: Map<number, CatalogItem> | null,
 ): MatchEnrichment {
   const all = detail.teams.flatMap((t) => t.players);
   const complete = all.length > 0 && all.every((p) => p.netWorth !== null);
@@ -81,10 +118,12 @@ export function enrichMatch(
     selfTeam && selfTeam.players.every((p) => p.kills !== null)
       ? selfTeam.players.reduce((a, p) => a + (p.kills ?? 0), 0)
       : null;
-  const kp =
+  const computedKp =
     self && self.kills !== null && self.assists !== null && teamKills
       ? Math.min(100, ((self.kills + self.assists) / teamKills) * 100)
       : null;
+  // Valeur du back quand elle existe (même formule), sinon calcul sur le détail.
+  const kp = self?.killParticipation ?? computedKp;
 
   const minutes = (detail.durationSeconds ?? summary.durationSeconds ?? 0) / 60;
   const cs = self?.lastHits ?? null;
@@ -108,14 +147,23 @@ export function enrichMatch(
       explain: "KDA le plus élevé parmi les 12 joueurs, (K + A) / max(D, 1).",
     });
 
+  if (self?.mvpRank === 1)
+    badges.push({
+      id: "mvp",
+      label: "MVP",
+      explain: "Classement MVP calculé par Valve : 1er de la partie.",
+    });
+
   return {
     teams,
     self,
     cs,
     csPerMin: cs !== null && minutes > 0 ? cs / minutes : null,
     kp,
-    hsPct: self?.headshotPct ?? null,
-    items: self?.items ?? null,
+    hsPct: self?.stats?.heroCritRate ?? null,
+    mvpRank: self?.mvpRank ?? null,
+    stats: self?.stats ?? null,
+    items: resolveItems(self, catalog),
     netPosition: self && self.netRank ? { rank: self.netRank, of: all.length } : null,
     badges,
   };

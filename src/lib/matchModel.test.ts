@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { MatchDetail, MatchPlayer, MatchSummary } from "@/api/types";
+import type { CatalogItem, MatchDetail, MatchPlayer, MatchSummary } from "@/api/types";
 import { enrichMatch } from "./matchModel";
 
 const p = (o: Partial<MatchPlayer>): MatchPlayer => ({
@@ -76,5 +76,61 @@ describe("enrichMatch", () => {
   it("retrouve le joueur par héros et K/D/A sans SteamID", () => {
     const e = enrichMatch(summary, detail({ ...me, steamId: null }));
     expect(e.self?.heroId).toBe(7);
+  });
+
+  describe("données du back v1.10.0", () => {
+    const item = (
+      id: number,
+      name: string,
+      slot: CatalogItem["slot"],
+      tier: number,
+    ): CatalogItem => ({
+      id,
+      className: name,
+      name,
+      type: "upgrade",
+      slot,
+      tier,
+      cost: 800,
+      isActive: false,
+      shopable: true,
+      disabled: false,
+      heroIds: [],
+      componentIds: [],
+      imageUrl: null,
+    });
+    const catalog = new Map([
+      [1, item(1, "Late", "spirit", 3)],
+      [2, item(2, "Early", "weapon", 1)],
+    ]);
+    const rich = {
+      ...me,
+      killParticipation: 61.5,
+      mvpRank: 1,
+      stats: { heroCritRate: 33.3, playerDamage: 100 } as MatchPlayer["stats"],
+      finalItemIds: [1, 2, 999],
+      purchases: [
+        { itemId: 1, atSeconds: 500, soldAtSeconds: null },
+        { itemId: 2, atSeconds: 60, soldAtSeconds: null },
+      ],
+    };
+
+    it("résout le build avec le catalogue, dans l'ordre d'achat, sans inventer d'objet inconnu", () => {
+      const e = enrichMatch(summary, detail(rich), "42", catalog);
+      expect(e.items?.map((i) => i.name)).toEqual(["Early", "Late"]);
+    });
+
+    it("sans catalogue ou sans objets du back : build null (n/d), jamais un faux build", () => {
+      expect(enrichMatch(summary, detail(rich), "42", null).items).toBeNull();
+      expect(enrichMatch(summary, detail(me), "42", catalog).items).toBeNull();
+    });
+
+    it("prend la participation du back, les tirs critiques comme HS, et le MVP de Valve", () => {
+      const e = enrichMatch(summary, detail(rich), "42", catalog);
+      expect(e.kp).toBe(61.5);
+      expect(e.hsPct).toBe(33.3);
+      expect(e.mvpRank).toBe(1);
+      expect(e.badges.map((b) => b.id)).toContain("mvp");
+    });
   });
 });

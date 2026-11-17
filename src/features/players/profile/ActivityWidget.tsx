@@ -1,48 +1,52 @@
 import { useMemo } from "react";
-import type { MatchSummary } from "@/api";
 import { CalendarHeatmap } from "@/components/charts";
-import { DoubleBezel } from "@/components/ui";
-import { formatDate } from "@/lib/format";
-import { calendar } from "@/lib/stats";
+import { DoubleBezel, Skeleton } from "@/components/ui";
+import type { usePlayerActivity } from "@/features/players/hooks";
+import { calendarFromDays } from "@/lib/stats";
 
-/** Activité sur 12 semaines. Les jours antérieurs à la parties chargée la plus ancienne ne sont pas « sans partie » : ils ne sont pas couverts. */
+/**
+ * Activité sur 12 semaines (jours UTC) calculée par le back sur l'historique complet : un jour à 0 est un
+ * vrai jour sans partie. Suit le format et le type du scope, pas sa période (toujours 12 semaines).
+ */
 export function ActivityWidget({
-  matches,
-  capped,
-  partial,
-  scopeFrom,
+  activity,
+  scopeText,
 }: {
-  matches: MatchSummary[];
-  capped: boolean;
-  partial: boolean;
-  /** Début de la période demandée (ISO) : avant cette date, rien n'est couvert. null : sans borne. */
-  scopeFrom: string | null;
+  activity: ReturnType<typeof usePlayerActivity>;
+  scopeText: string;
 }) {
-  const weeks = useMemo(() => calendar(matches), [matches]);
-  const total = weeks.flat().reduce((s, d) => s + d.count, 0);
-  const oldest = matches.at(-1)?.playedAt.slice(0, 10);
-  const startOfWindow = weeks[0]?.[0]?.date;
-  const from = scopeFrom?.slice(0, 10);
-  const incomplete =
-    capped ||
-    partial ||
-    from !== undefined ||
-    (oldest !== undefined && startOfWindow !== undefined && oldest > startOfWindow);
+  const data = activity.data;
+  const weeks = useMemo(() => (data ? calendarFromDays(data.days, data.weeks) : null), [data]);
   return (
     <DoubleBezel size="md" innerClassName="p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="text-[15px]">Activité récente</h2>
-        <span className="text-xs text-subtle tabular-nums">{total} parties</span>
+        {data && (
+          <span className="text-xs text-subtle tabular-nums">{data.summary.matches} parties</span>
+        )}
       </div>
-      <div className="mt-3 overflow-x-auto">
-        <CalendarHeatmap weeks={weeks} />
-      </div>
-      {incomplete && (
-        <p className="mt-2 text-[11px] leading-relaxed text-warning">
-          {from !== undefined
-            ? `Limitée à la période choisie : les jours avant le ${formatDate(`${from}T12:00:00Z`)} ne sont pas couverts, ils ne sont pas « sans partie ».`
-            : `Historique partiel : les semaines avant ${oldest ? formatDate(`${oldest}T12:00:00Z`) : "la plus ancienne partie chargée"} peuvent contenir des parties non chargées.`}
-        </p>
+      {activity.isPending ? (
+        <Skeleton className="mt-3 h-[150px] rounded-xl" aria-busy="true" />
+      ) : activity.isError || !weeks || !data ? (
+        <p className="mt-3 text-sm text-subtle">Activité indisponible pour le moment.</p>
+      ) : (
+        <>
+          <div className="mt-3 overflow-x-auto">
+            <CalendarHeatmap weeks={weeks} />
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-subtle">
+            12 semaines, jours en UTC{scopeText ? ` · ${scopeText}` : ""}. {data.summary.activeDays}{" "}
+            jour{data.summary.activeDays > 1 ? "s" : ""} actif
+            {data.summary.activeDays > 1 ? "s" : ""}.
+          </p>
+          {data.coverage.excludedUnknownMode > 0 && (
+            <p className="mt-1 text-[11px] leading-relaxed text-warning">
+              {data.coverage.excludedUnknownMode} partie
+              {data.coverage.excludedUnknownMode > 1 ? "s" : ""} au mode inconnu écartée
+              {data.coverage.excludedUnknownMode > 1 ? "s" : ""} par ce filtre.
+            </p>
+          )}
+        </>
       )}
     </DoubleBezel>
   );

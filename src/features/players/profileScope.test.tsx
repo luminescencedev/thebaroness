@@ -150,4 +150,43 @@ describe("profil branché sur le back v1.9.0", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText("0,00 %")).not.toBeInTheDocument();
   });
+
+  it("l'activité vient du back et suit le format et le type du scope", async () => {
+    rec = recordRequests();
+    renderApp(`/players/${ID}?matchMode=ranked`);
+    expect(
+      await screen.findByText(/12 semaines, jours en UTC/, {}, { timeout: 4000 }),
+    ).toBeInTheDocument();
+    const act = rec.of("/activity")[0];
+    expect(act?.searchParams.get("weeks")).toBe("12");
+    expect(act?.searchParams.get("matchMode")).toBe("ranked");
+  });
+
+  it("joués avec et contre : liste, bascule, format normal par défaut", async () => {
+    rec = recordRequests();
+    renderApp(`/players/${ID}`);
+    const list = await screen.findByRole("list", { name: "Coéquipiers" }, { timeout: 4000 });
+    expect(within(list).getAllByRole("link").length).toBeGreaterThan(0);
+    expect(rec.of("/relationships")[0]?.searchParams.get("gameMode")).toBe("normal");
+    await userEvent.click(screen.getByRole("radio", { name: "Contre" }));
+    expect(await screen.findByRole("list", { name: "Adversaires" })).toBeInTheDocument();
+  });
+
+  it("partie dépliée : build résolu depuis /items, MVP et statistiques de fin de partie", async () => {
+    rec = recordRequests();
+    renderApp(`/players/${ID}?tab=matches`);
+    const toggle = (
+      await screen.findAllByRole("button", { name: /Afficher le détail de la partie/ })
+    )[0] as HTMLElement;
+    await userEvent.click(toggle);
+    const panel = document.getElementById(
+      toggle.getAttribute("aria-controls") as string,
+    ) as HTMLElement;
+    expect(
+      await within(panel).findByLabelText("Statistiques de fin de partie", {}, { timeout: 4000 }),
+    ).toBeInTheDocument();
+    expect(within(panel).getByText("Classement MVP (Valve)")).toBeInTheDocument();
+    expect(within(panel).getByRole("region", { name: "Build complet" })).toBeInTheDocument();
+    expect(rec.log.filter((u) => u.pathname.endsWith("/api/items")).length).toBe(1);
+  });
 });

@@ -251,3 +251,146 @@ export function overviewOf(all: MatchSummary[], f: ServerFilters) {
     }));
   return { summary: summarize(list), modes: modesOf(list), topHeroes, coverage };
 }
+
+/* ---------- Phase P1 (OpenAPI 1.10.0) ---------- */
+import type {
+  ActivityDay,
+  PlayerActivity,
+  RankHistory,
+  RankHistoryPoint,
+  RelatedPlayer,
+} from "@/api/types";
+
+/** Un objet par jour UTC jusqu'au « jour courant » du mock ; jour sans partie = 0. */
+export function activityOf(
+  all: MatchSummary[],
+  weeks: number,
+  gameMode: GameModeFilter,
+  matchMode: MatchModeFilter,
+): Omit<PlayerActivity, "meta"> {
+  const f: ServerFilters = { period: null, gameMode, matchMode, heroId: null, outcome: "all" };
+  const list = selectMatches(all, f);
+  const byDay = new Map<string, ActivityDay>();
+  for (const m of list) {
+    const key = m.playedAt.slice(0, 10);
+    const d = byDay.get(key) ?? { date: key, matches: 0, wins: 0, losses: 0 };
+    d.matches += 1;
+    if (m.outcome === "win") d.wins += 1;
+    else d.losses += 1;
+    byDay.set(key, d);
+  }
+  const today = new Date(MOCK_NOW);
+  const days: ActivityDay[] = Array.from({ length: weeks * 7 }, (_, i) => {
+    const key = new Date(
+      Date.UTC(
+        today.getUTCFullYear(),
+        today.getUTCMonth(),
+        today.getUTCDate() - (weeks * 7 - 1 - i),
+      ),
+    )
+      .toISOString()
+      .slice(0, 10);
+    return byDay.get(key) ?? { date: key, matches: 0, wins: 0, losses: 0 };
+  });
+  const sum = (k: "matches" | "wins" | "losses") => days.reduce((n, d) => n + d[k], 0);
+  const excluded =
+    gameMode !== "all" || matchMode !== "all" ? all.filter((m) => !modeKnown(m)).length : 0;
+  return {
+    weeks,
+    filters: { gameMode, matchMode },
+    days,
+    summary: {
+      matches: sum("matches"),
+      wins: sum("wins"),
+      losses: sum("losses"),
+      activeDays: days.filter((d) => d.matches > 0).length,
+    },
+    coverage: {
+      from: days[0]?.date ?? "",
+      to: days[days.length - 1]?.date ?? "",
+      timezone: "UTC",
+      excludedUnknownMode: excluded,
+      notes: excluded > 0 ? ["unknown_mode_excluded"] : [],
+    },
+  };
+}
+
+/** Rang synthétique : marche en arrière depuis le rang actuel, un badge manquant sur trois parties classées. */
+export function rankHistoryOf(
+  all: MatchSummary[],
+  period: StatPeriod,
+  current: { tier: number; subrank: number },
+  rankName: (tier: number, subrank: number) => { name: string; imageUrl: string | null },
+): Omit<RankHistory, "meta"> {
+  const ranked = selectMatches(all, {
+    period,
+    gameMode: "all",
+    matchMode: "ranked",
+    heroId: null,
+    outcome: "all",
+  });
+  let score = current.tier * 6 + current.subrank;
+  const points: RankHistoryPoint[] = [];
+  let missing = 0;
+  ranked.forEach((m, i) => {
+    if (i % 3 === 2) {
+      missing += 1;
+    } else {
+      const tier = Math.floor((score - 1) / 6);
+      const subrank = score - tier * 6;
+      const r = rankName(tier, subrank);
+      points.push({
+        at: m.playedAt,
+        matchId: m.matchId,
+        badge: tier * 10 + subrank,
+        tier,
+        subrank,
+        score,
+        name: r.name,
+        imageUrl: r.imageUrl,
+        outcome: m.outcome,
+      });
+    }
+    score = Math.max(1, score + (m.outcome === "win" ? -(i % 2) : i % 3 === 0 ? 1 : 0));
+  });
+  const from = periodStart(period);
+  return {
+    period,
+    points: points.reverse(),
+    coverage: {
+      requestedFrom: from === null ? null : new Date(from).toISOString(),
+      requestedTo: new Date(MOCK_NOW).toISOString(),
+      rankedMatches: ranked.length,
+      pointCount: points.length,
+      missingBadge: missing,
+      isPartial: false,
+      notes: missing > 0 ? ["badge_missing_on_some_ranked_matches"] : [],
+    },
+  };
+}
+
+/** Coéquipiers et adversaires synthétiques (identifiants du mock, liens de profil valides). */
+export function relationshipsOf(
+  pool: { steamId: string; displayName: string }[],
+  limit: number,
+  seed: number,
+): { teammates: RelatedPlayer[]; opponents: RelatedPlayer[] } {
+  const row = (p: { steamId: string; displayName: string }, i: number): RelatedPlayer => {
+    const matches = Math.max(2, 14 - i * 2 - (seed % 3));
+    const wins = Math.round(matches * (0.7 - i * 0.07));
+    return {
+      steamId: p.steamId,
+      displayName: p.displayName,
+      avatarUrl: null,
+      matches,
+      wins,
+      losses: matches - wins,
+      winRate: round2((wins / matches) * 100),
+    };
+  };
+  const rows = pool.slice(0, limit * 2).map(row);
+  return {
+    teammates: rows.filter((_, i) => i % 2 === 0).slice(0, limit),
+    opponents: rows.filter((_, i) => i % 2 === 1).slice(0, limit),
+  };
+}

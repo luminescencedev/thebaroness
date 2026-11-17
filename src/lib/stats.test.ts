@@ -10,6 +10,7 @@ import {
   median,
   netPerMinute,
   recentDelta,
+  calendarFromDays,
   rollingWinRate,
   streaks,
   winRateByDuration,
@@ -161,5 +162,29 @@ describe("modes", () => {
     expect(rows.find((r) => r.key === "normal")?.matches).toBe(1);
     expect(rows.find((r) => r.key === "street_brawl")?.matches).toBe(1);
     expect(unknown).toBe(1);
+  });
+});
+
+describe("calendarFromDays", () => {
+  it("aligne les jours du back sur une grille lundi en premier, un jour absent vaut 0", () => {
+    const days = Array.from({ length: 84 }, (_, i) => {
+      const d = new Date(Date.UTC(2026, 10, 16) - (83 - i) * 86400000).toISOString().slice(0, 10);
+      return {
+        date: d,
+        matches: i === 83 ? 3 : 0,
+        wins: i === 83 ? 2 : 0,
+        losses: i === 83 ? 1 : 0,
+      };
+    });
+    const weeks = calendarFromDays(days, 12);
+    expect(weeks).toHaveLength(12);
+    expect(weeks.every((w) => w.length === 7)).toBe(true);
+    const flat = weeks.flat();
+    expect(flat.find((d) => d.date === "2026-11-16")).toMatchObject({
+      count: 3,
+      wins: 2,
+      losses: 1,
+    });
+    expect(new Date(`${weeks[0]![0]!.date}T00:00:00Z`).getUTCDay()).toBe(1);
   });
 });

@@ -1,10 +1,14 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import {
+  getItems,
   getPlayer,
+  getPlayerActivity,
   getPlayerHeroes,
   getPlayerMatches,
   getPlayerOverview,
+  getPlayerRankHistory,
+  getPlayerRelationships,
   refreshPlayer,
   searchPlayers,
   type ProfileScope,
@@ -92,8 +96,11 @@ export function usePlayerHeroes(steamId: string, scope: ProfileScope) {
   });
 }
 
-/** Borne de l'historique chargé automatiquement ; au-delà, bouton « Charger plus ». */
-export const HISTORY_CAP = 200;
+/**
+ * Parties du scope lues pour la courbe (max 50) et l'aperçu. L'activité vient de `/activity` et ne dépend
+ * plus de ce chargement ; au-delà, l'onglet Parties pagine avec « Charger plus ».
+ */
+export const HISTORY_CAP = 50;
 
 /** Historique complet jusqu'à HISTORY_CAP parties, chargé page après page en arrière-plan. */
 export function usePlayerHistory(steamId: string, scope: ProfileScope) {
@@ -119,6 +126,56 @@ export function useRefreshPlayer(steamId: string) {
       void qc.invalidateQueries({ queryKey: playerKeys.matchesAll(steamId) });
       void qc.invalidateQueries({ queryKey: ["players", steamId, "heroes"] });
       void qc.invalidateQueries({ queryKey: ["players", steamId, "overview"] });
+      for (const k of ["activity", "rank-history", "relationships"])
+        void qc.invalidateQueries({ queryKey: ["players", steamId, k] });
     },
+  });
+}
+
+/** Catalogue des objets : une seule requête pour tout le catalogue, partagée par toutes les lignes. */
+export function useItemCatalog(enabled = true) {
+  return useQuery({
+    queryKey: ["items", "upgrade"],
+    queryFn: ({ signal }) => getItems({ type: "upgrade" }, signal),
+    enabled,
+    staleTime: 60 * 60_000,
+    retry: false,
+    select: (r) => new Map(r.items.map((i) => [i.id, i])),
+  });
+}
+
+/** Activité sur 12 semaines (jours UTC, historique complet), au format et type du scope. */
+export function usePlayerActivity(steamId: string, scope: ProfileScope) {
+  return useQuery({
+    queryKey: ["players", steamId, "activity", scope.gameMode, scope.matchMode],
+    queryFn: ({ signal }) =>
+      getPlayerActivity(
+        steamId,
+        { weeks: 12, gameMode: scope.gameMode, matchMode: scope.matchMode },
+        signal,
+      ),
+    enabled: steamId !== "",
+  });
+}
+
+/** Rang observé sur de vraies parties classées. Un back plus ancien (404) laisse le widget vide. */
+export function usePlayerRankHistory(steamId: string, scope: ProfileScope) {
+  return useQuery({
+    queryKey: ["players", steamId, "rank-history", scope.period],
+    queryFn: ({ signal }) => getPlayerRankHistory(steamId, scope.period, signal),
+    enabled: steamId !== "",
+    retry: false,
+  });
+}
+
+/** Joués avec et contre. Le back n'a que `normal` ou `street_brawl` (jamais « tous »). */
+export function usePlayerRelationships(steamId: string, scope: ProfileScope) {
+  const gameMode = scope.gameMode === "street_brawl" ? "street_brawl" : "normal";
+  return useQuery({
+    queryKey: ["players", steamId, "relationships", scope.period, gameMode],
+    queryFn: ({ signal }) =>
+      getPlayerRelationships(steamId, { period: scope.period, gameMode, limit: 6 }, signal),
+    enabled: steamId !== "",
+    retry: false,
   });
 }

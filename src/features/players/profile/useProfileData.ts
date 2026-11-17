@@ -5,8 +5,11 @@ import { useHeroes } from "@/features/heroes/hooks";
 import {
   HISTORY_CAP,
   usePlayerHeroes,
+  usePlayerActivity,
   usePlayerHistory,
   usePlayerOverview,
+  usePlayerRankHistory,
+  usePlayerRelationships,
 } from "@/features/players/hooks";
 import { heroRows, type HeroRow } from "@/lib/stats";
 
@@ -17,6 +20,9 @@ import { heroRows, type HeroRow } from "@/lib/stats";
 export function useProfileData(steamId: string, scope: ProfileScope) {
   const history = usePlayerHistory(steamId, scope);
   const overview = usePlayerOverview(steamId, scope);
+  const activity = usePlayerActivity(steamId, scope);
+  const rankHistory = usePlayerRankHistory(steamId, scope);
+  const relationships = usePlayerRelationships(steamId, scope);
   const catalog = useHeroes();
   const playerHeroes = usePlayerHeroes(steamId, scope);
 
@@ -42,5 +48,16 @@ export function useProfileData(steamId: string, scope: ProfileScope) {
   const rows: HeroRow[] = heroRows(playerHeroes.data?.items ?? [], metaWinRate);
   const mainHero = rows[0] ? heroById.get(rows[0].heroId) : undefined;
 
-  return { history, overview, heroById, rows, mainHero, cap: HISTORY_CAP, playerHeroes };
+  return {
+    history,
+    overview,
+    activity,
+    rankHistory,
+    relationships,
+    heroById,
+    rows,
+    mainHero,
+    cap: HISTORY_CAP,
+    playerHeroes,
+  };
 }

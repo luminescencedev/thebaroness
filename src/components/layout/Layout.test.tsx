@@ -14,7 +14,10 @@ describe("layout", () => {
 
     const nav = screen.getByRole("navigation", { name: "Navigation principale" });
     expect(within(nav).getByRole("link", { name: "Joueurs" })).toBeInTheDocument();
-    expect(within(nav).getByRole("link", { name: "The Baroness, accueil" })).toHaveAttribute("href", "/");
+    expect(within(nav).getByRole("link", { name: "The Baroness, accueil" })).toHaveAttribute(
+      "href",
+      "/",
+    );
     expect(within(nav).getByRole("link", { name: "Connexion Steam" })).toHaveAttribute(
       "href",
       "/api/auth/steam",

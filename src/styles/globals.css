@@ -635,19 +635,49 @@
   );
 }
 
+/*
+ * Fil d'Ariane flottant : calque ancré au panneau, au-dessus du conteneur de défilement (donc jamais
+ * touché par son masque de fondu). Le contenu passe derrière la pastille (translucide + flou).
+ * Il reprend la même colonne que le contenu (max-width, gouttières) pour s'aligner sur les cartes.
+ */
 .app-topbar {
-  position: relative;
-  z-index: 3;
-  flex: none;
+  position: absolute;
+  z-index: 5;
+  inset: 8px 0 auto;
+  pointer-events: none;
+}
+.app-topbar-in {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: var(--topbar-h);
-  padding: 0 var(--page-px);
-  border-bottom: 1px solid var(--divider);
-  background: rgb(255 255 255 / 0.008);
+  height: 40px;
+  max-width: 1760px;
+  margin-inline: auto;
+  padding-inline: var(--page-px);
+}
+.app-topbar-in > * {
+  pointer-events: auto;
+}
+@media (min-width: 1024px) {
+  .app-topbar {
+    top: 12px;
+  }
+  .app-topbar-in {
+    height: 32px;
+  }
 }
 
+/* Fondu aux bords du défilement : actif seulement quand du contenu dépasse (attributs posés par AppShell). */
+@property --fade-t {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-b {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
 .app-scroll {
   flex: 1;
   min-height: 0;
@@ -656,15 +686,59 @@
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: rgb(255 255 255 / 0.12) transparent;
+  --fade-t: 0px;
+  --fade-b: 0px;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-t),
+    #000 calc(100% - var(--fade-b)),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 var(--fade-t),
+    #000 calc(100% - var(--fade-b)),
+    transparent 100%
+  );
+  transition:
+    --fade-t 200ms var(--ease-out),
+    --fade-b 200ms var(--ease-out);
 }
+.app-scroll[data-scrolled] {
+  --fade-t: 28px;
+}
+.app-scroll[data-more] {
+  --fade-b: 44px;
+}
+/* Mobile : la barre d'action fixe du profil vit en bas du panneau, on n'y applique pas de fondu. */
+@media (max-width: 639px) {
+  .app-scroll[data-more] {
+    --fade-b: 0px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-scroll {
+    transition: none;
+  }
+}
+/*
+ * Réserve de tête du contenu, pilotée par le shell (data-crumbs sur .app-panel) et non par chaque page :
+ * pastille affichée : 16 px d'air sous elle ; sinon le contenu démarre haut. Sous 1024 px la rangée
+ * menu et recherche reste toujours présente.
+ */
 .app-content {
   width: 100%;
-  padding: 24px var(--page-px) 32px;
+  padding: 60px var(--page-px) 32px;
   min-width: 0;
 }
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .app-content {
     padding-top: 28px;
+  }
+  .app-panel[data-crumbs] .app-content {
+    padding-top: 60px;
   }
 }
 

@@ -8,6 +8,7 @@ import type {
   LeaderboardResponse,
   MatchDetailResponse,
   PlayerHeroesResponse,
+  ProfileScope,
   RankListResponse,
   SteamId,
 } from "./types";
@@ -29,7 +30,13 @@ export const getLeaderboard = (region: LeaderboardRegion, signal?: AbortSignal) 
 export const getMatch = (matchId: string, signal?: AbortSignal) =>
   request<MatchDetailResponse>(`/matches/${encodeURIComponent(matchId)}`, { signal });
 
-export const getPlayerHeroes = (steamId: SteamId, signal?: AbortSignal) =>
-  request<PlayerHeroesResponse>(`/players/${encodeURIComponent(steamId)}/heroes`, { signal });
+/** Sans scope : tout l'historique (feuille du classement). Avec scope : période et modes (v1.9.0). */
+export const getPlayerHeroes = (steamId: SteamId, scope?: ProfileScope, signal?: AbortSignal) =>
+  request<PlayerHeroesResponse>(`/players/${encodeURIComponent(steamId)}/heroes`, {
+    query: scope
+      ? { period: scope.period, gameMode: scope.gameMode, matchMode: scope.matchMode }
+      : undefined,
+    signal,
+  });
 
 export const getMap = (signal?: AbortSignal) => request<MapAssets>("/map", { signal });

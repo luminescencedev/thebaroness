@@ -27,3 +27,23 @@ export function useNavSubject(): NavSubject | null {
     () => null,
   );
 }
+
+/** Titre de la page courante (publié par useDocumentTitle) : feuille du fil d'Ariane des pages de détail. */
+let label: string | null = null;
+const labelListeners = new Set<() => void>();
+
+export function setNavLabel(next: string | null): void {
+  label = next;
+  labelListeners.forEach((l) => l());
+}
+
+export function useNavLabel(): string | null {
+  return useSyncExternalStore(
+    (cb) => {
+      labelListeners.add(cb);
+      return () => labelListeners.delete(cb);
+    },
+    () => label,
+    () => null,
+  );
+}

@@ -263,7 +263,10 @@ export function HeroPage() {
 
   return (
     <div className="space-y-10" style={{ ["--hc" as string]: hero.color }}>
-      <Link to="/heroes" className="hover-text -mb-4 inline-flex w-fit items-center gap-1.5 text-[13px] text-muted">
+      <Link
+        to="/heroes"
+        className="hover-text -mb-4 inline-flex w-fit items-center gap-1.5 text-[13px] text-muted"
+      >
         <span aria-hidden="true">←</span> Tous les héros
       </Link>
 

@@ -22,7 +22,11 @@ export function LoginPage() {
   return (
     <div className="relative isolate -mt-10 flex min-h-[calc(100dvh-14rem)] flex-col items-center justify-center py-20">
       <div aria-hidden="true" className="hero-glow absolute inset-x-0 top-0 -z-10 h-80" />
-      <DoubleBezel size="lg" className="w-full max-w-md" innerClassName="p-8 text-center max-sm:p-6">
+      <DoubleBezel
+        size="lg"
+        className="w-full max-w-md"
+        innerClassName="p-8 text-center max-sm:p-6"
+      >
         <h1 className="text-3xl">Connexion</h1>
         <p className="mt-2 text-sm text-muted">
           Connectez-vous avec Steam pour suivre des joueurs et comparer vos amis.

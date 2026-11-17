@@ -55,6 +55,20 @@ export interface PlayerProfile {
 
 export type MatchOutcome = "win" | "loss";
 
+/** Type de partie (matchmaking). Indépendant de GameMode : `unranked` est une partie normale, `ranked` une classée. */
+export type MatchMode =
+  | "unranked"
+  | "private_lobby"
+  | "coop_bot"
+  | "ranked"
+  | "server_test"
+  | "tutorial"
+  | "hero_labs"
+  | "new_player_placement";
+
+/** Format de jeu (6 contre 6, Street Brawl...). Indépendant de MatchMode. */
+export type GameMode = "normal" | "1v1_test" | "sandbox" | "street_brawl" | "explore_nyc";
+
 export interface MatchSummary {
   matchId: string;
   playedAt: string;
@@ -68,18 +82,116 @@ export interface MatchSummary {
   deaths: number | null;
   assists: number | null;
   netWorth: number | null;
+  /** Livré par le back (v1.7.0). null si inconnu. */
+  matchMode?: MatchMode | null;
+  /** Livré par le back (v1.7.0). null si inconnu. */
+  gameMode?: GameMode | null;
+}
+
+/** Scope statistique (v1.9.0) : période et deux axes de mode indépendants. */
+export type StatPeriod = "7d" | "30d" | "season";
+export type GameModeFilter = "all" | "normal" | "street_brawl";
+export type MatchModeFilter = "all" | "ranked" | "unranked";
+export type OutcomeFilter = "all" | "win" | "loss";
+
+export interface ProfileScope {
+  period: StatPeriod;
+  gameMode: GameModeFilter;
+  matchMode: MatchModeFilter;
+}
+
+/** Filtres effectivement appliqués (null : non filtré). */
+export interface AppliedFilters {
+  period: StatPeriod | null;
+  gameMode: GameModeFilter;
+  matchMode: MatchModeFilter;
+  heroId: number | null;
+  outcome: OutcomeFilter;
 }
 
 export interface MatchHistoryResponse {
   items: MatchSummary[];
-  /** Jeton opaque, transmis tel quel. */
+  /** Jeton opaque lié aux filtres, transmis tel quel avec les MÊMES filtres. */
   nextCursor: string | null;
+  /** v1.9.0 : absent d'une copie ancienne. */
+  appliedFilters?: AppliedFilters;
   meta: DataMeta;
 }
 
+/** Tous les filtres sont optionnels : sans filtre, tout l'historique (comportement v1.8). */
 export interface MatchHistoryParams {
   limit?: number;
   cursor?: string;
+  period?: StatPeriod;
+  gameMode?: GameModeFilter;
+  matchMode?: MatchModeFilter;
+  heroId?: number;
+  outcome?: OutcomeFilter;
+}
+
+export type CoverageNote =
+  "season_start_unknown" | "unknown_mode_excluded" | "unknown_mode_included" | "history_stale";
+
+export interface OverviewSummary {
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  kills: number | null;
+  deaths: number | null;
+  assists: number | null;
+  /** (K + A) / max(D, 1) sur les parties où K, D et A sont connus. */
+  kda: number | null;
+  kdaSampleSize: number;
+  /** Moyenne des ratios par partie, pas total sur total. */
+  avgNetWorthPerMinute: number | null;
+  netWorthPerMinuteSampleSize: number;
+  avgDurationSeconds: number | null;
+  durationSampleSize: number;
+  lastMatchAt: string | null;
+}
+
+export interface OverviewMode {
+  gameMode: string;
+  matchMode: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number;
+}
+
+export interface OverviewHero {
+  heroId: number;
+  heroName: string;
+  heroImageUrl: string | null;
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  kda: number | null;
+  kdaSampleSize: number;
+}
+
+export interface OverviewCoverage {
+  requestedFrom: string | null;
+  requestedTo: string;
+  observedFrom: string | null;
+  observedTo: string | null;
+  includedMatches: number;
+  excludedUnknownMode: number;
+  unknownModeMatches: number;
+  isPartial: boolean;
+  notes: CoverageNote[];
+}
+
+/** GET /players/{steamId}/overview (v1.9.0). Le rang officiel reste dans PlayerProfile. */
+export interface PlayerOverview {
+  filters: ProfileScope;
+  summary: OverviewSummary;
+  modes: OverviewMode[];
+  topHeroes: OverviewHero[];
+  coverage: OverviewCoverage;
+  meta: DataMeta;
 }
 
 export interface TrackedPlayer {
@@ -217,12 +329,20 @@ export interface PlayerHeroStat {
   heroImageUrl: string | null;
   matches: number;
   wins: number;
+  /** v1.9.0 */
+  losses: number;
   winRate: number | null;
   kda: number | null;
+  /** v1.9.0 : parties utilisées pour le KDA. */
+  kdaSampleSize: number;
+  /** v1.9.0 : moyenne des ratios par partie. */
+  avgNetWorthPerMinute: number | null;
+  netWorthPerMinuteSampleSize: number;
 }
 
 export interface PlayerHeroesResponse {
   items: PlayerHeroStat[];
+  appliedFilters?: AppliedFilters;
   meta: DataMeta;
 }
 
@@ -233,7 +353,9 @@ export interface LeaderboardEntry {
   displayName: string;
   /** null quand le classement ne permet pas de relier le compte à un SteamID. */
   steamId: SteamId | null;
-  /** null : le classement de Deadlock API ne donne pas le rang du joueur. */
+  /** true : SteamID et rang déduits parmi plusieurs comptes homonymes (v1.8.0). */
+  inferred?: boolean;
+  /** null : aucun rang connu pour ce joueur. */
   badge: { tier: number; subrank: number; name: string; imageUrl: string | null } | null;
   topHeroes: { heroId: number; name: string; imageUrl: string | null }[];
 }
@@ -245,6 +367,21 @@ export interface LeaderboardResponse {
 }
 
 export type TeamSide = "amber" | "sapphire";
+
+/**
+ * Objet acheté. PROPOSÉ au back (pas encore dans OpenAPI 1.8.0) : le front lit `items` s'il existe,
+ * sinon affiche « n/d ». Les identifiants restent exploitables pour de futures pages Items et Builds.
+ */
+export type ItemCategory = "weapon" | "vitality" | "spirit";
+
+export interface MatchItem {
+  itemId: number;
+  name: string;
+  /** 1 à 4. */
+  tier: number;
+  category: ItemCategory;
+  iconUrl: string | null;
+}
 
 export interface MatchPlayer {
   steamId: SteamId | null;
@@ -259,6 +396,10 @@ export interface MatchPlayer {
   netWorth: number | null;
   lastHits: number | null;
   denies: number | null;
+  /** PROPOSÉ : pourcentage de tirs à la tête (0 à 100). Absent tant que le back ne le livre pas. */
+  headshotPct?: number | null;
+  /** PROPOSÉ : objets achetés, dans l'ordre d'achat. Absent tant que le back ne les livre pas. */
+  items?: MatchItem[] | null;
 }
 
 export interface MatchTeam {
@@ -274,6 +415,8 @@ export interface MatchDetail {
   /** null : vainqueur inconnu. */
   winningSide: TeamSide | null;
   teams: MatchTeam[];
+  matchMode?: MatchMode | null;
+  gameMode?: GameMode | null;
 }
 
 export interface MatchDetailResponse {

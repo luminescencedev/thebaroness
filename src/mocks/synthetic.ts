@@ -7,17 +7,20 @@ import ranksFixture from "./fixtures/ranks.json";
 import type {
   BestMatch,
   ComparePeriod,
+  GameMode,
   GroupMemberStats,
+  MatchMode,
   HeroDetail,
   PlayerRank,
   RankPoint,
   HeroMetaStats,
   LeaderboardEntry,
   LeaderboardRegion,
+  ItemCategory,
   MatchDetail,
+  MatchItem,
   MatchPlayer,
   MatchSummary,
-  PlayerHeroStat,
   PlayerStats,
   RankTier,
 } from "@/api/types";
@@ -207,8 +210,16 @@ export function buildMatches(p: SyntheticPlayer): MatchSummary[] {
       deaths: win ? r.int(2, 8) : r.int(5, 12),
       assists: r.int(4, 20),
       netWorth: Math.round((duration * (win ? 19 : 15) + r.int(0, 2000)) / 100) * 100,
+      // Synthétique : ~15 % de parties classées, ~5 % de Street Brawl, le reste normal.
+      ...modeFor(r.next()),
     };
   });
+}
+
+function modeFor(roll: number): { matchMode: MatchMode; gameMode: GameMode } {
+  if (roll < 0.05) return { matchMode: "unranked", gameMode: "street_brawl" };
+  if (roll < 0.2) return { matchMode: "ranked", gameMode: "normal" };
+  return { matchMode: "unranked", gameMode: "normal" };
 }
 
 export const corvidMatches = buildMatches(CORVID);
@@ -235,25 +246,6 @@ export function statsFromMatches(matches: MatchSummary[]): PlayerStats {
     assists,
     kda: matches.length ? round2((kills + assists) / Math.max(1, deaths)) : null,
   };
-}
-
-export function heroBreakdown(matches: MatchSummary[]): PlayerHeroStat[] {
-  const byHero = new Map<number, MatchSummary[]>();
-  for (const m of matches) byHero.set(m.heroId, [...(byHero.get(m.heroId) ?? []), m]);
-  return [...byHero.entries()]
-    .map(([heroId, list]) => {
-      const s = statsFromMatches(list);
-      return {
-        heroId,
-        heroName: list[0]?.heroName ?? "",
-        heroImageUrl: list[0]?.heroImageUrl ?? null,
-        matches: list.length,
-        wins: s.wins ?? 0,
-        winRate: s.winRate,
-        kda: s.kda,
-      };
-    })
-    .sort((a, b) => b.matches - a.matches);
 }
 
 export function heroMetaStats(heroId: number): HeroMetaStats {
@@ -286,6 +278,7 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
       rank: i + 1,
       displayName: fakeName(r),
       steamId: null,
+      inferred: i % 7 === 3,
       badge: {
         tier,
         subrank,
@@ -299,6 +292,54 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
       })),
     };
   });
+}
+
+/**
+ * Catalogue d'objets SYNTHETIQUE (noms de jeu, identifiants fictifs) pour développer le build des
+ * parties tant que le back ne livre pas `items`. Aucune icône : le front dessine une tuile de repli.
+ */
+const ITEM_CATALOG: { name: string; category: ItemCategory }[] = [
+  { name: "Basic Magazine", category: "weapon" },
+  { name: "Close Quarters", category: "weapon" },
+  { name: "Headshot Booster", category: "weapon" },
+  { name: "High-Velocity Mag", category: "weapon" },
+  { name: "Quicksilver Reload", category: "weapon" },
+  { name: "Rapid Rounds", category: "weapon" },
+  { name: "Berserker", category: "weapon" },
+  { name: "Extra Health", category: "vitality" },
+  { name: "Extra Regen", category: "vitality" },
+  { name: "Fleetfoot", category: "vitality" },
+  { name: "Melee Charge", category: "vitality" },
+  { name: "Enchanter's Barrier", category: "vitality" },
+  { name: "Healing Rite", category: "vitality" },
+  { name: "Improved Spirit", category: "spirit" },
+  { name: "Mystic Burst", category: "spirit" },
+  { name: "Spirit Strike", category: "spirit" },
+  { name: "Mystic Vulnerability", category: "spirit" },
+  { name: "Slowing Hex", category: "spirit" },
+  { name: "Echo Shard", category: "spirit" },
+  { name: "Superior Cooldown", category: "spirit" },
+];
+
+export function syntheticBuild(seed: number): MatchItem[] {
+  const r = seeded(seed);
+  const count = r.int(8, 12);
+  const used = new Set<number>();
+  const items: MatchItem[] = [];
+  while (items.length < count) {
+    const i = r.int(0, ITEM_CATALOG.length - 1);
+    if (used.has(i)) continue;
+    used.add(i);
+    const base = ITEM_CATALOG[i] as { name: string; category: ItemCategory };
+    items.push({
+      itemId: 9_000_000 + i,
+      name: base.name,
+      tier: items.length < 3 ? r.int(1, 2) : items.length < 7 ? r.int(2, 3) : r.int(3, 4),
+      category: base.category,
+      iconUrl: null,
+    });
+  }
+  return items;
 }
 
 /** Détail d'une partie de Corvid : 6 joueurs par équipe, adversaires synthétiques. */
@@ -345,8 +386,18 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
     denies: r.int(4, 30),
   };
   const corvidWins = summary.outcome === "win";
+  const base = Number(summary.matchId) % 1_000_000;
+  // Build et tirs à la tête : tirage séparé, pour ne pas décaler les valeurs historiques.
+  const enrich = (p: MatchPlayer, i: number): MatchPlayer => {
+    const e = seeded(base * 31 + p.heroId * 11 + i * 97 + 5);
+    return {
+      ...p,
+      headshotPct: Math.round(e.next() * 300) / 10 + 4,
+      items: syntheticBuild(base + p.heroId * 7 + i * 13),
+    };
+  };
   const sortWorth = (list: MatchPlayer[]) =>
-    list.sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0));
+    list.map(enrich).sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0));
 
   return {
     matchId: summary.matchId,

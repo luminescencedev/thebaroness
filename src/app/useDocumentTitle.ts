@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { setNavLabel } from "@/components/layout/navContext";
 
 const SUFFIX = "The Baroness";
 
@@ -7,5 +8,7 @@ export function useDocumentTitle(title: string): void {
   useEffect(() => {
     document.title =
       title === "Accueil" ? "The Baroness · Deadlock Tracker" : `${title} · ${SUFFIX}`;
+    setNavLabel(title);
+    return () => setNavLabel(null);
   }, [title]);
 }

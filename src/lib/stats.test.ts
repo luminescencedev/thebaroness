@@ -129,3 +129,37 @@ describe("utilitaires", () => {
     expect(sample.at(-1)).toBe(499);
   });
 });
+
+describe("modes", () => {
+  it("répartit par mode sans mélanger type de partie et format", async () => {
+    const { modeBreakdown } = await import("./stats");
+    const base = (over: Partial<MatchSummary>): MatchSummary => ({
+      matchId: "1",
+      playedAt: "2026-11-10T12:00:00.000Z",
+      heroId: 1,
+      heroName: "Infernus",
+      outcome: "win",
+      durationSeconds: 1800,
+      kills: 1,
+      deaths: 1,
+      assists: 1,
+      netWorth: 1,
+      ...over,
+    });
+    const { rows, unknown } = modeBreakdown([
+      base({ matchMode: "ranked", gameMode: "normal" }),
+      base({ matchMode: "ranked", gameMode: "normal", outcome: "loss" }),
+      base({ matchMode: "unranked", gameMode: "normal" }),
+      base({ matchMode: "unranked", gameMode: "street_brawl" }),
+      base({ matchMode: null, gameMode: null }),
+    ]);
+    expect(rows.find((r) => r.key === "ranked")).toMatchObject({
+      matches: 2,
+      wins: 1,
+      winRate: 50,
+    });
+    expect(rows.find((r) => r.key === "normal")?.matches).toBe(1);
+    expect(rows.find((r) => r.key === "street_brawl")?.matches).toBe(1);
+    expect(unknown).toBe(1);
+  });
+});

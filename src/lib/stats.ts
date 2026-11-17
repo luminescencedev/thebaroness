@@ -293,3 +293,42 @@ export function downsample<T>(items: T[], max = 120): T[] {
   const step = (items.length - 1) / (max - 1);
   return Array.from({ length: max }, (_, i) => items[Math.round(i * step)] as T);
 }
+
+export interface ModeRow {
+  key: "ranked" | "normal" | "street_brawl";
+  label: string;
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+}
+
+/** Bilan par mode sur les parties fournies. Les parties sans mode connu ne sont comptées dans aucune ligne. */
+export function modeBreakdown(matches: MatchSummary[]): { rows: ModeRow[]; unknown: number } {
+  const defs: { key: ModeRow["key"]; label: string; test: (m: MatchSummary) => boolean }[] = [
+    { key: "ranked", label: "Classée", test: (m) => m.matchMode === "ranked" },
+    {
+      key: "normal",
+      label: "Normale",
+      test: (m) => m.matchMode === "unranked" && (m.gameMode === "normal" || m.gameMode == null),
+    },
+    { key: "street_brawl", label: "Street Brawl", test: (m) => m.gameMode === "street_brawl" },
+  ];
+  const rows = defs.map((d) => {
+    const list = matches.filter(d.test);
+    const wins = list.filter((m) => m.outcome === "win").length;
+    return {
+      key: d.key,
+      label: d.label,
+      matches: list.length,
+      wins,
+      losses: list.length - wins,
+      winRate: list.length ? round((wins / list.length) * 100, 1) : null,
+    };
+  });
+  const unknown = matches.filter((m) => m.matchMode == null && m.gameMode == null).length;
+  return { rows, unknown };
+}
+
+/** Chiffres romains pour le sous-rang (1 à 6). */
+export const ROMAN = ["", "I", "II", "III", "IV", "V", "VI"];

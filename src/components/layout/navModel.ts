@@ -1,3 +1,5 @@
+import { useLocation } from "react-router";
+import { useNavLabel } from "./navContext";
 import type { ComponentType, SVGProps } from "react";
 import { BookmarkIcon, ChartIcon, HomeIcon, PersonIcon, SparkIcon, UsersIcon } from "./icons";
 
@@ -30,37 +32,38 @@ export interface Crumb {
   to?: string;
 }
 
-/** Fil d'Ariane contextuel. Le dernier élément peut être complété par la page (nom du joueur). */
-export function crumbsFor(pathname: string, subjectName?: string): Crumb[] {
-  const seg = pathname.split("/").filter(Boolean);
-  const [root, id] = seg;
+/**
+ * Fil d'Ariane contextuel : seulement une vraie hiérarchie (parent > enfant). Les pages de premier niveau
+ * renvoient une liste vide : le shell n'affiche alors aucune pastille. `label` est le titre de la page
+ * (nom du joueur, du héros, du groupe) publié par useDocumentTitle ; avant son chargement, un repli neutre.
+ */
+export function crumbsFor(pathname: string, label?: string | null): Crumb[] {
+  const [root, id] = pathname.split("/").filter(Boolean);
+  if (!id) return [];
+  const leaf = (rootLabel: string, fallback: string) =>
+    label && label !== rootLabel ? label : fallback;
   switch (root) {
-    case undefined:
-      return [{ label: "Accueil" }];
-    case "search":
-      return [{ label: "Joueurs" }];
     case "players":
-      return [{ label: "Joueurs", to: "/search" }, { label: subjectName ?? "Profil" }];
+      return [{ label: "Joueurs", to: "/search" }, { label: leaf("Profil public", "Profil") }];
     case "heroes":
-      return id ? [{ label: "Héros", to: "/heroes" }, { label: "Fiche héros" }] : [{ label: "Héros" }];
-    case "leaderboard":
-      return [{ label: "Classement" }];
+      return [{ label: "Héros", to: "/heroes" }, { label: leaf("Héros", "Fiche héros") }];
     case "matches":
-      return [{ label: "Joueurs", to: "/search" }, { label: "Partie" }];
+      return [{ label: "Parties" }, { label: id }];
     case "tracked":
-      return id
-        ? [{ label: "Mes suivis", to: "/tracked" }, { label: subjectName ?? "Suivi" }]
-        : [{ label: "Mes suivis" }];
+      return [
+        { label: "Mes suivis", to: "/tracked" },
+        { label: leaf("Détail d'un suivi", "Suivi") },
+      ];
     case "groups":
-      return id
-        ? [{ label: "Groupes", to: "/groups" }, { label: "Détail" }]
-        : [{ label: "Groupes" }];
-    case "dev":
-      return [{ label: "Baroness UI" }];
-    case "login":
-    case "auth":
-      return [{ label: "Connexion" }];
+      return [{ label: "Groupes", to: "/groups" }, { label: leaf("Groupe", "Détail") }];
     default:
-      return [{ label: "Page introuvable" }];
+      return [];
   }
+}
+
+/** Hook partagé par le shell (réservation d'espace) et la pastille (contenu) : une seule source de vérité. */
+export function useCrumbs(): Crumb[] {
+  const { pathname } = useLocation();
+  const label = useNavLabel();
+  return crumbsFor(pathname, label);
 }

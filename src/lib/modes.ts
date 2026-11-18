@@ -32,26 +32,6 @@ export function modePill(
   return null;
 }
 
-export type ModeKey = "all" | "ranked" | "normal" | "street_brawl";
-
-export const MODE_FILTERS: { value: ModeKey; label: string }[] = [
-  { value: "all", label: "Tous les modes" },
-  { value: "ranked", label: "Classée" },
-  { value: "normal", label: "Normale" },
-  { value: "street_brawl", label: "Street Brawl" },
-];
-
-/** Appartenance à un filtre de mode : classée = matchMode ranked ; normale = unranked en 6 contre 6 ; Street Brawl = gameMode. */
-export function matchesMode(
-  m: Pick<MatchSummary, "matchMode" | "gameMode">,
-  key: ModeKey,
-): boolean {
-  if (key === "all") return true;
-  if (key === "street_brawl") return m.gameMode === "street_brawl";
-  if (key === "ranked") return m.matchMode === "ranked";
-  return m.matchMode === "unranked" && (m.gameMode === "normal" || m.gameMode == null);
-}
-
 const FORMAT_LABEL: Record<string, string> = {
   normal: "Normal",
   street_brawl: "Street Brawl",

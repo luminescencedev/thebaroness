@@ -49,7 +49,7 @@ function Body({
 
   // Un seul scope (période, format, type) pour l'aperçu, la courbe, les parties et les héros.
   const { scope, filters, setScope, setMatchFilters } = useProfileScope();
-  const data = useProfileData(steamId, scope);
+  const data = useProfileData(steamId, scope, tab === "heroes" ? 12 : 3);
   const { history, overview } = data;
   const selectedHero = Number(params.get("hero")) || null;
   const heroColor = data.mainHero?.color;

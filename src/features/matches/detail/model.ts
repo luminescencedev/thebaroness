@@ -1,4 +1,5 @@
 import type { CatalogItem, MatchDetail, MatchPlayer, MatchPurchase, TeamSide } from "@/api";
+import { kdaRatio } from "@/lib/stats";
 
 /**
  * Modèle de présentation de la page partie. Tout est dérivé de `GET /matches/{id}` ; une valeur absente
@@ -31,10 +32,7 @@ export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "kda", label: "KDA" },
 ];
 
-export const kdaOf = (p: MatchPlayer): number | null =>
-  p.kills === null || p.deaths === null || p.assists === null
-    ? null
-    : (p.kills + p.assists) / Math.max(p.deaths, 1);
+export const kdaOf = (p: MatchPlayer): number | null => kdaRatio(p.kills, p.deaths, p.assists);
 
 /** Somme d'une valeur sur une équipe : seulement si tous les joueurs l'ont, sinon incomplète. */
 export interface TeamTotal {

@@ -1,19 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { MatchSummary } from "@/api";
+import { kdaOf } from "@/features/matches/detail/model";
 import {
-  aggregate,
-  calendar,
+  calendarFromDays,
   downsample,
-  hourDistribution,
+  heroRows,
   kda,
-  kdaDistribution,
+  kdaRatio,
   median,
   netPerMinute,
-  recentDelta,
-  calendarFromDays,
-  rollingWinRate,
-  streaks,
-  winRateByDuration,
 } from "./stats";
 
 const m = (over: Partial<MatchSummary> = {}): MatchSummary => ({
@@ -30,18 +25,23 @@ const m = (over: Partial<MatchSummary> = {}): MatchSummary => ({
   ...over,
 });
 
+describe("kdaRatio : une seule formule", () => {
+  it("brut pour les comparaisons, arrondi pour l'affichage, identique dans le détail de partie", () => {
+    expect(kdaRatio(7, 3, 2)).toBe(3);
+    expect(kdaRatio(10, 0, 3)).toBe(13);
+    expect(kdaRatio(4, 3, 0)).toBeCloseTo(1.3333, 4);
+    expect(kda(4, 3, 0)).toBe(1.33);
+    expect(kdaRatio(null, 3, 0)).toBeNull();
+    const p = { kills: 4, deaths: 3, assists: 0 } as never;
+    expect(kdaOf(p)).toBe(kdaRatio(4, 3, 0));
+  });
+});
+
 describe("kda", () => {
   it("applique (K + A) / max(D, 1) et gère les valeurs manquantes", () => {
     expect(kda(10, 5, 5)).toBe(3);
     expect(kda(6, 0, 2)).toBe(8);
     expect(kda(null, 1, 1)).toBeNull();
-  });
-  it("le KDA global utilise les sommes, pas la moyenne des ratios", () => {
-    const a = aggregate([
-      m({ kills: 10, deaths: 1, assists: 0 }),
-      m({ kills: 0, deaths: 9, assists: 0 }),
-    ]);
-    expect(a.kda).toBe(1); // 10 / 10, et non (10 + 0) / 2
   });
 });
 
@@ -52,70 +52,23 @@ describe("valeur nette par minute", () => {
   });
 });
 
-describe("séries et écarts", () => {
-  const wins = (n: number) => Array.from({ length: n }, () => m({ outcome: "win" }));
-  const losses = (n: number) => Array.from({ length: n }, () => m({ outcome: "loss" }));
-
-  it("calcule la série en cours et le record", () => {
-    const list = [...wins(3), ...losses(1), ...wins(5)];
-    expect(streaks(list)).toEqual({ current: { type: "win", length: 3 }, bestWin: 5 });
-    expect(streaks([])).toEqual({ current: null, bestWin: 0 });
-  });
-
-  it("n'affiche la courbe glissante qu'à partir de la 5e partie", () => {
-    const points = rollingWinRate([...wins(6)]);
-    expect(points.slice(0, 4).every((p) => p.value === null)).toBe(true);
-    expect(points[4]?.value).toBe(100);
-  });
-
-  it("compare les 20 dernières parties aux précédentes", () => {
-    const recent = [...wins(15), ...losses(5)];
-    const before = [...wins(5), ...losses(15)];
-    const d = recentDelta([...recent, ...before]);
-    expect(d?.winRate).toBe(50);
-    expect(recentDelta(wins(10))).toBeNull();
-  });
-});
-
-describe("distributions", () => {
-  it("répartit le KDA en 7 classes avec médiane", () => {
-    const d = kdaDistribution([
-      m({ kills: 1, deaths: 5, assists: 0 }),
-      m({ kills: 20, deaths: 1, assists: 0 }),
-    ]);
-    expect(d.bins).toHaveLength(7);
-    expect(d.bins[0]?.count).toBe(1);
-    expect(d.bins[6]?.count).toBe(1);
-    expect(d.median).toBe(10.1);
-  });
-
-  it("répartit le taux de victoire par durée, n/d si vide", () => {
-    const rows = winRateByDuration([
-      m({ durationSeconds: 1500 }),
-      m({ durationSeconds: 1500, outcome: "loss" }),
-    ]);
-    expect(rows[0]).toMatchObject({ matches: 2, winRate: 50 });
-    expect(rows[3]).toMatchObject({ matches: 0, winRate: null });
-  });
-
-  it("construit 12 semaines en commençant le lundi, en UTC", () => {
-    const weeks = calendar(
+describe("heroRows", () => {
+  const base = { heroName: "Infernus", imageUrl: null, matches: 10, wins: 5, losses: 5, kda: 2 };
+  it("écart face à la méta en points, null si la méta ou le taux manque, peu de parties signalé", () => {
+    const rows = heroRows(
       [
-        m({ playedAt: "2026-11-10T20:00:00Z" }),
-        m({ playedAt: "2026-11-10T21:00:00Z", outcome: "loss" }),
-      ],
-      new Date("2026-11-16T12:00:00Z"),
+        { ...base, heroId: 1, winRate: 55 },
+        { ...base, heroId: 2, winRate: null },
+        { ...base, heroId: 3, winRate: 40, matches: 3 },
+      ] as never,
+      new Map<number, number | null>([
+        [1, 50.5],
+        [2, 50],
+      ]),
     );
-    expect(weeks).toHaveLength(12);
-    expect(new Date(`${weeks[0]?.[0]?.date}T00:00:00Z`).getUTCDay()).toBe(1);
-    const day = weeks.flat().find((d) => d.date === "2026-11-10");
-    expect(day).toMatchObject({ count: 2, wins: 1, losses: 1 });
-  });
-
-  it("compte les heures de jeu à Paris", () => {
-    const h = hourDistribution([m({ playedAt: "2026-11-10T20:00:00Z" })]);
-    expect(h.counts[21]).toBe(1); // UTC+1 en novembre
-    expect(h.peak).toBe(21);
+    expect(rows[0]).toMatchObject({ metaWinRate: 50.5, delta: 4.5, few: false });
+    expect(rows[1]).toMatchObject({ delta: null });
+    expect(rows[2]).toMatchObject({ metaWinRate: null, delta: null, few: true });
   });
 });
 
@@ -128,40 +81,6 @@ describe("utilitaires", () => {
     expect(sample).toHaveLength(120);
     expect(sample[0]).toBe(0);
     expect(sample.at(-1)).toBe(499);
-  });
-});
-
-describe("modes", () => {
-  it("répartit par mode sans mélanger type de partie et format", async () => {
-    const { modeBreakdown } = await import("./stats");
-    const base = (over: Partial<MatchSummary>): MatchSummary => ({
-      matchId: "1",
-      playedAt: "2026-11-10T12:00:00.000Z",
-      heroId: 1,
-      heroName: "Infernus",
-      outcome: "win",
-      durationSeconds: 1800,
-      kills: 1,
-      deaths: 1,
-      assists: 1,
-      netWorth: 1,
-      ...over,
-    });
-    const { rows, unknown } = modeBreakdown([
-      base({ matchMode: "ranked", gameMode: "normal" }),
-      base({ matchMode: "ranked", gameMode: "normal", outcome: "loss" }),
-      base({ matchMode: "unranked", gameMode: "normal" }),
-      base({ matchMode: "unranked", gameMode: "street_brawl" }),
-      base({ matchMode: null, gameMode: null }),
-    ]);
-    expect(rows.find((r) => r.key === "ranked")).toMatchObject({
-      matches: 2,
-      wins: 1,
-      winRate: 50,
-    });
-    expect(rows.find((r) => r.key === "normal")?.matches).toBe(1);
-    expect(rows.find((r) => r.key === "street_brawl")?.matches).toBe(1);
-    expect(unknown).toBe(1);
   });
 });
 

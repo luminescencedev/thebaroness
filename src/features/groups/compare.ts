@@ -1,12 +1,7 @@
 import type { GroupMemberStats, RankTier } from "@/api";
+import { rankScore, scoreLabel } from "@/lib/rank";
 
-/** Score de rang : tier * 6 + sous-rang (1 à 6). */
-export function scoreLabel(score: number, ranks: RankTier[] | undefined): string {
-  const tier = Math.floor((score - 1) / 6);
-  const sub = score - tier * 6;
-  const name = ranks?.find((r) => r.tier === tier)?.name ?? `Rang ${tier}`;
-  return `${name} ${sub}`;
-}
+export { scoreLabel };
 
 export const rankDelta = (m: GroupMemberStats): number | null => {
   const first = m.rankHistory[0];
@@ -15,7 +10,7 @@ export const rankDelta = (m: GroupMemberStats): number | null => {
 };
 
 export const currentScore = (m: GroupMemberStats): number | null =>
-  m.rank?.tier != null && m.rank.subrank != null ? m.rank.tier * 6 + m.rank.subrank : null;
+  m.rank?.tier != null && m.rank.subrank != null ? rankScore(m.rank.tier, m.rank.subrank) : null;
 
 export type SortKey = "rank" | "climb" | "winRate" | "kda" | "wins";
 

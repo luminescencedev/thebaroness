@@ -7,6 +7,7 @@ import type {
   MatchSummary,
   MatchTeam,
 } from "@/api/types";
+import { kdaRatio } from "@/lib/stats";
 
 /**
  * Modèle de présentation d'une partie enrichie. Tout est dérivé de MatchDetail (réel) ; une valeur que le
@@ -55,10 +56,7 @@ export interface MatchEnrichment {
   badges: MatchBadge[];
 }
 
-const kdaOf = (p: MatchPlayer): number | null =>
-  p.kills === null || p.deaths === null || p.assists === null
-    ? null
-    : (p.kills + p.assists) / Math.max(p.deaths, 1);
+const kdaOf = (p: MatchPlayer): number | null => kdaRatio(p.kills, p.deaths, p.assists);
 
 /** Retrouve le joueur du profil : par SteamID quand le back le donne, sinon par héros et triplet K/D/A. */
 function isOwner(p: MatchPlayer, s: MatchSummary, ownerSteamId: string | undefined): boolean {

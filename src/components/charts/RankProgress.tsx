@@ -1,4 +1,5 @@
 import type { RankTier } from "@/api";
+import { scoreLabel } from "@/lib/rank";
 import { downsample } from "@/lib/stats";
 import { MultiLineChart, type Series } from "./MultiLineChart";
 
@@ -19,10 +20,7 @@ export function RankProgress({
   ranks: RankTier[] | undefined;
   title: string;
 }) {
-  const label = (score: number) => {
-    const tier = Math.floor((score - 1) / 6);
-    return `${ranks?.find((r) => r.tier === tier)?.name ?? `Rang ${tier}`} ${score - tier * 6}`;
-  };
+  const label = (score: number) => scoreLabel(score, ranks);
   const sampled: Series[] = series
     .filter((s) => s.points.length > 1)
     .map((s) => ({

@@ -16,8 +16,11 @@ import { heroRows, type HeroRow } from "@/lib/stats";
 /**
  * Données du profil pour UN scope (période + modes). Overview, héros et parties viennent du back avec
  * le même scope ; seule la courbe et l'activité exploitent les parties chargées (jusqu'à HISTORY_CAP).
+ *
+ * `metaHeroes` : nombre de héros dont on lit la méta (une requête chacun, aucun endpoint groupé côté back).
+ * L'aperçu n'en affiche que 3 ; l'onglet Héros passe 12. Les héros sans méta lue restent « n/d ».
  */
-export function useProfileData(steamId: string, scope: ProfileScope) {
+export function useProfileData(steamId: string, scope: ProfileScope, metaHeroes = 3) {
   const history = usePlayerHistory(steamId, scope);
   const overview = usePlayerOverview(steamId, scope);
   const activity = usePlayerActivity(steamId, scope);
@@ -33,7 +36,7 @@ export function useProfileData(steamId: string, scope: ProfileScope) {
   }, [catalog.data]);
 
   // Méta des héros les plus joués (30 jours) pour l'écart face à la méta. Échec = n/d.
-  const topIds = (playerHeroes.data?.items ?? []).slice(0, 12).map((h) => h.heroId);
+  const topIds = (playerHeroes.data?.items ?? []).slice(0, metaHeroes).map((h) => h.heroId);
   const metaQueries = useQueries({
     queries: topIds.map((id) => ({
       queryKey: ["heroes", String(id), "stats"],

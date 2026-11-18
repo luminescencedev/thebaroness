@@ -9,6 +9,7 @@ import { useRanks } from "@/features/heroes/hooks";
 import type { usePlayerOverview, usePlayerRankHistory } from "@/features/players/hooks";
 import { formatDate } from "@/lib/format";
 import { ROMAN } from "@/lib/stats";
+import { decodeRankScore } from "@/lib/rank";
 import { periodLong } from "./scopeText";
 import type { ProfileScope } from "@/api";
 
@@ -19,8 +20,7 @@ function RankProgress({ history }: { history: ReturnType<typeof usePlayerRankHis
   const { points, coverage } = history.data;
   const nameOf = (score: number) => {
     const s = Math.round(score);
-    const tier = Math.floor((s - 1) / 6);
-    const sub = s - tier * 6;
+    const { tier, subrank: sub } = decodeRankScore(s);
     const base = ranks.data?.items.find((r) => r.tier === tier)?.name;
     return base ? `${base} ${ROMAN[sub] ?? sub}` : String(s);
   };

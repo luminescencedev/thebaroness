@@ -1,36 +1,40 @@
 import { useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import type { ItemCategory } from "@/api";
+import { defaultDir, type ItemSort, type SortDir } from "./catalogView";
+import { parseCostParam } from "./costs";
 import { CATEGORIES } from "./tone";
 
-export type ItemSort = "name" | "cost" | "tier" | "matches";
 const SORTS: ItemSort[] = ["name", "cost", "tier", "matches"];
 
-export const COST_BANDS = [
-  { value: "low", label: "≤ 1 000", test: (c: number) => c <= 1000 },
-  { value: "mid", label: "1 001 à 3 000", test: (c: number) => c > 1000 && c <= 3000 },
-  { value: "high", label: "> 3 000", test: (c: number) => c > 3000 },
-] as const;
-export type CostBand = (typeof COST_BANDS)[number]["value"];
-
-/** Filtres du catalogue d'objets, dans l'URL. La période et le type de partie vivent dans statsScope. */
+/**
+ * Filtres du catalogue d'objets, dans l'URL. La période et le type de partie vivent dans statsScope.
+ * `costParam` est la valeur brute lue : sa validité dépend du catalogue, vérifiée par la page.
+ */
 export function useItemFilters() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
   const slot = CATEGORIES.find((c) => c === params.get("slot")) ?? null;
   const tierRaw = Number(params.get("tier"));
   const tier = Number.isInteger(tierRaw) && tierRaw >= 1 && tierRaw <= 5 ? tierRaw : null;
-  const cost = COST_BANDS.find((b) => b.value === params.get("cost"))?.value ?? null;
+  const costRaw = params.get("cost");
+  const costParam = parseCostParam(costRaw);
   const allShops = params.get("shop") === "all";
   const sort = SORTS.find((s) => s === params.get("sort")) ?? "name";
+  const dir: SortDir =
+    params.get("dir") === "asc" || params.get("dir") === "desc"
+      ? (params.get("dir") as SortDir)
+      : defaultDir(sort);
 
   const set = useCallback(
-    (key: string, value: string | null, replace = true) =>
+    (patch: Record<string, string | null>, replace = true) =>
       setParams(
         (cur) => {
           const next = new URLSearchParams(cur);
-          if (value) next.set(key, value);
-          else next.delete(key);
+          for (const [k, v] of Object.entries(patch)) {
+            if (v) next.set(k, v);
+            else next.delete(k);
+          }
           return next;
         },
         { replace },
@@ -43,15 +47,22 @@ export function useItemFilters() {
       q,
       slot: slot as ItemCategory | null,
       tier,
-      cost: cost as CostBand | null,
+      /** Valeur brute présente dans l'URL (peut être obsolète : low, mid, high, ou un montant absent). */
+      costRaw,
+      costParam,
       allShops,
       sort: sort as ItemSort,
-      setQ: (v: string) => set("q", v.trim() ? v : null),
-      setSlot: (v: ItemCategory | null) => set("slot", v, false),
-      setTier: (v: number | null) => set("tier", v === null ? null : String(v), false),
-      setCost: (v: CostBand | null) => set("cost", v, false),
-      setAllShops: (v: boolean) => set("shop", v ? "all" : null, false),
-      setSort: (v: ItemSort) => set("sort", v === "name" ? null : v),
+      dir,
+      setQ: (v: string) => set({ q: v.trim() ? v : null }),
+      setSlot: (v: ItemCategory | null) => set({ slot: v }, false),
+      setTier: (v: number | null) => set({ tier: v === null ? null : String(v) }, false),
+      setCost: (v: number | null) => set({ cost: v === null ? null : String(v) }, false),
+      /** Retire un `cost` obsolète ou introuvable : remplace l'entrée d'historique, sans en créer. */
+      clearCost: () => set({ cost: null }, true),
+      setAllShops: (v: boolean) => set({ shop: v ? "all" : null }, false),
+      /** Changer de critère remet l'ordre par défaut de ce critère. */
+      setSort: (v: ItemSort) => set({ sort: v === "name" ? null : v, dir: null }),
+      setDir: (v: SortDir) => set({ dir: v === defaultDir(sort) ? null : v }),
       reset: () =>
         setParams(
           (cur) => {
@@ -61,8 +72,8 @@ export function useItemFilters() {
           },
           { replace: true },
         ),
-      active: Boolean(q || slot || tier || cost || allShops),
+      active: Boolean(q || slot || tier || costRaw || allShops),
     }),
-    [q, slot, tier, cost, allShops, sort, set, setParams],
+    [q, slot, tier, costRaw, costParam, allShops, sort, dir, set, setParams],
   );
 }

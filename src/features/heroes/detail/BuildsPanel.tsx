@@ -115,6 +115,9 @@ export function BuildsPanel({ heroId, color }: { heroId: number; color: string }
       { replace },
     );
 
+  // Le tri SERVI par la réponse affichée : pendant un changement de tri, l'ancienne réponse reste visible et
+  // ses compteurs de favoris doivent être lus avec son propre tri, pas avec celui qui vient d'être demandé.
+  const served = (SORTS.find((s) => s.value === builds.data?.sort)?.value ?? sort) as BuildSort;
   const list = builds.data?.items ?? [];
   const selected = list.find((b) => String(b.buildId) === params.get("build")) ?? list[0];
 
@@ -123,7 +126,8 @@ export function BuildsPanel({ heroId, color }: { heroId: number; color: string }
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="max-w-xl text-xs leading-relaxed text-subtle">
           Builds publiés en jeu par la communauté. Ils ne reflètent ni un choix officiel ni les
-          achats réels des joueurs.
+          achats réels des joueurs.{" "}
+          {builds.isPlaceholderData && <span role="status">Actualisation du tri en cours.</span>}
         </p>
         <Segmented
           size="sm"
@@ -159,7 +163,7 @@ export function BuildsPanel({ heroId, color }: { heroId: number; color: string }
             >
               {list.map((b) => {
                 const on = b.buildId === selected?.buildId;
-                const fav = favoritesText(b, sort);
+                const fav = favoritesText(b, served);
                 const preview = b.categories.flatMap((c) => c.items).slice(0, 6);
                 return (
                   <li key={b.buildId} className="w-[240px] shrink-0 snap-start lg:w-auto">
@@ -199,7 +203,7 @@ export function BuildsPanel({ heroId, color }: { heroId: number; color: string }
             {selected && (
               <BuildDetail
                 build={selected}
-                sort={sort}
+                sort={served}
                 heroId={heroId}
                 catalog={catalogById}
                 color={color}

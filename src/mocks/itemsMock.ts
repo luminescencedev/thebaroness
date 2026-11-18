@@ -16,7 +16,9 @@ import { seeded, syntheticCatalog } from "./synthetic";
  * Cas couverts : item sous le seuil (dernier du catalogue), vente inconnue, héros sans build ni paire.
  */
 
-export const BELOW_THRESHOLD_ITEM = syntheticCatalog[syntheticCatalog.length - 1]!.id;
+/** Les 19 premiers objets alimentent les builds et les paires ; le 20e est sous le seuil de la source. */
+const CORE = syntheticCatalog.slice(0, 19);
+export const BELOW_THRESHOLD_ITEM = syntheticCatalog[19]!.id;
 /** Dernier héros : aucun build. Avant-dernier : aucune paire connue. */
 export const NO_BUILDS_HERO = heroes[heroes.length - 1]?.id ?? -1;
 export const NO_PAIRS_HERO = heroes[heroes.length - 2]?.id ?? -1;
@@ -92,10 +94,10 @@ export function pairsFor(
   const r = seeded(heroId * 104729);
   const k = scale(period, mode);
   const out: ItemPair[] = [];
-  for (let a = 0; a < syntheticCatalog.length - 1; a++) {
-    for (let b = a + 1; b < syntheticCatalog.length - 1; b++) {
+  for (let a = 0; a < CORE.length; a++) {
+    for (let b = a + 1; b < CORE.length; b++) {
       if ((a * 3 + b * 5 + heroId) % 7 !== 0) continue;
-      const ids: [number, number] = [syntheticCatalog[a]!.id, syntheticCatalog[b]!.id];
+      const ids: [number, number] = [CORE[a]!.id, CORE[b]!.id];
       if (itemId !== undefined && !ids.includes(itemId)) continue;
       const matches = Math.round((60 + r.int(0, 900)) * k);
       if (matches < 20) continue;
@@ -128,7 +130,7 @@ export function buildsFor(heroId: number, sort: BuildSort, limit: number): HeroB
   if (heroId === NO_BUILDS_HERO) return [];
   const r = seeded(heroId * 6151);
   const count = Math.min(limit, BUILD_NAMES.length);
-  const pool = syntheticCatalog.slice(0, -1);
+  const pool = CORE;
   return Array.from({ length: count }, (_, n) => {
     const pickItems = (size: number, notes: boolean) =>
       Array.from({ length: size }, (_, j) => ({

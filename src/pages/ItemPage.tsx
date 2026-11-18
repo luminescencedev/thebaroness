@@ -9,6 +9,7 @@ import { DoubleBezel, EmptyState, Skeleton, buttonStyles } from "@/components/ui
 import { useHeroes } from "@/features/heroes/hooks";
 import { ItemLink, ItemThumb } from "@/features/items/ItemThumb";
 import { categoryLabel, itemName } from "@/features/items/tone";
+import { resaleTime } from "@/features/items/format";
 import { PairsList } from "@/features/items/PairsList";
 import { useHeroItemPairs, useItem, useItemStats, useUpgradeCatalog } from "@/features/items/hooks";
 import { StatsScopeBar } from "@/features/items/StatsScopeBar";
@@ -123,17 +124,7 @@ function StatsBody({ stats, color }: { stats: ItemStats; color: string }) {
           value={formatDuration(stats.avgBuyTimeSeconds)}
           hint="Minutes de jeu, moyenne des achats"
         />
-        <Fact
-          label="Temps moyen de revente"
-          value={
-            stats.avgSellTimeSeconds === null
-              ? stats.sold === 0
-                ? "Jamais"
-                : NA
-              : formatDuration(stats.avgSellTimeSeconds)
-          }
-          hint={stats.avgSellTimeSeconds === null ? "Aucune revente observée" : "Minutes de jeu"}
-        />
+        <Fact label="Temps moyen de revente" {...resaleTime(stats)} />
       </div>
     </div>
   );
@@ -244,7 +235,11 @@ function StatsSection({ item }: { item: CatalogItem }) {
       {heroId && (
         <div className="space-y-2 pt-2">
           <h3 className="text-base font-semibold">
-            Souvent acheté avec, chez {hero?.name ?? "ce héros"}
+            Souvent acheté avec, chez{" "}
+            {heroes.data?.items.find((h) => h.id === pairs.data?.heroId)?.name ??
+              hero?.name ??
+              "ce héros"}
+            {pairs.isPlaceholderData ? " (actualisation en cours)" : ""}
           </h3>
           {pairs.isPending ? (
             <Skeleton className="h-32 rounded-card" />
@@ -329,11 +324,12 @@ export function ItemPage() {
                 Tier {ROMAN[item.tier] ?? item.tier}
               </span>
             )}
-            {item.cost !== null && (
-              <span className="rounded-full bg-white/[0.08] px-2.5 py-1 text-text tabular-nums">
-                {formatInt(item.cost)} souls
-              </span>
-            )}
+            <span
+              className="rounded-full bg-white/[0.08] px-2.5 py-1 text-text tabular-nums"
+              title="Prix total du catalogue : ni le prix payé en partie, ni le reste à payer pour une amélioration"
+            >
+              {item.cost === null ? "Coût n/d" : `${formatInt(item.cost)} souls`}
+            </span>
             <span className="rounded-full bg-white/[0.08] px-2.5 py-1 text-text">
               {item.disabled ? "Désactivé" : item.shopable ? "En boutique" : "Hors boutique"}
             </span>

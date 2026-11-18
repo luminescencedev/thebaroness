@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router";
 import type { CatalogItem, ItemStats } from "@/api";
 import { ITEM_TONE, ROMAN } from "@/features/items/tone";
-import { formatCompact, formatInt, formatPercent } from "@/lib/format";
+import { NA, formatCompact, formatInt, formatPercent } from "@/lib/format";
 import { ItemThumb } from "./ItemThumb";
 import { categoryLabel, itemName } from "./tone";
 
@@ -33,9 +33,9 @@ export function ItemCard({ item, stats }: { item: CatalogItem; stats: ItemStats 
           {item.tier !== null && (
             <span className="text-subtle">Tier {ROMAN[item.tier] ?? item.tier}</span>
           )}
-          {item.cost !== null && (
-            <span className="ml-auto text-muted tabular-nums">{formatInt(item.cost)}</span>
-          )}
+          <span className="ml-auto text-muted tabular-nums" title="Prix du catalogue en souls">
+            {item.cost === null ? NA : formatInt(item.cost)}
+          </span>
         </span>
         {stats ? (
           <span className="mt-1 flex items-center justify-between gap-2 text-[11px] text-subtle tabular-nums">

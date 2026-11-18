@@ -10,6 +10,13 @@ Aucune demande bloquante. Le front fonctionne avec le contrat 1.11.0.
 4. **Items sous le seuil dans `/items/stats`** : on suppose qu'ils sont absents de la liste (pas de ligne à zéro). À confirmer.
 5. **Libellés des catégories de build** : `categories[].name` null apparaît comme « Section sans nom ». Confirmer que null est possible en pratique.
 
-## Non vérifié contre le vrai back
+## Confirmé sur le back réel `ebaabd2` (18/11/2026)
 
-Docker n'est pas disponible dans cet environnement WSL (`docker: command not found`) : les nouvelles routes ont été validées contre l'OpenAPI 1.11.0 et des mocks MSW conformes, pas contre une instance du back. À refaire dès que le back tourne (voir « Mise en route » dans `docs/HANDOFF.md`).
+1. **Source lente sur 30 jours** : `GET /items/stats?period=30d` renvoie 503 (la source répond 504 sur `/v1/analytics/item-stats`, `retryAfter` 120) ; 7 jours fonctionne. Pendant le temps de repos de 120 s, même les requêtes 7 jours renvoient 503. Pas un bug du contrat, mais le défaut `30d` est fragile : envisager un repos par jeu de filtres, ou un repli sur 7 jours.
+2. **`GET /ranks` a répondu 503** pendant les tests (même fenêtre d'instabilité de la source). Le graphique de winrate par rang dégrade proprement.
+3. **Tier V** : 17 objets de boutique, coût 9 999, tous sans statistiques (sous le seuil, absents de `/items/stats`).
+4. **Builds** : contenu libre non modéré (titres, descriptions, annotations).
+
+Vérifié conforme : nullabilité des champs, `favorites` / `weeklyFavorites` selon le tri, `wins + losses = matches` sur toutes les paires et statistiques observées, 404 et 400 des routes.
+
+Non vérifié : la version déployée en production (non interrogée).

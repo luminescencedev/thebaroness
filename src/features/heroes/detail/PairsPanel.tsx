@@ -28,8 +28,9 @@ export function PairsPanel({ heroId, color }: { heroId: number; color: string })
             Items achetés ensemble
           </h2>
           <p className="mt-1 text-xs text-subtle" aria-live="polite">
-            {served ?? "Chargement…"}. Une association observée n'est ni une causalité ni une
-            recommandation.
+            {served ?? "Chargement…"}
+            {pairs.isPlaceholderData ? ", actualisation en cours" : ""}. Une association observée
+            n'est ni une causalité ni une recommandation.
           </p>
         </div>
         <StatsScopeBar scope={scope} onPeriod={setPeriod} onMode={setMatchMode} />

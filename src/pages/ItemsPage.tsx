@@ -1,16 +1,19 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
 import { PageHeader } from "@/components/PageHeader";
-import { Button, EmptyState, SearchField, Segmented, Skeleton } from "@/components/ui";
+import { Button, EmptyState, SearchField, Segmented, Skeleton, cn } from "@/components/ui";
 import { ItemCard } from "@/features/items/ItemCard";
-import { CATEGORIES, categoryLabel, itemName } from "@/features/items/tone";
+import { CATEGORIES, categoryLabel } from "@/features/items/tone";
 import { useItemsStats, useUpgradeCatalog } from "@/features/items/hooks";
 import { StatsScopeBar } from "@/features/items/StatsScopeBar";
 import { scopeLabel, useStatsScope } from "@/features/items/statsScope";
-import { COST_BANDS, useItemFilters } from "@/features/items/useItemFilters";
-import { ITEM_TONE, ROMAN } from "@/features/items/tone";
+import { CostFilter } from "@/features/items/CostFilter";
+import { costOptions } from "@/features/items/costs";
+import { filterItems, inShopScope, sortItems } from "@/features/items/catalogView";
+import { useItemFilters } from "@/features/items/useItemFilters";
+import { ITEM_TONE } from "@/features/items/tone";
 import { formatInt } from "@/lib/format";
 
 const GRID = "grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]";
@@ -73,37 +76,41 @@ export function ItemsPage() {
   const hasStats = statsById.size > 0;
 
   const all = catalog.data?.items;
-  const tiers = useMemo(
-    () => [...new Set((all ?? []).flatMap((i) => (i.tier === null ? [] : [i.tier])))].sort(),
-    [all],
-  );
+  // Options de coût : montants exacts du catalogue pertinent (réglage boutique), indépendantes des autres filtres.
+  const options = useMemo(() => costOptions(inShopScope(all ?? [], f.allShops)), [all, f.allShops]);
+  const tierByCost = useMemo(() => {
+    const tiers = new Map<number, Set<number | null>>();
+    for (const i of inShopScope(all ?? [], f.allShops))
+      if (i.cost !== null && i.tier !== null)
+        tiers.set(i.cost, (tiers.get(i.cost) ?? new Set()).add(i.tier));
+    return new Map(
+      [...tiers].flatMap(([c, t]) => {
+        const only = t.size === 1 ? [...t][0] : null;
+        return only ? [[c, only] as const] : [];
+      }),
+    );
+  }, [all, f.allShops]);
+  const cost =
+    f.costParam !== null && options.some((o) => o.value === f.costParam) ? f.costParam : null;
 
-  const visible = useMemo(() => {
-    const needle = f.q.trim().toLowerCase();
-    const band = COST_BANDS.find((b) => b.value === f.cost);
-    const list = (all ?? []).filter(
-      (i) =>
-        (f.allShops || (i.shopable && !i.disabled)) &&
-        (!f.slot || i.slot === f.slot) &&
-        (f.tier === null || i.tier === f.tier) &&
-        (!band || (i.cost !== null && band.test(i.cost))) &&
-        (!needle || itemName(i).toLowerCase().includes(needle)),
-    );
-    const byName = (a: (typeof list)[number], b: (typeof list)[number]) =>
-      itemName(a).localeCompare(itemName(b));
-    // Valeur inconnue : toujours en fin de liste, jamais traitée comme 0.
-    const num = (v: number | null | undefined) => v ?? Number.POSITIVE_INFINITY;
-    return [...list].sort((a, b) =>
-      f.sort === "cost"
-        ? num(a.cost) - num(b.cost) || byName(a, b)
-        : f.sort === "tier"
-          ? num(a.tier) - num(b.tier) || num(a.cost) - num(b.cost) || byName(a, b)
-          : f.sort === "matches"
-            ? (statsById.get(b.id)?.matches ?? -1) - (statsById.get(a.id)?.matches ?? -1) ||
-              byName(a, b)
-            : byName(a, b),
-    );
-  }, [all, f.q, f.slot, f.tier, f.cost, f.allShops, f.sort, statsById]);
+  // Normalise une valeur d'URL obsolète (low, mid, high) ou absente du catalogue : une seule fois, sans boucle.
+  const { costRaw, costParam, clearCost } = f;
+  const catalogReady = catalog.isSuccess;
+  useEffect(() => {
+    if (costRaw === null) return;
+    if (costParam === null || (catalogReady && cost === null)) clearCost();
+  }, [costRaw, costParam, catalogReady, cost, clearCost]);
+
+  const visible = useMemo(
+    () =>
+      sortItems(
+        filterItems(all ?? [], { q: f.q, slot: f.slot, tier: f.tier, cost, allShops: f.allShops }),
+        f.sort,
+        f.dir,
+        statsById,
+      ),
+    [all, f.q, f.slot, f.tier, cost, f.allShops, f.sort, f.dir, statsById],
+  );
 
   return (
     <div>
@@ -122,18 +129,42 @@ export function ItemsPage() {
             onKeyDown={(e) => e.key === "Escape" && f.setQ("")}
             className="w-full sm:w-72"
           />
-          <Segmented
-            ariaLabel="Trier les items"
-            className="sm:ml-auto"
-            value={f.sort}
-            onChange={f.setSort}
-            options={[
-              { value: "name", label: "Nom" },
-              { value: "cost", label: "Coût" },
-              { value: "tier", label: "Tier" },
-              { value: "matches", label: "Achats" },
-            ]}
-          />
+          <div className="flex items-center gap-2 sm:ml-auto">
+            <Segmented
+              ariaLabel="Trier les items"
+              value={f.sort}
+              onChange={f.setSort}
+              options={[
+                { value: "name", label: "Nom" },
+                { value: "cost", label: "Coût" },
+                { value: "tier", label: "Tier" },
+                { value: "matches", label: "Achats" },
+              ]}
+            />
+            <button
+              type="button"
+              onClick={() => f.setDir(f.dir === "asc" ? "desc" : "asc")}
+              aria-label={`Ordre ${f.dir === "asc" ? "croissant" : "décroissant"}, cliquer pour inverser`}
+              title={f.dir === "asc" ? "Croissant" : "Décroissant"}
+              className="pressable hover-text grid size-9 shrink-0 place-items-center rounded-[10px] border border-border-strong bg-surface text-muted"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+                className={cn(
+                  "size-4 transition-transform motion-reduce:transition-none",
+                  f.dir === "desc" && "rotate-180",
+                )}
+              >
+                <path d="M12 19V5M6 11l6-6 6 6" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-2.5">
           <Group label="Catégorie">
@@ -151,34 +182,7 @@ export function ItemsPage() {
               </Chip>
             ))}
           </Group>
-          <Group label="Tier">
-            <Chip active={f.tier === null} onClick={() => f.setTier(null)}>
-              Tous
-            </Chip>
-            {tiers.map((t) => (
-              <Chip
-                key={t}
-                active={f.tier === t}
-                onClick={() => f.setTier(f.tier === t ? null : t)}
-              >
-                {ROMAN[t] ?? t}
-              </Chip>
-            ))}
-          </Group>
-          <Group label="Coût">
-            <Chip active={f.cost === null} onClick={() => f.setCost(null)}>
-              Tous
-            </Chip>
-            {COST_BANDS.map((b) => (
-              <Chip
-                key={b.value}
-                active={f.cost === b.value}
-                onClick={() => f.setCost(f.cost === b.value ? null : b.value)}
-              >
-                {b.label}
-              </Chip>
-            ))}
-          </Group>
+          <CostFilter options={options} value={cost} onChange={f.setCost} tierByCost={tierByCost} />
           <Group label="Boutique">
             <Chip active={!f.allShops} onClick={() => f.setAllShops(false)}>
               Disponibles
@@ -193,10 +197,30 @@ export function ItemsPage() {
           <p className="text-xs text-subtle" aria-live="polite">
             {stats.isPending
               ? "Chargement des achats observés…"
-              : stats.isError
+              : stats.isError && !stats.data
                 ? "Achats observés indisponibles : le catalogue reste consultable."
-                : `Achats observés : ${scopeLabel(scope)}. Items sous 20 parties : sans valeur.`}
+                : stats.data
+                  ? `Achats observés : ${scopeLabel({
+                      period: stats.data.filters.period,
+                      matchMode:
+                        stats.data.filters.matchMode === "all"
+                          ? undefined
+                          : stats.data.filters.matchMode,
+                    })}.${stats.isPlaceholderData ? " Actualisation en cours." : " Items sous 20 parties : sans valeur."}`
+                  : ""}
           </p>
+          {stats.isError && !stats.data && (
+            <div className="flex gap-1.5">
+              <Button variant="ghost" size="sm" onClick={() => void stats.refetch()}>
+                Réessayer
+              </Button>
+              {scope.period === "30d" && (
+                <Button variant="ghost" size="sm" onClick={() => setPeriod("7d")}>
+                  Voir sur 7 jours
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

@@ -322,14 +322,21 @@ const ITEM_NAMES: { name: string; slot: ItemCategory }[] = [
   { name: "Superior Cooldown", slot: "spirit" },
 ];
 
-export const syntheticCatalog: CatalogItem[] = ITEM_NAMES.map((it, i) => ({
+/**
+ * Prix standards des tiers I à IV du jeu (source : catalogue réel du back, client 6861). Le palier V (tier 5) a un
+ * coût de 9 999 dans le catalogue réel. Ce mock ne fait qu'imiter ces valeurs : l'application lit toujours
+ * `CatalogItem.cost`, elle ne le calcule jamais depuis le tier.
+ */
+const TIER_COST: Record<number, number> = { 1: 800, 2: 1600, 3: 3200, 4: 6400, 5: 9999 };
+
+const CORE_CATALOG: CatalogItem[] = ITEM_NAMES.map((it, i) => ({
   id: 9_000_000 + i,
   className: `synthetic_${i}`,
   name: it.name,
   type: "upgrade",
   slot: it.slot,
   tier: (i % 4) + 1,
-  cost: 800 * ((i % 4) + 1),
+  cost: TIER_COST[(i % 4) + 1] ?? null,
   isActive: false,
   shopable: true,
   disabled: false,
@@ -337,6 +344,45 @@ export const syntheticCatalog: CatalogItem[] = ITEM_NAMES.map((it, i) => ({
   componentIds: [],
   imageUrl: null,
 }));
+
+/**
+ * Cas limites SYNTHETIQUES, ajoutés après les 20 objets de base (leurs identifiants ne changent jamais) :
+ * palier V à 9 999 (présent dans le catalogue réel), coût inconnu, tier inconnu, objet retiré de la boutique,
+ * objet avec composants. Aucun n'a de prix choisi pour fabriquer un test : ils illustrent des formes que
+ * le contrat autorise (cost et tier nullables, shopable, disabled, componentIds).
+ */
+const EDGE_CASES: Partial<CatalogItem>[] = [
+  { name: "Synthetic Capstone", slot: "spirit", tier: 5, cost: 9999 },
+  { name: "Unpriced Sample", slot: "weapon", tier: 2, cost: null },
+  { name: "Untiered Sample", slot: "vitality", tier: null, cost: 1600 },
+  { name: "Retired Sample", slot: "weapon", tier: 3, cost: 3200, shopable: false, disabled: true },
+  {
+    name: "Composite Sample",
+    slot: "spirit",
+    tier: 3,
+    cost: 3200,
+    componentIds: [9_000_002, 9_000_007],
+  },
+];
+
+export const syntheticCatalog: CatalogItem[] = [
+  ...CORE_CATALOG,
+  ...EDGE_CASES.map((e, j): CatalogItem => {
+    const i = CORE_CATALOG.length + j;
+    return {
+      id: 9_000_000 + i,
+      className: `synthetic_${i}`,
+      type: "upgrade",
+      isActive: false,
+      shopable: true,
+      disabled: false,
+      heroIds: [],
+      componentIds: [],
+      imageUrl: null,
+      ...e,
+    } as CatalogItem;
+  }),
+];
 
 /** Achats et objets finaux synthétiques d'un joueur (déterministes). */
 export function syntheticBuild(seed: number, durationSeconds: number) {

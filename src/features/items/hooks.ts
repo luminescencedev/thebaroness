@@ -1,4 +1,4 @@
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, type PlaceholderDataFunction } from "@tanstack/react-query";
 import {
   getHeroBuilds,
   getHeroItemPairs,
@@ -8,12 +8,25 @@ import {
   getItemsStats,
   type AnalyticsParams,
   type BuildSort,
+  type HeroBuildsResponse,
+  type HeroItemPairsResponse,
+  type ItemStatsResponse,
 } from "@/api";
 
 /** Le catalogue change à chaque version du client : une heure de cache suffit (le back relit chaque heure). */
 const CATALOG_STALE = 60 * 60_000;
 /** Les agrégats sont mis en cache 1 h côté back. */
 const STATS_STALE = 10 * 60_000;
+
+/**
+ * Garde la réponse précédente pendant un changement de FILTRE (période, type de partie, tri), mais jamais
+ * lorsque l'entité change (autre héros ou autre objet) : sinon les chiffres d'un autre héros resteraient
+ * affichés sous le nom du nouveau. L'identifiant de l'entité est le 2e élément de la clé de requête.
+ */
+const keepSameEntity =
+  <T>(entityId: string): PlaceholderDataFunction<T> =>
+  (prev, prevQuery) =>
+    prevQuery?.queryKey[1] === entityId ? prev : undefined;
 
 /**
  * Catalogue des objets de boutique : MÊME clé que `useItemCatalog` du Match Detail, donc une seule requête
@@ -54,7 +67,7 @@ export const useItemStats = (itemId: string, params: AnalyticsParams) =>
     ],
     queryFn: ({ signal }) => getItemStats(itemId, params, signal),
     staleTime: STATS_STALE,
-    placeholderData: keepPreviousData,
+    placeholderData: keepSameEntity<ItemStatsResponse>(itemId),
   });
 
 export const useHeroBuilds = (heroId: string, sort: BuildSort, limit = 10) =>
@@ -62,7 +75,7 @@ export const useHeroBuilds = (heroId: string, sort: BuildSort, limit = 10) =>
     queryKey: ["heroes", heroId, "builds", sort, limit],
     queryFn: ({ signal }) => getHeroBuilds(heroId, { sort, limit }, signal),
     staleTime: STATS_STALE,
-    placeholderData: keepPreviousData,
+    placeholderData: keepSameEntity<HeroBuildsResponse>(heroId),
   });
 
 export const useHeroItemPairs = (
@@ -84,5 +97,5 @@ export const useHeroItemPairs = (
     ],
     queryFn: ({ signal }) => getHeroItemPairs(heroId, { ...params, limit }, signal),
     staleTime: STATS_STALE,
-    placeholderData: keepPreviousData,
+    placeholderData: keepSameEntity<HeroItemPairsResponse>(heroId),
   });

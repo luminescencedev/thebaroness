@@ -1,4 +1,4 @@
-# Inventaire des calculs (18/11/2026)
+# Inventaire des calculs (18/11/2026, mis à jour avec le back v1.13.0)
 
 Décisions : **Garder** (front), **Déplacer** (back, contrat à demander), **Remplacer** (champ back existant), **Supprimer** (inutilisé), **Temporaire** (conservé en attendant un contrat).
 
@@ -63,3 +63,20 @@ Classement : rien à retirer (badges, `inferred`, héros déjà fournis). Recher
 ## Items (`items/catalogView.ts`, `costs.ts`, `format.ts`)
 
 Recherche, tri, filtre catégorie et coût exact, options de coût dérivées du catalogue : **Garder** (catalogue de ~250 objets en mémoire, aucun appel réseau par filtre). `resaleTime` : Garder (présentation d'un champ fourni).
+
+## Mise à jour après la livraison du back v1.12.0 et v1.13.0
+
+| Élément                                                                                            | Décision                                                                                                                                                      |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RecentPerformance` : KDA, net/min, winrate glissant                                               | **Remplacé** par `/trends` `series` (fait)                                                                                                                    |
+| `heroRows` : écart face à la méta, 12 lectures de méta                                             | **Remplacé** par `globalMeta`, `winRateVsMeta`, `metaContext` (fait)                                                                                          |
+| `teamTotal`, `netRank`, `kdaOf` x2, `csPerMin`, KP de repli, badges (`detail/model`, `matchModel`) | **Remplacé** par les champs de `/matches/:id` (fait)                                                                                                          |
+| `resultOf`                                                                                         | **Garder** (lit `result`, repli sur `winningSide` pour un back plus ancien, jamais `outcome`)                                                                 |
+| `maxKnown`, `maxNet`, `maxDmg`                                                                     | **Garder** : échelle des barres (présentation)                                                                                                                |
+| `rankDelta`, `currentScore`, `buildHighlights`                                                     | **Remplacé** par `rankDelta`, `currentRankScore`, `highlights` (fait) ; `sortMembers`, `SORTS`, `highlightCards` (nom et mise en forme des titres) **Garder** |
+| `useTrackedInsights` (2N requêtes)                                                                 | **Remplacé** par `/tracked-players/insights` (fait)                                                                                                           |
+| `EntryRank` + `usePlayer` du classement                                                            | **Supprimé** (`badge` du classement)                                                                                                                          |
+| `netPerMinute`, `matchKda` par ligne d'historique                                                  | **Garder** : `include=summary` ne donne pas la valeur nette par minute et n'est pas adopté (voir `MIGRATION_REPORT.md` section 8)                             |
+| `heroRows.few` (seuil 5)                                                                           | **Garder** : indication d'interface, alignée sur `highlightMinMatches`                                                                                        |
+| `Histogram`, `median`, `ROMAN` en double                                                           | **Supprimé** / unifié                                                                                                                                         |
+| Méta de l'accueil (7 lectures)                                                                     | **Temporaire** : pas d'endpoint groupé                                                                                                                        |

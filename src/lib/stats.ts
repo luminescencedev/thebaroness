@@ -2,7 +2,7 @@
  * Statistiques dérivées de l'historique de parties. Fonctions pures, jamais dans le rendu.
  * Valeur inconnue : null (jamais 0). Les parties sont du plus récent au plus ancien, sauf mention.
  */
-import type { HeroMetaStats, MatchSummary, PlayerHeroStat } from "@/api";
+import type { MatchSummary, PlayerHeroStat } from "@/api";
 
 const round = (n: number, digits = 2) => {
   const f = 10 ** digits;
@@ -11,15 +11,6 @@ const round = (n: number, digits = 2) => {
 
 const isNum = (v: number | null | undefined): v is number =>
   typeof v === "number" && Number.isFinite(v);
-
-export const median = (values: number[]): number | null => {
-  if (values.length === 0) return null;
-  const s = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2
-    ? (s[mid] as number)
-    : round(((s[mid - 1] as number) + (s[mid] as number)) / 2);
-};
 
 /**
  * Rapport KDA brut = (K + A) / max(D, 1), null si une valeur manque. SEULE implémentation de la formule du
@@ -45,27 +36,23 @@ export function netPerMinute(m: MatchSummary): number | null {
 }
 
 export interface HeroRow extends PlayerHeroStat {
+  /** Méta mondiale du héros (30 jours, mode normal), fournie par le back. null si indisponible. */
   metaWinRate: number | null;
-  /** Taux du joueur moins taux de la méta, en points. null si la méta est absente. */
+  /** `winRateVsMeta` du back : taux du joueur moins taux de la méta, en points. Jamais recalculé ici. */
   delta: number | null;
   few: boolean;
 }
 
+/** Seuil d'affichage « peu de parties : écart peu fiable » (indication d'interface, pas une règle métier). */
 export const FEW_GAMES = 5;
 
-export function heroRows(
-  heroes: PlayerHeroStat[],
-  meta: Map<number, HeroMetaStats["winRate"]>,
-): HeroRow[] {
-  return heroes.map((h) => {
-    const metaWinRate = meta.get(h.heroId) ?? null;
-    return {
-      ...h,
-      metaWinRate,
-      delta: h.winRate !== null && metaWinRate !== null ? round(h.winRate - metaWinRate, 1) : null,
-      few: h.matches < FEW_GAMES,
-    };
-  });
+export function heroRows(heroes: PlayerHeroStat[]): HeroRow[] {
+  return heroes.map((h) => ({
+    ...h,
+    metaWinRate: h.globalMeta?.winRate ?? null,
+    delta: h.winRateVsMeta ?? null,
+    few: h.matches < FEW_GAMES,
+  }));
 }
 
 export interface CalendarDay {

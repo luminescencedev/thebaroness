@@ -4,7 +4,7 @@ import { DoubleBezel, cn } from "@/components/ui";
 import { NA, formatCompact, formatDateTime, formatDuration, formatInt } from "@/lib/format";
 import { GAME_MODE_LABEL, MATCH_MODE_LABEL } from "@/lib/modes";
 import { TEAM_META } from "@/lib/teams";
-import { resultOf, teamTotal, type BoardTeam } from "./model";
+import { teamTotal, type BoardTeam } from "./model";
 
 const RESULT = {
   win: { label: "Victoire", cls: "text-win" },
@@ -66,25 +66,15 @@ export function MatchSummaryHeader({ match, teams }: { match: MatchDetail; teams
     match.durationSeconds === null ? null : `Durée ${formatDuration(match.durationSeconds)}`,
     match.playedAt ? formatDateTime(match.playedAt) : null,
   ].filter((v): v is string => !!v && v !== NA);
-  const kills = teams.map((t) =>
-    teamTotal(
-      t.players.map((b) => b.player),
-      (p) => p.kills,
-    ),
-  );
+  const kills = teams.map((t) => teamTotal(t, "kills"));
 
-  const souls = teams.map((t) =>
-    teamTotal(
-      t.players.map((b) => b.player),
-      (p) => p.netWorth,
-    ),
-  );
+  const souls = teams.map((t) => teamTotal(t, "netWorth"));
 
   return (
     <DoubleBezel as="section" aria-label="Résultat de la partie" innerClassName="p-3 sm:p-5">
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-6">
         {teams.map((t, i) => {
-          const r = RESULT[resultOf(match, t.side)];
+          const r = RESULT[t.result];
           const right = i === 1;
           return (
             <div key={t.side} className={cn("min-w-0 space-y-1", right && "order-3 text-right")}>

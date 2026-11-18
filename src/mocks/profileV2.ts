@@ -396,7 +396,7 @@ export function relationshipsOf(
 }
 
 /* ---------- Phase P2 (OpenAPI 1.11.0) ---------- */
-import type { PlayerTrends, TrendBlock } from "@/api/types";
+import type { PlayerTrends, TrendBlock, TrendPoint } from "@/api/types";
 
 function trendBlock(list: MatchSummary[]): TrendBlock {
   const s = summarize(list);
@@ -423,22 +423,53 @@ export function trendsOf(
   size: number,
   gameMode: GameModeFilter,
   matchMode: MatchModeFilter,
+  period: StatPeriod | null = null,
 ): Omit<PlayerTrends, "meta"> {
-  const list = selectMatches(all, {
-    period: null,
-    gameMode,
-    matchMode,
-    heroId: null,
-    outcome: "all",
-  });
+  const list = selectMatches(all, { period, gameMode, matchMode, heroId: null, outcome: "all" });
   const recent = trendBlock(list.slice(0, size));
   const previous = list.length >= size * 2 ? trendBlock(list.slice(size, size * 2)) : null;
   const diff = (a: number | null, b: number | null) =>
     a === null || b === null ? null : Math.round((a - b) * 100) / 100;
-  const chrono = [...list.slice(0, size * 2)].reverse();
+  // Du plus ancien au plus récent ; le glissement regarde les 9 parties précédentes DU PÉRIMÈTRE, même hors bloc.
+  const chrono = [...list].reverse();
+  const rollingAt = (i: number) => {
+    const win = chrono.slice(Math.max(0, i - 9), i + 1);
+    return {
+      rollingWinRate:
+        win.length === 10
+          ? round2((win.filter((x) => x.outcome === "win").length / 10) * 100)
+          : null,
+      rollingSampleSize: win.length,
+    };
+  };
+  const block = list.slice(0, size);
+  const offset = chrono.length - block.length;
+  const series: TrendPoint[] = [...block].reverse().map((m, j) => {
+    const mins =
+      m.durationSeconds !== null && m.durationSeconds > 0 ? m.durationSeconds / 60 : null;
+    return {
+      matchId: m.matchId,
+      at: m.playedAt,
+      heroId: m.heroId,
+      win: m.outcome === "win",
+      matchMode: m.matchMode ?? null,
+      gameMode: m.gameMode ?? null,
+      kills: m.kills,
+      deaths: m.deaths,
+      assists: m.assists,
+      kda:
+        m.kills === null || m.deaths === null || m.assists === null
+          ? null
+          : round2((m.kills + m.assists) / Math.max(m.deaths, 1)),
+      netWorthPerMinute: m.netWorth !== null && mins !== null ? round2(m.netWorth / mins) : null,
+      durationSeconds: m.durationSeconds,
+      ...rollingAt(offset + j),
+    };
+  });
   const rolling = chrono
     .map((m, i) => ({ m, i }))
     .filter(({ i }) => i >= 9)
+    .slice(-size * 2)
     .map(({ m, i }) => ({
       at: m.playedAt,
       matchId: m.matchId,
@@ -447,7 +478,7 @@ export function trendsOf(
       ),
     }));
   return {
-    filters: { size, gameMode, matchMode },
+    filters: { size, gameMode, matchMode, period },
     recent,
     previous,
     delta: previous
@@ -458,10 +489,15 @@ export function trendsOf(
         }
       : null,
     rolling,
+    series,
     coverage: {
       eligibleMatches: list.length,
       rollingWindow: 10,
       notes: previous ? [] : ["insufficient_history"],
+      seriesMatches: series.length,
+      seriesFrom: series[0]?.at ?? null,
+      seriesTo: series.at(-1)?.at ?? null,
+      rollingPointsComplete: series.filter((p) => p.rollingWinRate !== null).length,
     },
   };
 }

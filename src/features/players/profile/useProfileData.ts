@@ -1,6 +1,5 @@
-import { useQueries } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { getHeroStats, type HeroSummary, type ProfileScope } from "@/api";
+import type { HeroSummary, ProfileScope } from "@/api";
 import { useHeroes } from "@/features/heroes/hooks";
 import {
   HISTORY_CAP,
@@ -15,12 +14,10 @@ import { heroRows, type HeroRow } from "@/lib/stats";
 
 /**
  * Données du profil pour UN scope (période + modes). Overview, héros et parties viennent du back avec
- * le même scope ; seule la courbe et l'activité exploitent les parties chargées (jusqu'à HISTORY_CAP).
- *
- * `metaHeroes` : nombre de héros dont on lit la méta (une requête chacun, aucun endpoint groupé côté back).
- * L'aperçu n'en affiche que 3 ; l'onglet Héros passe 12. Les héros sans méta lue restent « n/d ».
+ * le même scope. La méta des héros (`globalMeta`, `winRateVsMeta`, `metaContext`) arrive DANS `/players/:id/heroes` :
+ * plus aucune lecture de méta par héros côté front.
  */
-export function useProfileData(steamId: string, scope: ProfileScope, metaHeroes = 3) {
+export function useProfileData(steamId: string, scope: ProfileScope) {
   const history = usePlayerHistory(steamId, scope);
   const overview = usePlayerOverview(steamId, scope);
   const activity = usePlayerActivity(steamId, scope);
@@ -35,20 +32,10 @@ export function useProfileData(steamId: string, scope: ProfileScope, metaHeroes 
     return map;
   }, [catalog.data]);
 
-  // Méta des héros les plus joués (30 jours) pour l'écart face à la méta. Échec = n/d.
-  const topIds = (playerHeroes.data?.items ?? []).slice(0, metaHeroes).map((h) => h.heroId);
-  const metaQueries = useQueries({
-    queries: topIds.map((id) => ({
-      queryKey: ["heroes", String(id), "stats"],
-      queryFn: ({ signal }: { signal: AbortSignal }) => getHeroStats(id, signal),
-      staleTime: 30 * 60_000,
-      retry: false,
-    })),
-  });
-  // Calcul léger : refait à chaque rendu, sans mémoïsation fragile.
-  const metaWinRate = new Map<number, number | null>();
-  topIds.forEach((id, i) => metaWinRate.set(id, metaQueries[i]?.data?.stats.winRate ?? null));
-  const rows: HeroRow[] = heroRows(playerHeroes.data?.items ?? [], metaWinRate);
+  const rows: HeroRow[] = useMemo(
+    () => heroRows(playerHeroes.data?.items ?? []),
+    [playerHeroes.data],
+  );
   const mainHero = rows[0] ? heroById.get(rows[0].heroId) : undefined;
 
   return {
@@ -62,5 +49,7 @@ export function useProfileData(steamId: string, scope: ProfileScope, metaHeroes 
     mainHero,
     cap: HISTORY_CAP,
     playerHeroes,
+    /** Périmètre de la méta, null si indisponible ou si le back est plus ancien que la v1.12.0. */
+    metaContext: playerHeroes.data?.metaContext ?? null,
   };
 }

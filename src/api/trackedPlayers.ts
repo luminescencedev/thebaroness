@@ -1,6 +1,7 @@
 import { request } from "./client";
 import type {
   CreateTrackedPlayerInput,
+  TrackedInsightsResponse,
   TrackedPlayer,
   TrackedPlayersResponse,
   UpdateTrackedPlayerInput,
@@ -26,3 +27,7 @@ export const updateTrackedPlayer = (id: string, input: UpdateTrackedPlayerInput)
 
 export const deleteTrackedPlayer = (id: string) =>
   request<void>(`${base}/${encodeURIComponent(id)}`, { method: "DELETE", auth: true });
+
+/** Cartes de tous les suivis en une requête (v1.12.0). Remplace 2 requêtes par joueur. */
+export const getTrackedInsights = (signal?: AbortSignal) =>
+  request<TrackedInsightsResponse>(`${base}/insights`, { auth: true, signal });

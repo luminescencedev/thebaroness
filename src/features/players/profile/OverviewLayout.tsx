@@ -26,7 +26,6 @@ export function OverviewLayout({
   rankHistory,
   relationships,
   matches,
-  historyLoading,
   rows,
   heroById,
   scopeQuery,
@@ -39,7 +38,6 @@ export function OverviewLayout({
   rankHistory: ReturnType<typeof usePlayerRankHistory>;
   relationships: ReturnType<typeof usePlayerRelationships>;
   matches: MatchSummary[];
-  historyLoading: boolean;
   rows: HeroRow[];
   heroById: Map<number, HeroSummary>;
   scopeQuery: string;
@@ -80,12 +78,11 @@ export function OverviewLayout({
         </div>
         <div className="order-1 min-w-0 space-y-4 @[960px]:order-2">
           <RecentPerformance
-            matches={matches}
+            heroById={heroById}
             overview={overview}
             steamId={profile.player.steamId}
             scope={scope}
             scopeText={scopeLabel(scope)}
-            historyLoading={historyLoading}
           />
           <MatchHistoryPreview
             matches={matches}

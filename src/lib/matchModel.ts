@@ -7,16 +7,16 @@ import type {
   MatchSummary,
   MatchTeam,
 } from "@/api/types";
-import { kdaRatio } from "@/lib/stats";
 
 /**
- * Modèle de présentation d'une partie enrichie. Tout est dérivé de MatchDetail (réel) ; une valeur que le
- * back ne livre pas reste null et s'affiche « n/d », jamais 0 et jamais inventée.
+ * Modèle de présentation d'une partie enrichie. Les métriques (KDA, rang de souls, participation, CS par minute,
+ * distinctions) sont calculées par le back (v1.12.0) et lues telles quelles ; une valeur que le back ne livre pas
+ * reste null et s'affiche « n/d », jamais 0 et jamais recalculée ici.
  */
 export interface Participant extends MatchPlayer {
   isSelf: boolean;
   kda: number | null;
-  /** 1 = meilleure valeur nette de la partie. */
+  /** `netWorthRank` du back : 1 = meilleure valeur nette de la partie, ex æquo partagés. */
   netRank: number | null;
 }
 
@@ -38,7 +38,7 @@ export interface MatchEnrichment {
   /** Derniers coups : null si le back ne les donne pas. */
   cs: number | null;
   csPerMin: number | null;
-  /** Participation aux éliminations, en pourcentage : (K + A) / éliminations de l'équipe. */
+  /** Participation aux éliminations, en pourcentage : `killParticipation` du back. */
   kp: number | null;
   /** Tirs critiques sur héros (tête), en pourcentage : `stats.heroCritRate` du back. */
   hsPct: number | null;
@@ -55,8 +55,6 @@ export interface MatchEnrichment {
   netPosition: { rank: number; of: number } | null;
   badges: MatchBadge[];
 }
-
-const kdaOf = (p: MatchPlayer): number | null => kdaRatio(p.kills, p.deaths, p.assists);
 
 /** Retrouve le joueur du profil : par SteamID quand le back le donne, sinon par héros et triplet K/D/A. */
 function isOwner(p: MatchPlayer, s: MatchSummary, ownerSteamId: string | undefined): boolean {
@@ -101,9 +99,6 @@ export function enrichMatch(
   catalog?: Map<number, CatalogItem> | null,
 ): MatchEnrichment {
   const all = detail.teams.flatMap((t) => t.players);
-  const complete = all.length > 0 && all.every((p) => p.netWorth !== null);
-  const order = complete ? [...all].sort((a, b) => (b.netWorth ?? 0) - (a.netWorth ?? 0)) : [];
-  const netRankOf = (p: MatchPlayer) => (complete ? order.indexOf(p) + 1 : null);
 
   const teams: ParticipantTeam[] = detail.teams.map((t) => ({
     ...t,
@@ -111,47 +106,28 @@ export function enrichMatch(
     players: t.players.map((p) => ({
       ...p,
       isSelf: isOwner(p, summary, ownerSteamId),
-      kda: kdaOf(p),
-      netRank: netRankOf(p),
+      kda: p.kda ?? null,
+      netRank: p.netWorthRank ?? null,
     })),
   }));
   for (const t of teams) t.isSelfTeam = t.players.some((p) => p.isSelf);
   const selfTeam = teams.find((t) => t.isSelfTeam);
   const self = selfTeam?.players.find((p) => p.isSelf) ?? null;
 
-  const teamKills =
-    selfTeam && selfTeam.players.every((p) => p.kills !== null)
-      ? selfTeam.players.reduce((a, p) => a + (p.kills ?? 0), 0)
-      : null;
-  const computedKp =
-    self && self.kills !== null && self.assists !== null && teamKills
-      ? Math.min(100, ((self.kills + self.assists) / teamKills) * 100)
-      : null;
-  // Valeur du back quand elle existe (même formule), sinon calcul sur le détail.
-  const kp = self?.killParticipation ?? computedKp;
-
-  const minutes = (detail.durationSeconds ?? summary.durationSeconds ?? 0) / 60;
-  const cs = self?.lastHits ?? null;
-
+  const tags = new Set(self?.performanceTags ?? []);
   const badges: MatchBadge[] = [];
-  if (self && complete && self.netRank === 1)
+  if (tags.has("match_top_net_worth"))
     badges.push({
       id: "net-1",
       label: "1er en valeur nette",
-      explain: "Meilleure valeur nette parmi les 12 joueurs de la partie.",
+      explain: "Meilleure valeur nette parmi les joueurs de la partie (calculé par The Baroness).",
     });
-  const kdas = all.map(kdaOf);
-  if (
-    self?.kda != null &&
-    kdas.every((k) => k !== null) &&
-    self.kda === Math.max(...(kdas as number[]))
-  )
+  if (tags.has("match_best_kda"))
     badges.push({
       id: "kda-1",
       label: "Meilleur KDA",
-      explain: "KDA le plus élevé parmi les 12 joueurs, (K + A) / max(D, 1).",
+      explain: "KDA le plus élevé de la partie, (K + A) / max(D, 1) (calculé par The Baroness).",
     });
-
   if (self?.mvpRank === 1)
     badges.push({
       id: "mvp",
@@ -162,14 +138,14 @@ export function enrichMatch(
   return {
     teams,
     self,
-    cs,
-    csPerMin: cs !== null && minutes > 0 ? cs / minutes : null,
-    kp,
+    cs: self?.lastHits ?? null,
+    csPerMin: self?.lastHitsPerMinute ?? null,
+    kp: self?.killParticipation ?? null,
     hsPct: self?.stats?.heroCritRate ?? null,
     mvpRank: self?.mvpRank ?? null,
     stats: self?.stats ?? null,
     items: resolveItems(self, catalog),
-    netPosition: self && self.netRank ? { rank: self.netRank, of: all.length } : null,
+    netPosition: self?.netWorthRank ? { rank: self.netWorthRank, of: all.length } : null,
     badges,
   };
 }

@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import type { MatchSummary } from "@/api";
+import type { HeroSummary } from "@/api";
 import { AreaChart, ChartFrame, DeltaChip, type AreaPoint } from "@/components/charts";
 import { DoubleBezel, Segmented, Skeleton } from "@/components/ui";
 import type { ProfileScope } from "@/api";
 import { usePlayerTrends, type usePlayerOverview } from "@/features/players/hooks";
 import { formatDate, formatDecimal, formatDuration, formatInt, formatPercent } from "@/lib/format";
-import { matchKda, netPerMinute } from "@/lib/stats";
 
 type Metric = "kda" | "winRate" | "net";
 type Window = "10" | "20" | "50";
@@ -46,7 +45,9 @@ function TrendRow({ trends, size }: { trends: ReturnType<typeof usePlayerTrends>
     >
       <span>
         Tendance : {size} dernières contre {size} précédentes
-        <span className="text-subtle"> (hors période)</span>
+        {d.filters.period === undefined || d.filters.period === null ? (
+          <span className="text-subtle"> (tout l'historique)</span>
+        ) : null}
       </span>
       {d.delta === null ? (
         <span>
@@ -93,52 +94,47 @@ function TrendRow({ trends, size }: { trends: ReturnType<typeof usePlayerTrends>
  * même périmètre. Les KPI ne dépendent jamais de la fenêtre 10 / 20 / 50 de la courbe.
  */
 export function RecentPerformance({
-  matches,
+  heroById,
   overview,
   scopeText,
-  historyLoading,
   steamId,
   scope,
 }: {
   steamId: string;
   scope: ProfileScope;
-  matches: MatchSummary[];
+  heroById: Map<number, HeroSummary>;
   overview: ReturnType<typeof usePlayerOverview>;
   scopeText: string;
-  historyLoading: boolean;
 }) {
   const [win, setWin] = useState<Window>("20");
   const [metric, setMetric] = useState<Metric>("kda");
   const size = Number(win);
-  const windowed = useMemo(() => matches.slice(0, size), [matches, size]);
-  const chrono = useMemo(() => [...windowed].reverse(), [windowed]);
   const sum = overview.data?.summary;
   const trends = usePlayerTrends(steamId, scope, size);
+  // La série vient du back (KDA, valeur nette par minute, winrate glissant) : aucune formule ici.
+  const chrono = useMemo(() => trends.data?.series ?? [], [trends.data]);
+  const nameOf = (id: number) => heroById.get(id)?.name ?? `Héros ${id}`;
 
-  const points: AreaPoint[] = useMemo(() => {
-    // Victoires glissantes sur 10 parties : la fenêtre ne démarre qu'à la 5e partie de la période.
-    return chrono.map((m, i) => {
-      let value: number | null;
-      if (metric === "kda") value = matchKda(m);
-      else if (metric === "net") value = netPerMinute(m);
-      else {
-        const slice = chrono.slice(Math.max(0, i - 9), i + 1);
-        value =
-          i < 4
-            ? null
-            : Math.round((slice.filter((x) => x.outcome === "win").length / slice.length) * 1000) /
-              10;
-      }
-      return {
-        value,
-        title: `${m.heroName} · ${m.outcome === "win" ? "Victoire" : "Défaite"}`,
-        lines: [
-          formatDate(m.playedAt),
-          `${m.kills ?? "n/d"} / ${m.deaths ?? "n/d"} / ${m.assists ?? "n/d"} · ${formatDuration(m.durationSeconds)}`,
-        ],
-      };
-    });
-  }, [chrono, metric]);
+  const points: AreaPoint[] = useMemo(
+    () =>
+      chrono.map((m) => {
+        const value =
+          metric === "kda" ? m.kda : metric === "net" ? m.netWorthPerMinute : m.rollingWinRate;
+        return {
+          value,
+          title: `${nameOf(m.heroId)} · ${m.win ? "Victoire" : "Défaite"}`,
+          lines: [
+            formatDate(m.at),
+            `${m.kills ?? "n/d"} / ${m.deaths ?? "n/d"} / ${m.assists ?? "n/d"} · ${formatDuration(m.durationSeconds)}`,
+            ...(metric === "winRate" && m.rollingWinRate === null
+              ? [`Échantillon insuffisant (${m.rollingSampleSize} sur 10)`]
+              : []),
+          ],
+        };
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [chrono, metric, heroById],
+  );
 
   const defined = points.map((p) => p.value).filter((v): v is number => v !== null);
   const avg = defined.length ? defined.reduce((s, v) => s + v, 0) / defined.length : 0;
@@ -227,17 +223,32 @@ export function RecentPerformance({
         </div>
       )}
 
-      {historyLoading ? (
+      {trends.isPending ? (
         <Skeleton className="mt-5 h-52 rounded-2xl" aria-busy="true" />
-      ) : matches.length === 0 ? (
+      ) : trends.isError || !trends.data ? (
+        <p className="mt-5 text-sm text-subtle">
+          Courbe indisponible pour le moment.{" "}
+          <button
+            type="button"
+            onClick={() => void trends.refetch()}
+            className="text-accent-text underline-offset-4 hover:underline"
+          >
+            Réessayer
+          </button>
+        </p>
+      ) : trends.data.series === undefined ? (
+        <p className="mt-5 text-sm text-subtle">
+          La série de parties n'est pas fournie par cette version du back : pas de courbe.
+        </p>
+      ) : chrono.length === 0 ? (
         <p className="mt-5 text-sm text-subtle">Aucune partie sur cette période : pas de courbe.</p>
       ) : (
         <>
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <p className="text-xs text-subtle">
-              Courbe : {windowed.length} dernière{windowed.length > 1 ? "s" : ""} partie
-              {windowed.length > 1 ? "s" : ""} de la période
-              {matches.length < size ? ` (moins de ${size} disponibles)` : ""}
+              Courbe : {chrono.length} dernière{chrono.length > 1 ? "s" : ""} partie
+              {chrono.length > 1 ? "s" : ""} de la période
+              {chrono.length < size ? ` (moins de ${size} disponibles)` : ""}
             </p>
             <Segmented<Window>
               ariaLabel="Fenêtre de la courbe"
@@ -257,14 +268,14 @@ export function RecentPerformance({
               id={`recent-${win}-${metric}`}
               title={metricName}
               subtitle="Une partie sans valeur interrompt la courbe"
-              summary={`${metricName} sur ${windowed.length} parties, moyenne ${fmt(avg)}.`}
+              summary={`${metricName} sur ${chrono.length} parties, moyenne ${fmt(avg)}.`}
               points={defined.length}
               table={{
                 headers: ["Date", "Héros", "Résultat", "Valeur"],
                 rows: chrono.map((m, i) => [
-                  formatDate(m.playedAt),
-                  m.heroName,
-                  m.outcome === "win" ? "Victoire" : "Défaite",
+                  formatDate(m.at),
+                  nameOf(m.heroId),
+                  m.win ? "Victoire" : "Défaite",
                   points[i]?.value != null ? fmt(points[i]!.value as number) : "n/d",
                 ]),
               }}
@@ -286,7 +297,7 @@ export function RecentPerformance({
               <AreaChart
                 points={points}
                 format={fmt}
-                ariaLabel={`${metricName} sur ${windowed.length} parties, moyenne ${fmt(avg)}`}
+                ariaLabel={`${metricName} sur ${chrono.length} parties, moyenne ${fmt(avg)}`}
                 max={max}
                 height={190}
                 reference={{
@@ -306,7 +317,7 @@ export function RecentPerformance({
                   <li
                     key={m.matchId}
                     className="h-1.5 rounded-sm"
-                    style={{ background: m.outcome === "win" ? "var(--win)" : "var(--loss)" }}
+                    style={{ background: m.win ? "var(--win)" : "var(--loss)" }}
                   />
                 ))}
               </ul>

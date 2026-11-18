@@ -51,26 +51,36 @@ const detail = (self: MatchPlayer): MatchDetail => ({
 });
 
 describe("enrichMatch", () => {
-  it("calcule CS par minute, KP et position sur les données réelles du détail", () => {
-    const e = enrichMatch(summary, detail(me), "42");
+  it("lit CS par minute, KP, rang de souls et distinctions du back, sans rien recalculer", () => {
+    const back = {
+      ...me,
+      lastHitsPerMinute: 9.87,
+      killParticipation: 61.5,
+      netWorthRank: 1,
+      performanceTags: ["match_top_net_worth", "match_best_kda"] as MatchPlayer["performanceTags"],
+    };
+    const e = enrichMatch(summary, detail(back), "42");
     expect(e.self?.isSelf).toBe(true);
     expect(e.cs).toBe(200);
-    expect(e.csPerMin).toBeCloseTo(10);
-    expect(e.kp).toBeCloseTo((20 / 20) * 100);
+    expect(e.csPerMin).toBe(9.87); // 200 / 20 min vaudrait 10 : la valeur du back prime
+    expect(e.kp).toBe(61.5);
     expect(e.netPosition).toEqual({ rank: 1, of: 3 });
     expect(e.badges.map((b) => b.id)).toEqual(["net-1", "kda-1"]);
   });
 
-  it("laisse null ce que le back ne livre pas : HS et build ne valent jamais 0", () => {
+  it("back plus ancien ou valeur inconnue : null, jamais un calcul de repli", () => {
     const e = enrichMatch(summary, detail(me), "42");
+    expect(e.csPerMin).toBeNull();
+    expect(e.kp).toBeNull();
+    expect(e.netPosition).toBeNull();
+    expect(e.badges).toEqual([]);
     expect(e.hsPct).toBeNull();
     expect(e.items).toBeNull();
   });
 
-  it("ne donne ni position ni badge de valeur nette si une valeur nette manque", () => {
-    const e = enrichMatch(summary, detail({ ...me, netWorth: null }), "42");
-    expect(e.netPosition).toBeNull();
-    expect(e.badges.map((b) => b.id)).not.toContain("net-1");
+  it("MVP de Valve : badge distinct des distinctions The Baroness", () => {
+    const e = enrichMatch(summary, detail({ ...me, mvpRank: 1 }), "42");
+    expect(e.badges.map((b) => b.id)).toEqual(["mvp"]);
   });
 
   it("retrouve le joueur par héros et K/D/A sans SteamID", () => {

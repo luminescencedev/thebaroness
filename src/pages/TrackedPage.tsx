@@ -42,17 +42,17 @@ export function TrackedPage() {
   useDocumentTitle("Mes suivis");
   const list = useTrackedList();
   const items = useMemo(() => list.data?.items ?? [], [list.data]);
-  const insights = useTrackedInsights(items);
+  const { rows: insights, truncated } = useTrackedInsights(items);
   const [q, setQ] = useState("");
   const [tag, setTag] = useState("Tous");
 
   const tags = useMemo(() => ["Tous", ...new Set(items.flatMap((t) => t.tags))], [items]);
   const needle = q.trim().toLowerCase();
   const shown = insights.filter(
-    ({ tracked: t, profile }) =>
+    ({ tracked: t, insight }) =>
       (tag === "Tous" || t.tags.includes(tag)) &&
       (!needle ||
-        `${t.alias} ${profile?.player.displayName ?? ""} ${t.note} ${t.steamId}`
+        `${t.alias} ${insight?.player?.displayName ?? ""} ${t.note} ${t.steamId}`
           .toLowerCase()
           .includes(needle)),
   );
@@ -154,6 +154,12 @@ export function TrackedPage() {
             </span>
           </div>
 
+          {truncated && (
+            <p className="text-xs text-warning">
+              Rang et forme affichés pour les 100 premiers suivis seulement.
+            </p>
+          )}
+
           <section className="card overflow-hidden" aria-label="Liste des joueurs suivis">
             <div className="md:overflow-x-auto">
               <div className="md:min-w-[860px]">
@@ -168,9 +174,10 @@ export function TrackedPage() {
                   <span className="text-right">Modifié</span>
                   <span />
                 </div>
-                {shown.map(({ tracked: t, profile, form, loading }, i) => {
-                  const name = profile?.player.displayName ?? t.steamId;
-                  const wins = form?.filter((o) => o === "win").length ?? 0;
+                {shown.map(({ tracked: t, insight, loading }, i) => {
+                  const name = insight?.player?.displayName ?? t.steamId;
+                  const form = insight?.form ?? null;
+                  const results = form?.results ?? [];
                   return (
                     <Link
                       key={t.id}
@@ -184,7 +191,7 @@ export function TrackedPage() {
                       <span className="flex min-w-0 items-center gap-3">
                         <Avatar
                           name={name}
-                          src={profile?.player.avatarUrl}
+                          src={insight?.player?.avatarUrl}
                           className="size-9 rounded-[10px]"
                         />
                         <span className="flex min-w-0 flex-col">
@@ -206,10 +213,10 @@ export function TrackedPage() {
                       </span>
                       <span className="flex flex-wrap items-center gap-x-5 gap-y-2 md:contents">
                         <span className="text-xs text-[#c9ccd3]">
-                          {profile?.rank.name ? (
+                          {insight?.rank?.name ? (
                             <RankBadge
-                              name={profile.rank.name}
-                              imageUrl={profile.rank.imageUrl}
+                              name={insight.rank.name}
+                              imageUrl={insight.rank.imageUrl}
                               size="sm"
                               label
                             />
@@ -218,15 +225,15 @@ export function TrackedPage() {
                           )}
                         </span>
                         <span className="flex items-center gap-2">
-                          {form && form.length > 0 ? (
+                          {form && form.sampleSize > 0 ? (
                             <>
                               <span
                                 role="img"
-                                aria-label={`${wins} victoires sur les ${form.length} dernières parties`}
+                                aria-label={`${form.wins} victoires sur les ${form.sampleSize} dernières parties`}
                                 className="grid gap-0.5"
-                                style={{ gridTemplateColumns: `repeat(${form.length}, 6px)` }}
+                                style={{ gridTemplateColumns: `repeat(${results.length}, 6px)` }}
                               >
-                                {form.map((o, k) => (
+                                {results.map((o, k) => (
                                   <span
                                     key={k}
                                     className="h-3.5 rounded-sm"
@@ -238,7 +245,7 @@ export function TrackedPage() {
                                 ))}
                               </span>
                               <span className="text-xs text-muted tabular-nums">
-                                {wins}/{form.length}
+                                {form.wins}/{form.sampleSize}
                               </span>
                             </>
                           ) : (

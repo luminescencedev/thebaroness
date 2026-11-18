@@ -10,8 +10,8 @@ import { RankBadge } from "@/components/media/RankBadge";
 import { PageHeader } from "@/components/PageHeader";
 import { EmptyState, Skeleton, cn } from "@/components/ui";
 import { useLeaderboard } from "@/features/leaderboard/hooks";
-import { usePlayer } from "@/features/players/hooks";
 import type { LeaderboardEntry } from "@/api";
+import { rankLabel } from "@/lib/rank";
 
 const REGIONS: { value: LeaderboardRegion; label: string }[] = [
   { value: "Europe", label: "Europe" },
@@ -21,29 +21,15 @@ const REGIONS: { value: LeaderboardRegion; label: string }[] = [
   { value: "Oceania", label: "Océanie" },
 ];
 
-/** Rang du joueur : celui du classement s'il existe, sinon lu sur son profil (10 premiers seulement). */
-function EntryRank({
-  entry,
-  lookup,
-  size = "md",
-}: {
-  entry: LeaderboardEntry;
-  lookup: boolean;
-  size?: "md" | "lg";
-}) {
-  const profile = usePlayer(entry.steamId ?? "", {
-    enabled: lookup && !entry.badge && entry.steamId !== null,
-  });
-  const rank = entry.badge
-    ? { name: `${entry.badge.name} ${entry.badge.subrank}`, imageUrl: entry.badge.imageUrl }
-    : profile.data?.rank.name
-      ? { name: profile.data.rank.name, imageUrl: profile.data.rank.imageUrl }
-      : null;
-  if (!rank) return null;
+/** Rang du joueur : celui du classement (le back le résout pour toute l'entrée). Aucune relecture du profil. */
+function EntryRank({ entry, size = "md" }: { entry: LeaderboardEntry; size?: "md" | "lg" }) {
+  if (!entry.badge) return null;
+  // Le back livre déjà « Eternus 5 » : rankLabel retire le chiffre et met le sous-rang en romain, comme le profil.
+  const name = rankLabel(entry.badge.name, entry.badge.subrank) ?? entry.badge.name;
   return (
     <span className="flex items-center gap-2">
-      <RankBadge name={rank.name} imageUrl={rank.imageUrl} size={size === "lg" ? "lg" : "md"} />
-      <span className="text-xs text-muted">{rank.name}</span>
+      <RankBadge name={name} imageUrl={entry.badge.imageUrl} size={size === "lg" ? "lg" : "md"} />
+      <span className="text-xs text-muted">{name}</span>
     </span>
   );
 }
@@ -92,7 +78,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
             >
               {e.rank}
             </span>
-            <EntryRank entry={e} lookup size="lg" />
+            <EntryRank entry={e} size="lg" />
             {e.steamId ? (
               <Link
                 to={`/players/${e.steamId}`}
@@ -147,7 +133,7 @@ function Board({ region }: { region: LeaderboardRegion }) {
                   <span className="block truncate font-medium">{e.displayName}</span>
                 )}
                 <span className="mt-0.5 block min-h-4">
-                  <EntryRank entry={e} lookup={e.rank <= 10} />
+                  <EntryRank entry={e} />
                 </span>
               </span>
             </span>

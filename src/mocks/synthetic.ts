@@ -2,6 +2,7 @@
  * Données SYNTHETIQUES du mode mock : joueurs, parties, classements et statistiques de
  * méta sont fabriqués de façon déterministe. Seul le catalogue (héros, rangs, images) est réel.
  */
+import { applyServerMetrics } from "./matchMetrics";
 import heroesFixture from "./fixtures/heroes.json";
 import ranksFixture from "./fixtures/ranks.json";
 import type {
@@ -280,12 +281,19 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
       displayName: fakeName(r),
       steamId: null,
       inferred: i % 7 === 3,
-      badge: {
-        tier,
-        subrank,
-        name: rank.name,
-        imageUrl: rank.subranks[subrank - 1] ?? rank.imageUrl,
-      },
+      avatarUrl: null,
+      // Une entrée sans rang connu (le back ne la complète plus depuis le profil : null reste null).
+      badge:
+        i % 11 === 9
+          ? null
+          : {
+              tier,
+              subrank,
+              name: rank.name,
+              imageUrl: rank.subranks[subrank - 1] ?? rank.imageUrl,
+              badgeId: null,
+              color: rank.color ?? null,
+            },
       topHeroes: [...new Map(top.map((h) => [h.id, h])).values()].map((h) => ({
         heroId: h.id,
         name: h.name,
@@ -519,7 +527,7 @@ export function matchDetail(summary: MatchSummary, owner: SyntheticPlayer = CORV
     t.averageBadge = null;
     t.averageRankName = null;
   }
-  return detail;
+  return applyServerMetrics(detail);
 }
 
 export const rankScore = (tier: number, subrank: number) => tier * 6 + subrank;
@@ -604,7 +612,13 @@ export function memberStats(
     kda: s.kda,
     longestWinStreak: longestWinStreak(inPeriod),
     bestMatch,
-    rankHistory: history,
+    rankHistory: history.map((pt) => ({ ...pt, badge: pt.score * 10 })),
+    kdaSampleSize: inPeriod.filter(
+      (m) => m.kills !== null && m.deaths !== null && m.assists !== null,
+    ).length,
+    currentRankScore: rankScore(p.tier, p.subrank),
+    // Dernier moins premier score ; null sous deux points (jamais 0 par défaut).
+    rankDelta: history.length >= 2 ? (history.at(-1)?.score ?? 0) - (history[0]?.score ?? 0) : null,
   };
 }
 

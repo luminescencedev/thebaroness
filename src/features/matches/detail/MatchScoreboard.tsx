@@ -7,14 +7,12 @@ import { NA, formatCompact, formatDecimal, formatInt } from "@/lib/format";
 import { TEAM_META } from "@/lib/teams";
 import {
   SORT_OPTIONS,
-  resultOf,
   sortPlayers,
   teamTotal,
   type BoardPlayer,
   type BoardTeam,
   type SortKey,
 } from "./model";
-import type { MatchDetail } from "@/api";
 
 /** Objets finaux résolus avec le catalogue ; null si inconnus (affiche « n/d », jamais un faux build). */
 function finalItems(
@@ -195,18 +193,16 @@ function PlayerRow({
   );
 }
 
-function Totals({ team, match }: { team: BoardTeam; match: MatchDetail }) {
-  const ps = team.players.map((b) => b.player);
-  const souls = teamTotal(ps, (p) => p.netWorth);
-  const kills = teamTotal(ps, (p) => p.kills);
-  const dmg = teamTotal(ps, (p) => p.stats?.playerDamage ?? null);
+function Totals({ team }: { team: BoardTeam }) {
+  const souls = teamTotal(team, "netWorth");
+  const kills = teamTotal(team, "kills");
+  const dmg = teamTotal(team, "playerDamage");
   const item = (label: string, v: number | null, compact = false) => (
     <span className="tabular-nums">
       <span className="text-subtle">{label} </span>
       <span className="font-medium text-text">{compact ? formatCompact(v) : formatInt(v)}</span>
     </span>
   );
-  void match;
   return (
     <p className="flex flex-wrap items-center justify-end gap-x-3 text-[11px]">
       {item("Souls", souls.value, true)}
@@ -218,21 +214,19 @@ function Totals({ team, match }: { team: BoardTeam; match: MatchDetail }) {
 
 function TeamBoard({
   team,
-  match,
   order,
   selected,
   onSelect,
   catalog,
 }: {
   team: BoardTeam;
-  match: MatchDetail;
   order: BoardPlayer[];
   selected: string | null;
   onSelect: (key: string) => void;
   catalog: Map<number, CatalogItem> | undefined;
 }) {
   const meta = TEAM_META[team.side];
-  const r = resultOf(match, team.side);
+  const r = team.result;
   const max = (get: (b: BoardPlayer) => number | null) => {
     const v = team.players.map(get).filter((x): x is number => x !== null);
     return v.length ? Math.max(...v) : null;
@@ -255,7 +249,7 @@ function TeamBoard({
             {meta.label}
           </span>
         </h3>
-        <Totals team={team} match={match} />
+        <Totals team={team} />
       </header>
       <div
         aria-hidden="true"
@@ -290,7 +284,6 @@ function TeamBoard({
 
 /** Scoreboard : deux équipes côte à côte quand la largeur le permet, tri commun, sélection d'un joueur. */
 export function MatchScoreboard({
-  match,
   teams,
   sort,
   onSort,
@@ -298,7 +291,6 @@ export function MatchScoreboard({
   onSelect,
   catalog,
 }: {
-  match: MatchDetail;
   teams: BoardTeam[];
   sort: SortKey;
   onSort: (s: SortKey) => void;
@@ -333,7 +325,6 @@ export function MatchScoreboard({
             <TeamBoard
               key={t.side}
               team={t}
-              match={match}
               order={sortPlayers(t.players, sort)}
               selected={selected}
               onSelect={onSelect}

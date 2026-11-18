@@ -1,5 +1,7 @@
 # Audit du frontend : responsabilités métier (18/11/2026)
 
+> Mis à jour : le back a livré les v1.12.0 et v1.13.0 après cet audit. Les constats 3 et 4 sont résolus (voir `MIGRATION_REPORT.md`). Le texte ci-dessous décrit l'état de départ.
+
 Base : front `b2effca`, back `ebaabd2` (OpenAPI 1.11.0). Le back n'a livré **aucun** nouveau champ depuis : `git pull` donne « Already up to date », pas de `docs/architecture/domain-boundary/`, `docs/openapi.yaml` toujours en 1.11.0. Les vagues qui dépendent d'un nouveau contrat sont donc bloquées et documentées ; seul le travail indépendant a été fait.
 
 ## Méthode

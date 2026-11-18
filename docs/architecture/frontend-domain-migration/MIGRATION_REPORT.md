@@ -1,45 +1,53 @@
 # Rapport de migration (18/11/2026)
 
-Statut du back : `ebaabd2` (OpenAPI 1.11.0), **aucun nouveau contrat** depuis le dernier sprint. La migration vers des champs consolidés (vagues A et B) est donc **bloquée** ; la vague C (nettoyage) et les gains indépendants ont été faits.
+Back : **v1.13.0** (`5249360`, v1.12.0 « frontière des règles métier » puis v1.13.0 `include=summary`). Contrat copié dans `src/contracts/openapi.yaml`. Tout est additif : les nouveaux champs sont optionnels côté types, un back plus ancien donne « n/d » sans erreur (aucun repli de calcul).
 
-## 1. Calculs supprimés
+## 1. Calculs supprimés du front
 
-- `lib/stats.ts` : `aggregate`, `rollingWinRate`, `recentDelta`, `streaks`, `rolesPlayed`, `kdaDistribution`, `kdaBinIndex`, `KDA_BINS`, `winRateByDuration`, `DURATION_BUCKETS`, `calendar`, `hourDistribution`, `modeBreakdown` et leurs types (aucun appelant, remplacés par `/overview`, `/activity`, `/trends`, `/heroes`).
-- `lib/modes.ts` : `matchesMode`, `MODE_FILTERS`, `ModeKey` (filtrage serveur).
-- Composants morts : `MatchesTable`, `StatsGrid`, `SearchForm`.
-- Doublons : 3 implémentations du KDA, 3 décodeurs du score de rang, remplacés par `kdaRatio` (`lib/stats`) et `rankScore` / `decodeRankScore` / `scoreLabel` (`lib/rank`).
+| Avant                                                                                                                           | Maintenant                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `matchKda`, `netPerMinute` et la boucle de winrate glissant de la courbe (`RecentPerformance`)                                  | `/trends` `series[].kda`, `netWorthPerMinute`, `rollingWinRate`                                                                                                       |
+| 12 lectures de méta héros du profil (`useQueries`) et `heroRows` avec `meta`                                                    | `/players/:id/heroes` : `globalMeta`, `winRateVsMeta`, `metaContext`                                                                                                  |
+| `teamTotal` (sommes locales), `kdaOf` x2, `netRank` x2, `csPerMin`, repli de KP, badges calculés (`matchModel`, `detail/model`) | `/matches/:id` : `kda`, `netWorthRank`, `teamNetWorthRank`, `lastHitsPerMinute`, `performanceTags`, `killParticipation`, `teams[].totals`, `totalsCoverage`, `result` |
+| `rankDelta`, `currentScore`, `best`, `buildHighlights` (groupes)                                                                | `/groups/:id/compare` : `rankDelta`, `currentRankScore`, `highlights`, `methodology`                                                                                  |
+| `useTrackedInsights` : `/players/:id` et `/players/:id/matches?limit=10` par suivi                                              | `GET /tracked-players/insights` (une requête)                                                                                                                         |
+| `EntryRank` du classement : jusqu'à 10 `/players/:id`                                                                           | `badge` résolu par `/leaderboard`                                                                                                                                     |
+| (session précédente) 14 fonctions de `lib/stats`, `matchesMode`, 3 composants morts, doublons KDA et score de rang              |                                                                                                                                                                       |
+| `Histogram`, `median`, doublon `ROMAN`                                                                                          |                                                                                                                                                                       |
 
-## 2. Calculs conservés côté front
+## 2. Calculs conservés côté front, avec justification
 
-Voir `CALCULATION_INVENTORY.md`. Justifications : présentation (tri, filtres, courbes, chronologie, sélection), valeurs sans équivalent back (totaux d'équipe, KDA par partie, valeur nette par minute, badges de classement local), ou contrat insuffisant (`/trends.rolling` ignore `period` et démarre à la 10e partie).
+Voir `CALCULATION_INVENTORY.md`. En bref : tri, sélection, chronologie des achats, filtres d'items, formatage et libellés des titres de groupe ; `netPerMinute` et `matchKda` par ligne de l'historique (le résumé `include=summary` ne fournit pas la valeur nette par minute) ; `maxNet` / `maxDmg` (échelle des barres) ; `FEW_GAMES` (indication « peu de parties »).
 
-## 3. Champs back utilisés (inchangés)
+## 3. Champs back utilisés
 
-`/overview` (KPI officiels), `/heroes` du joueur, `/matches` filtrés serveur, `/activity`, `/rank-history`, `/relationships`, `/trends`, `/matches/:id` (`killParticipation`, `mvpRank`, `finalItemIds`, `stats`), `/leaderboard` (rang, badge, héros, `inferred`), `/groups/:id/compare`.
+`/trends` (`period`, `series`, `coverage.seriesMatches`, `rollingPointsComplete`), `/players/:id/heroes` (`globalMeta`, `winRateVsMeta`, `metaContext.comparable`), `/matches/:id` (voir ci-dessus), `/groups/:id/compare`, `/tracked-players/insights`, `/leaderboard` (`badge`, `avatarUrl`, `coverage` typés ; `avatarUrl` pas encore affiché, réservé au sprint Classement).
 
 ## 4. Requêtes éliminées
 
-Profil : méta des héros limitée à 3 dans l'aperçu (12 uniquement dans l'onglet Héros) : -4 requêtes mesurées sur le mock, jusqu'à -9 en production. Aucune autre requête n'était évitable sans nouveau contrat.
+Voir `PERFORMANCE_COMPARISON.md` : profil 27 à 20 (méta héros), onglet Héros 23 à 16, Parties 29 à 22, Mes suivis 15 à 6 (5 suivis), classement jusqu'à 10 requêtes de profil en moins en production.
 
 ## 5. Contrats modifiés
 
-Aucun. Demandes au back : voir `API_DEPENDENCIES.md` (`/heroes/stats`, `/tracked-players/insights`, `/players/{id}/performance`, `highlights` et `rankDelta` de groupe, rangs de partie).
+Aucune modification du back. Front : types étendus (`TrendPoint`, `HeroMetaContext`, `PerformanceTag`, `TeamTotalKey`, `GroupHighlight`, `TrackedInsight`, `LeaderboardCoverage`), `getTrackedInsights`, `period` sur `/trends`. Texte visible : la tendance « (hors période) » devient « (tout l'historique) » seulement sans période ; le glissant démarre à la 10e partie (avant : 5e) ; progression de groupe à `null` avec un seul point (avant : 0) ; classement : « Eternus V » au lieu de « Eternus 5 5 » (le back livre déjà « Eternus 5 » dans `badge.name`).
 
 ## 6. Tests
 
-162 avant, **158 après** : 9 tests des fonctions supprimées retirés, 5 ajoutés (`kdaRatio` unique et parité avec le détail de partie, `heroRows`, `rank.test.ts` x2 (encodage et décodage du score sur 1 à 72, libellés), `metaRequests.test.tsx` (3 lectures de méta dans l'aperçu, extension dans l'onglet Héros)). Typecheck, lint, Prettier, build : OK. E2E : 18 passent, 4 ignorés (parcours desktop sur mobile).
+174 passent (158 avant cette étape). Nouveaux : série de tendance (période, taille), méta du profil (aucune requête par héros, périmètre comparable ou non), totaux, KDA, rang de souls, `result`, repli sans champ (Match Detail et `enrichMatch`), insights groupés (une requête, isolement d'un suivi indisponible, plus de 100), classement sans requête de profil, tri et titres de groupe (ex æquo, seuil de 5 parties), score de rang. Typecheck, lint, Prettier, build : OK. E2E : 18 passent, 4 ignorés.
 
-Instabilité préexistante corrigée : le premier test de certains fichiers (`flows`, `Layout`, `matchPage`) échouait par intermittence quand la machine était chargée, y compris sur le code d'avant (délai `findBy` de 1 s trop court au premier chargement paresseux). `asyncUtilTimeout` passe à 4 s et `testTimeout` à 15 s (`src/test/setup.ts`, `vitest.config.ts`) : 2 exécutions complètes consécutives à 158 sur 158, sous charge.
+## 7. Vérification contre le vrai back v1.13.0
 
-## 7. Régressions évitées
+Copie hors dépôt de `5249360`, MongoDB locale. Joueur réel LilStick : `/trends?size=10&period=30d` (10 points, glissant complet), `/players/:id/heroes` (méta et `comparable` vrai en 30 jours normal, faux en 7 jours), `/matches/:id` (champs, totaux, `result`), `include=summary` (3 résumés en 1,2 s). Suivis et groupe avec un JWT forgé en local : `/tracked-players/insights` (4 suivis dont un introuvable isolé, `isPartial`), `/groups/:id/compare` (6 titres, `methodology`). Classement Europe : `coverage` 98 sur 100. Interface réelle visionnée : profil (aperçu, héros), classement. Mes suivis et groupes n'ont pas été vus avec le vrai back (session Steam impossible hors production) mais l'API a été interrogée et l'interface testée sur le mock.
 
-Même joueur et même scope : mêmes KPI (comparaison visuelle avant/après), même KDA (une seule formule, arrondi à l'affichage seulement), mêmes noms de rang. Anciens back : aucun champ optionnel nouveau n'est supposé. Page profil, Match Detail, Héros et Items inchangés visuellement.
+## 8. Évalué et non adopté
 
-## 8. Travaux restants (dépendent du back)
+- **`include=summary` sur l'historique** : la ligne de partie à grande largeur affiche les équipes, le build, le CS et les tirs critiques, que le résumé ne contient pas. Le détail complet reste nécessaire par ligne visible ; ajouter le résumé coûterait 1,2 s pour 3 parties (8,5 s à froid pour 50) sans retirer une requête. Les petits écrans (qui ne chargent pas le détail) gagneraient KP et CS par minute : à décider avec le design.
+- **Accueil** : 7 lectures de méta (`/heroes/:id/stats`) restent, aucun endpoint de méta groupée n'existe.
 
-1. Remplacer les 12 lectures de méta du profil et les 7 de l'accueil par un endpoint groupé.
-2. Migrer `useTrackedInsights` vers une réponse groupée (réponse partielle par joueur).
-3. Consommer une série de performance serveur (courbe, valeur nette, winrate glissant avec couverture) et retirer le calcul sur 50 parties.
-4. Consommer `rankDelta` et `highlights` de groupe, retirer `buildHighlights` et `rankDelta`.
-5. Retirer `netRank` et les badges locaux de la partie si `netWorthRank` / `kdaRank` sont livrés.
-6. Dédoublonner `useItemCatalog` (profil) et `useUpgradeCatalog` (items) : deux hooks sur la même clé, sans divergence aujourd'hui.
+## 9. Travaux restants
+
+1. Endpoint de méta groupée pour l'accueil (7 lectures).
+2. Afficher `avatarUrl` du classement (sprint Classement).
+3. Valeur nette par minute dans le résumé de partie, pour retirer `netPerMinute` des lignes d'historique.
+4. Dépréciations annoncées par le back (`teams[].outcome`, `/trends.rolling`) : le front ne les lit plus ; à confirmer avant retrait côté back.
+5. Dédoublonner `useItemCatalog` et `useUpgradeCatalog` (même clé, aucun écart).

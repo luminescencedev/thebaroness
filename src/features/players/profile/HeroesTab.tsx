@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-import type { HeroSummary } from "@/api";
+import type { HeroMetaContext, HeroSummary } from "@/api";
 import { BulletBar, DeltaChip } from "@/components/charts";
 import { HeroPortrait } from "@/components/media/HeroPortrait";
 import { DoubleBezel, EmptyState, Input, Segmented, Skeleton, cn } from "@/components/ui";
@@ -12,12 +12,15 @@ type Sort = "matches" | "winRate" | "kda";
 /** Liste comparative des héros joués : recherche, tri, écart face à la méta. Les chiffres portent sur l'historique observé. */
 export function HeroesTab({
   rows,
+  metaContext,
   heroById,
   selected,
   scopeText,
   state,
 }: {
   rows: HeroRow[];
+  /** Périmètre de la méta du back : null si indisponible (ou back plus ancien que la v1.12.0). */
+  metaContext: HeroMetaContext | null;
   heroById: Map<number, HeroSummary>;
   selected: number | null;
   scopeText: string;
@@ -91,6 +94,15 @@ export function HeroesTab({
           {shown.length} héros · {scopeText}
         </span>
       </DoubleBezel>
+
+      {metaContext && !metaContext.comparable ? (
+        <p className="text-xs text-subtle">
+          Écart face à la méta mondiale : 30 derniers jours, mode normal, tous types de partie
+          (périmètre différent du filtre actuel).
+        </p>
+      ) : !metaContext ? (
+        <p className="text-xs text-subtle">Méta mondiale indisponible : écarts n/d.</p>
+      ) : null}
 
       <DoubleBezel size="lg" innerClassName="p-0">
         <ul aria-label="Héros joués">

@@ -23,7 +23,6 @@ export function MatchDetailView({ match }: { match: MatchDetail }) {
     <div className="space-y-4">
       <MatchSummaryHeader match={match} teams={teams} />
       <MatchScoreboard
-        match={match}
         teams={teams}
         sort={sort}
         onSort={setSort}

@@ -51,28 +51,81 @@ describe("équipes", () => {
   });
 });
 
-describe("résultat", () => {
+describe("résultat (valeur du back)", () => {
+  const teamOf = (m: MatchDetail, side: "amber" | "sapphire") =>
+    m.teams.find((t) => t.side === side)!;
   it("vainqueur inconnu : aucune équipe perdante, même si les outcome disent autre chose", () => {
     const m = match([P()], [P()], null);
-    expect(resultOf(m, "amber")).toBe("unknown");
-    expect(resultOf(m, "sapphire")).toBe("unknown");
+    for (const t of m.teams) t.result = null;
+    expect(resultOf(m, teamOf(m, "amber"))).toBe("unknown");
+    expect(resultOf(m, teamOf(m, "sapphire"))).toBe("unknown");
+    expect(buildBoard(m).map((t) => t.result)).toEqual(["unknown", "unknown"]);
   });
-  it("suit winningSide", () => {
+  it("lit `result` quand le back le fournit", () => {
     const m = match([P()], [P()], "sapphire");
-    expect(resultOf(m, "sapphire")).toBe("win");
-    expect(resultOf(m, "amber")).toBe("loss");
+    teamOf(m, "sapphire").result = "win";
+    teamOf(m, "amber").result = "loss";
+    expect(buildBoard(m).map((t) => t.result)).toEqual(["loss", "win"]);
+  });
+  it("back plus ancien (pas de `result`) : repli sur winningSide, jamais sur outcome", () => {
+    const m = match([P()], [P()], "sapphire");
+    expect(resultOf(m, teamOf(m, "sapphire"))).toBe("win");
+    expect(resultOf(m, teamOf(m, "amber"))).toBe("loss");
+    const unknown = match([P()], [P()], null);
+    expect(resultOf(unknown, teamOf(unknown, "amber"))).toBe("unknown");
   });
 });
 
-describe("totaux", () => {
+describe("totaux (valeur du back)", () => {
+  const board = (totals: Record<string, number | null>, known: Record<string, number>) => {
+    const m = match([P(), P()], [P()]);
+    const amber = m.teams.find((t) => t.side === "amber")!;
+    amber.totals = totals as never;
+    amber.totalsCoverage = { players: 2, knownPlayers: known };
+    return buildBoard(m)[0]!;
+  };
   it("jamais de somme partielle, et 0 reste 0", () => {
-    expect(teamTotal([P({ kills: 3 }), P({ kills: null })], (p) => p.kills)).toMatchObject({
+    expect(teamTotal(board({ kills: null }, { kills: 1 }), "kills")).toMatchObject({
       value: null,
       known: 1,
       of: 2,
       complete: false,
     });
-    expect(teamTotal([P({ kills: 0 }), P({ kills: 2 })], (p) => p.kills).value).toBe(2);
+    expect(teamTotal(board({ kills: 0 }, { kills: 2 }), "kills")).toMatchObject({
+      value: 0,
+      complete: true,
+    });
+  });
+  it("back plus ancien : pas de total, jamais une somme recalculée", () => {
+    const t = teamTotal(buildBoard(match([P({ kills: 3 }), P({ kills: 4 })], [P()]))[0]!, "kills");
+    expect(t).toMatchObject({ value: null, complete: false });
+  });
+});
+
+describe("valeurs du back lues telles quelles", () => {
+  it("KDA, participation et rang de souls ne sont pas recalculés", () => {
+    const b = buildBoard(
+      match(
+        [
+          P({
+            kills: 10,
+            deaths: 0,
+            assists: 0,
+            kda: 7.77,
+            killParticipation: 12.5,
+            netWorthRank: 3,
+          }),
+        ],
+        [P()],
+      ),
+    )[0]!.players[0]!;
+    expect(b.kda).toBe(7.77);
+    expect(b.kp).toBe(12.5);
+    expect(b.netRank).toBe(3);
+  });
+  it("valeurs absentes : null, jamais calculé en repli", () => {
+    const b = buildBoard(match([P({ kills: 10, deaths: 2, assists: 4 })], [P()]))[0]!.players[0]!;
+    expect(b).toMatchObject({ kda: null, kp: null, netRank: null });
   });
 });
 
@@ -80,10 +133,15 @@ describe("tri et sélection", () => {
   const board = buildBoard(
     match(
       [
-        P({ displayName: "a", netWorth: 100, kills: 1, deaths: 1, assists: 1 }),
-        P({ displayName: "b", netWorth: null, kills: null }),
-        P({ displayName: "c", netWorth: 300, kills: 9, deaths: 0, assists: 0 }),
-        P({ displayName: "d", netWorth: 200, stats: { playerDamage: 50 } as MatchPlayer["stats"] }),
+        P({ displayName: "a", netWorth: 100, kda: 2 }),
+        P({ displayName: "b", netWorth: null, kda: null }),
+        P({ displayName: "c", netWorth: 300, kda: 9 }),
+        P({
+          displayName: "d",
+          netWorth: 200,
+          kda: 1,
+          stats: { playerDamage: 50 } as MatchPlayer["stats"],
+        }),
       ],
       [P()],
     ),
@@ -120,18 +178,5 @@ describe("achats", () => {
     expect(t?.[1]?.soldAtSeconds).toBe(400);
     expect(t?.every((p) => p.catalog === null)).toBe(true);
     expect(purchaseTimeline(null, undefined)).toBeNull();
-  });
-});
-
-describe("participation", () => {
-  it("valeur du back, sinon calcul sur éliminations d'équipe complètes", () => {
-    const b = buildBoard(
-      match(
-        [P({ kills: 5, assists: 5 }), P({ kills: 5, assists: 0, killParticipation: 42 })],
-        [P()],
-      ),
-    )[0]!;
-    expect(b.players[0]?.kp).toBe(100);
-    expect(b.players[1]?.kp).toBe(42);
   });
 });

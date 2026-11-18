@@ -84,7 +84,7 @@ export const getPlayerRelationships = (
 /** Tendance « N dernières parties contre les N précédentes », sur tout l'historique (sans période). */
 export const getPlayerTrends = (
   steamId: SteamId,
-  params: { size?: number; gameMode?: string; matchMode?: string } = {},
+  params: { size?: number; period?: string; gameMode?: string; matchMode?: string } = {},
   signal?: AbortSignal,
 ) =>
   request<PlayerTrends>(`/players/${encodeURIComponent(steamId)}/trends`, {

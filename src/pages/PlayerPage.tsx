@@ -49,7 +49,7 @@ function Body({
 
   // Un seul scope (période, format, type) pour l'aperçu, la courbe, les parties et les héros.
   const { scope, filters, setScope, setMatchFilters } = useProfileScope();
-  const data = useProfileData(steamId, scope, tab === "heroes" ? 12 : 3);
+  const data = useProfileData(steamId, scope);
   const { history, overview } = data;
   const selectedHero = Number(params.get("hero")) || null;
   const heroColor = data.mainHero?.color;
@@ -134,7 +134,6 @@ function Body({
                 rankHistory={data.rankHistory}
                 relationships={data.relationships}
                 matches={history.matches}
-                historyLoading={history.isPending}
                 rows={data.rows}
                 heroById={data.heroById}
                 scopeQuery={scopeQuery}
@@ -155,6 +154,7 @@ function Body({
           <Tabs.Panel value="heroes">
             <HeroesTab
               rows={data.rows}
+              metaContext={data.metaContext}
               heroById={data.heroById}
               selected={selectedHero}
               scopeText={text}

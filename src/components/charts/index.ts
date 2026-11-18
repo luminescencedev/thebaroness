@@ -6,7 +6,6 @@ export { ChartFrame, type DataTable } from "./ChartFrame";
 export { DeltaChip } from "./DeltaChip";
 export { Donut, type DonutSegment } from "./Donut";
 export { FormStrip } from "./FormStrip";
-export { Histogram } from "./Histogram";
 export { HourBars } from "./HourBars";
 export { LineChart, type LinePoint } from "./LineChart";
 export { MultiLineChart, type Series } from "./MultiLineChart";

@@ -1,4 +1,4 @@
-# Dépendances API par parcours (18/11/2026)
+# Dépendances API par parcours (18/11/2026, back v1.13.0)
 
 Requêtes mesurées en développement avec le mock (Playwright, page chargée puis 3,5 s). Le mode développement double certaines requêtes (rendu en mode strict et nouvelle tentative du service worker) : les valeurs absolues sont surestimées, la comparaison avant/après reste valable.
 
@@ -15,13 +15,22 @@ Requêtes mesurées en développement avec le mock (Playwright, page chargée pu
 | Groupes                | `/groups`, `/groups/:id`, `/groups/:id/compare`, `/ranks`                                                                                                                                 |
 | Classement             | `/leaderboard`, `/ranks`                                                                                                                                                                  |
 
-## Contrats demandés au back (non livrés)
+## Contrats demandés au back : état
 
-1. `GET /heroes/stats` (tous les héros, ou `?ids=`) : supprime 7 requêtes sur l'accueil et jusqu'à 12 dans le profil.
-2. `GET /tracked-players/insights` : profil minimal et forme des 10 dernières parties par suivi, réponse partielle par joueur.
-3. `GET /players/{id}/performance?period=&window=&metric=` : série métier (KDA, victoires glissantes, valeur nette par minute) avec couverture, au lieu de calculer sur 50 parties chargées.
-4. `GET /groups/{id}/compare` : `rankDelta` par membre et `highlights`.
-5. Partie : `netWorthRank` et `kdaRank` par joueur si ces badges doivent venir du serveur.
+| Demande                               | Livré (v1.12.0 / v1.13.0)                                                                                      | Consommé                                                |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Méta groupée pour le profil           | oui, dans `/players/:id/heroes` (`globalMeta`, `winRateVsMeta`, `metaContext`), pas d'endpoint `/heroes/stats` | oui (profil) ; **accueil : non** (7 lectures restantes) |
+| `GET /tracked-players/insights`       | oui                                                                                                            | oui                                                     |
+| Série de performance                  | oui, dans `/players/:id/trends` (`series`, `period`)                                                           | oui                                                     |
+| `rankDelta` et `highlights` de groupe | oui                                                                                                            | oui                                                     |
+| Rangs et distinctions de partie       | oui (`netWorthRank`, `kda`, `performanceTags`, `totals`, `result`)                                             | oui                                                     |
+| Classement : rangs et avatars résolus | oui (`badge.badgeId`, `color`, `avatarUrl`, `coverage`)                                                        | rangs oui ; avatars réservés au sprint Classement       |
+| Résumé par ligne d'historique         | oui (`include=summary`, v1.13.0)                                                                               | non adopté (voir `MIGRATION_REPORT.md`)                 |
+
+## Nouvelles demandes (non bloquantes)
+
+1. Méta des héros en un seul appel (`GET /heroes/stats`) pour l'accueil.
+2. Valeur nette par minute dans `summary` pour retirer `netPerMinute` des lignes de partie.
 
 ## Compatibilité
 

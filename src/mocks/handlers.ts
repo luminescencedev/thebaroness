@@ -7,6 +7,7 @@ import type {
   TrackedPlayer,
 } from "@/api/types";
 import { SCENARIOS } from "./scenarios";
+import { HIGHLIGHT_MIN_MATCHES, groupHighlights } from "./groupHighlights";
 import { allItemStats, buildsFor, filtersOf, itemStatsFor, pairsFor } from "./itemsMock";
 import { matchFixtures, mockConfig, playerFixtures, state } from "./state";
 import {
@@ -36,6 +37,7 @@ import {
   relationshipsOf,
   trendsOf,
   selectMatches,
+  MOCK_NOW,
 } from "./profileV2";
 
 const API = "/api";
@@ -236,9 +238,18 @@ export const handlers = [
     const region = new URL(request.url).searchParams.get("region") ?? "Europe";
     const allowed = ["Europe", "Asia", "NAmerica", "SAmerica", "Oceania"];
     if (!allowed.includes(region)) return invalid("Région invalide.");
+    const items = leaderboard(region as LeaderboardRegion);
     return HttpResponse.json({
       region,
-      items: leaderboard(region as LeaderboardRegion),
+      items,
+      coverage: {
+        entries: items.length,
+        withSteamId: items.filter((e) => e.steamId !== null).length,
+        inferredSteamId: items.filter((e) => e.inferred).length,
+        withBadge: items.filter((e) => e.badge !== null).length,
+        withAvatar: items.filter((e) => e.avatarUrl).length,
+        ranksComplete: items.every((e) => e.badge !== null),
+      },
       meta: meta(),
     });
   }),
@@ -408,8 +419,17 @@ export const handlers = [
     const mm = q.get("matchMode") ?? "all";
     if (!["all", "normal", "street_brawl"].includes(gm)) return invalid("gameMode invalide.");
     if (!["all", "ranked", "unranked"].includes(mm)) return invalid("matchMode invalide.");
+    const period = q.get("period");
+    if (period !== null && !["7d", "30d", "season"].includes(period))
+      return invalid("period invalide.");
     return HttpResponse.json({
-      ...trendsOf(matchFixtures[steamId] ?? [], size, gm as "all", mm as "all"),
+      ...trendsOf(
+        matchFixtures[steamId] ?? [],
+        size,
+        gm as "all",
+        mm as "all",
+        period as "7d" | null,
+      ),
       meta: meta(fixture.partial === true),
     });
   }),
@@ -508,8 +528,27 @@ export const handlers = [
     const parsed = parseServerFilters(new URL(request.url).searchParams, { period: null });
     if ("error" in parsed) return invalid(parsed.error);
     const f = { ...parsed.filters, heroId: null, outcome: "all" as const };
+    const comparable = f.period === "30d" && f.gameMode === "normal" && f.matchMode === "all";
     return HttpResponse.json({
-      items: heroStats(selectMatches(matchFixtures[steamId] ?? [], f)),
+      items: heroStats(selectMatches(matchFixtures[steamId] ?? [], f)).map((h) => {
+        const m = heroMetaStats(h.heroId);
+        return {
+          ...h,
+          globalMeta: { matches: m.matches, winRate: m.winRate, pickRate: m.pickRate },
+          winRateVsMeta:
+            h.winRate === null || m.winRate === null
+              ? null
+              : Math.round((h.winRate - m.winRate) * 100) / 100,
+        };
+      }),
+      metaContext: {
+        period: "30d",
+        gameMode: "normal",
+        matchMode: "all",
+        comparable,
+        fetchedAt: new Date(MOCK_NOW).toISOString(),
+        isStale: false,
+      },
       appliedFilters: applied(f),
       meta: meta(fixture.partial === true),
     });
@@ -609,6 +648,14 @@ export const handlers = [
       group,
       period,
       members,
+      highlights: groupHighlights(members),
+      methodology: {
+        periodFrom: null,
+        rankScore: "tier * 6 + sous-rang",
+        kda: "(K + A) / max(D, 1) sur les parties où K, D et A sont connus",
+        highlightMinMatches: HIGHLIGHT_MIN_MATCHES,
+        ties: "tous les ex æquo sont conservés",
+      },
       meta: meta(members.length < group.steamIds.length),
     });
   }),
@@ -699,6 +746,76 @@ export const handlers = [
     };
     state.tracked.set(owner, [created, ...list]);
     return HttpResponse.json(created, { status: 201 });
+  }),
+
+  http.get(`${API}/tracked-players/insights`, async ({ request }) => {
+    await latency();
+    const owner = userIdFrom(request);
+    if (!owner) return unauthorized();
+    const tracked = state.tracked.get(owner) ?? [];
+    const items = tracked.slice(0, 100).map((t) => {
+      const base = { trackedPlayerId: t.id, steamId: t.steamId, alias: t.alias, tags: t.tags };
+      if (t.steamId === SCENARIOS.steamIdUnavailable)
+        return {
+          ...base,
+          status: "unavailable" as const,
+          player: null,
+          rank: null,
+          lastMatchAt: null,
+          form: null,
+          meta: null,
+          error: { code: "SERVICE_UNAVAILABLE", message: "Source indisponible." },
+        };
+      const fixture = playerFixtures.find((p) => p.player.steamId === t.steamId);
+      if (!fixture)
+        return {
+          ...base,
+          status: "not_found" as const,
+          player: null,
+          rank: null,
+          lastMatchAt: null,
+          form: null,
+          meta: null,
+          error: { code: "NOT_FOUND", message: "Joueur introuvable." },
+        };
+      const recent = selectMatches(matchFixtures[t.steamId] ?? [], {
+        period: null,
+        gameMode: "all",
+        matchMode: "all",
+        heroId: null,
+        outcome: "all",
+      }).slice(0, 10);
+      const wins = recent.filter((m) => m.outcome === "win").length;
+      return {
+        ...base,
+        status: fixture.partial ? ("partial" as const) : ("ok" as const),
+        player: {
+          displayName: fixture.player.displayName,
+          avatarUrl: fixture.player.avatarUrl,
+        },
+        rank: fixture.rank,
+        lastMatchAt: recent[0]?.playedAt ?? null,
+        form: recent.length
+          ? {
+              results: recent.map((m) => m.outcome),
+              matchIds: recent.map((m) => m.matchId),
+              wins,
+              losses: recent.length - wins,
+              winRate: Math.round((wins / recent.length) * 10000) / 100,
+              sampleSize: recent.length,
+              requestedSize: 10 as const,
+            }
+          : null,
+        meta: meta(fixture.partial === true),
+        error: null,
+      };
+    });
+    return HttpResponse.json({
+      items,
+      total: tracked.length,
+      truncated: tracked.length > 100,
+      meta: meta(items.some((i) => i.status !== "ok")),
+    });
   }),
 
   http.get(`${API}/tracked-players/:id`, async ({ request, params }) => {

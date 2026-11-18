@@ -184,11 +184,11 @@ export function usePlayerRelationships(steamId: string, scope: ProfileScope) {
 /** Tendance N contre N (N = fenêtre de la courbe). Indépendante de la période du scope, suit ses modes. */
 export function usePlayerTrends(steamId: string, scope: ProfileScope, size: number) {
   return useQuery({
-    queryKey: ["players", steamId, "trends", size, scope.gameMode, scope.matchMode],
+    queryKey: ["players", steamId, "trends", size, scope.period, scope.gameMode, scope.matchMode],
     queryFn: ({ signal }) =>
       getPlayerTrends(
         steamId,
-        { size, gameMode: scope.gameMode, matchMode: scope.matchMode },
+        { size, period: scope.period, gameMode: scope.gameMode, matchMode: scope.matchMode },
         signal,
       ),
     enabled: steamId !== "",

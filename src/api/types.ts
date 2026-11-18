@@ -208,6 +208,42 @@ export interface TrackedPlayersResponse {
   items: TrackedPlayer[];
 }
 
+/** v1.12.0 : une carte par suivi (profil minimal, rang, forme sur 10 parties), échec isolé par ligne. */
+export type TrackedInsightStatus = "ok" | "partial" | "not_found" | "unavailable";
+
+export interface TrackedInsight {
+  trackedPlayerId: string;
+  steamId: SteamId;
+  alias: string;
+  tags: string[];
+  status: TrackedInsightStatus;
+  player: { displayName: string; avatarUrl: string | null } | null;
+  /** « Non classé » (champs null) si aucune partie classée ; null si inconnu. */
+  rank: PlayerRank | null;
+  lastMatchAt: string | null;
+  form: {
+    /** Du plus récent au plus ancien. */
+    results: ("win" | "loss")[];
+    matchIds: string[];
+    wins: number;
+    losses: number;
+    winRate: number | null;
+    sampleSize: number;
+    requestedSize: 10;
+  } | null;
+  meta: DataMeta | null;
+  error: { code: string; message: string } | null;
+}
+
+export interface TrackedInsightsResponse {
+  items: TrackedInsight[];
+  /** Nombre de suivis du compte. */
+  total: number;
+  /** true au-delà de 100 suivis. */
+  truncated: boolean;
+  meta: DataMeta;
+}
+
 export interface CreateTrackedPlayerInput {
   steamId: SteamId;
   alias?: string;
@@ -338,10 +374,26 @@ export interface PlayerHeroStat {
   /** v1.9.0 : moyenne des ratios par partie. */
   avgNetWorthPerMinute: number | null;
   netWorthPerMinuteSampleSize: number;
+  /** v1.12.0 : méta mondiale du héros (30 jours, mode normal), null si indisponible. */
+  globalMeta?: { matches: number | null; winRate: number | null; pickRate: number | null } | null;
+  /** v1.12.0 : winRate du joueur moins `globalMeta.winRate`, en points. */
+  winRateVsMeta?: number | null;
+}
+
+/** v1.12.0 : périmètre de la méta. `comparable` : le joueur est filtré sur le même périmètre (30d, normal, tous types). */
+export interface HeroMetaContext {
+  period: "30d";
+  gameMode: "normal";
+  matchMode: "all";
+  comparable: boolean;
+  fetchedAt: string;
+  isStale: boolean;
 }
 
 export interface PlayerHeroesResponse {
   items: PlayerHeroStat[];
+  /** null : méta indisponible (`globalMeta` null partout). Absent d'un back plus ancien. */
+  metaContext?: HeroMetaContext | null;
   appliedFilters?: AppliedFilters;
   meta: DataMeta;
 }
@@ -355,14 +407,35 @@ export interface LeaderboardEntry {
   steamId: SteamId | null;
   /** true : SteamID et rang déduits parmi plusieurs comptes homonymes (v1.8.0). */
   inferred?: boolean;
-  /** null : aucun rang connu pour ce joueur. */
-  badge: { tier: number; subrank: number; name: string; imageUrl: string | null } | null;
+  /** v1.12.0 : avatar Steam, null si inconnu. */
+  avatarUrl?: string | null;
+  /** null : aucun rang connu pour ce joueur (y compris sur son profil : plus de relecture nécessaire). */
+  badge: {
+    tier: number;
+    subrank: number;
+    name: string;
+    imageUrl: string | null;
+    /** v1.12.0 */
+    badgeId?: number | null;
+    color?: string | null;
+  } | null;
   topHeroes: { heroId: number; name: string; imageUrl: string | null }[];
+}
+
+/** v1.12.0 : couverture des identités résolues par le serveur. */
+export interface LeaderboardCoverage {
+  entries: number;
+  withSteamId: number;
+  inferredSteamId: number;
+  withBadge: number;
+  withAvatar: number;
+  ranksComplete: boolean;
 }
 
 export interface LeaderboardResponse {
   region: LeaderboardRegion;
   items: LeaderboardEntry[];
+  coverage?: LeaderboardCoverage;
   meta: DataMeta;
 }
 
@@ -439,11 +512,40 @@ export interface MatchPlayer {
   purchases?: MatchPurchase[] | null;
   finalItemIds?: number[] | null;
   abilityUpgrades?: { abilityId: number; atSeconds: number | null }[] | null;
+  /**
+   * v1.12.0 (absents d'un back plus ancien, d'où `?`) : métriques calculées par le back à la lecture.
+   * `netWorthRank` : 1 à 12 dans la partie, ex æquo partagés (1, 2, 2, 4) ; `teamNetWorthRank` : dans l'équipe.
+   * `performanceTags` : distinctions calculées par The Baroness (différentes de `mvpRank`, qui est celui de Valve).
+   */
+  kda?: number | null;
+  netWorthRank?: number | null;
+  teamNetWorthRank?: number | null;
+  lastHitsPerMinute?: number | null;
+  performanceTags?: PerformanceTag[];
 }
+
+export type PerformanceTag = "match_top_net_worth" | "match_best_kda";
+
+export type TeamTotalKey =
+  | "kills"
+  | "deaths"
+  | "assists"
+  | "netWorth"
+  | "lastHits"
+  | "denies"
+  | "playerDamage"
+  | "damageTaken"
+  | "objectiveDamage"
+  | "healing";
 
 export interface MatchTeam {
   side: TeamSide;
   outcome: MatchOutcome;
+  /** v1.12.0 : null si le vainqueur est inconnu (`outcome` reste « loss » dans ce cas). */
+  result?: "win" | "loss" | null;
+  /** v1.12.0 : un total vaut null dès qu'un joueur de l'équipe n'a pas la valeur. */
+  totals?: Record<TeamTotalKey, number | null>;
+  totalsCoverage?: { players: number; knownPlayers: Record<string, number> };
   /** v1.10.0 : badge moyen fourni par la source (null si inconnu, fréquent en non classé). */
   averageBadge?: number | null;
   averageRankName?: string | null;
@@ -499,6 +601,8 @@ export interface RankPoint {
   at: string;
   /** tier * 6 + sous-rang (1 à 6) : maximum 72 (Éternus 6). Comparable d'un joueur à l'autre. */
   score: number;
+  /** v1.12.0 : badge de la source pour ce point. */
+  badge?: number;
 }
 
 export interface BestMatch {
@@ -528,12 +632,48 @@ export interface GroupMemberStats {
   bestMatch: BestMatch | null;
   /** Historique de rang sur la période, du plus ancien au plus récent. */
   rankHistory: RankPoint[];
+  /** v1.12.0 (absents d'un back plus ancien) : valeurs calculées par le back. */
+  kdaSampleSize?: number;
+  /** tier * 6 + sous-rang de `rank`, null si inconnu. */
+  currentRankScore?: number | null;
+  /** Dernier moins premier score de `rankHistory` ; null sous 2 points (pas 0). */
+  rankDelta?: number | null;
+}
+
+export type HighlightKey =
+  | "biggest_climb"
+  | "best_win_rate"
+  | "most_wins"
+  | "best_kda"
+  | "longest_win_streak"
+  | "best_match";
+
+/** v1.12.0 : titre de la période, calculé par le back (tous les ex æquo, jamais départagés par le nom). */
+export interface GroupHighlight {
+  key: HighlightKey;
+  /** Ordre du groupe ; [] si personne n'est éligible. */
+  steamIds: SteamId[];
+  value: number | null;
+  /** `best_match` seulement. */
+  matchId: string | null;
+  eligibleMembers: number;
+  /** 5 pour `best_win_rate` et `best_kda`, 0 sinon. */
+  minMatches: number;
 }
 
 export interface GroupCompareResponse {
   group: Group;
   period: ComparePeriod;
   members: GroupMemberStats[];
+  /** Toujours 6 entrées dans l'ordre de `HighlightKey`. Absent d'un back plus ancien. */
+  highlights?: GroupHighlight[];
+  methodology?: {
+    periodFrom: string | null;
+    rankScore: string;
+    kda: string;
+    highlightMinMatches: number;
+    ties: string;
+  };
   meta: DataMeta;
 }
 
@@ -757,9 +897,35 @@ export interface TrendBlock {
   durationSampleSize: number;
 }
 
+/** Une partie de la série de tendance (back v1.12.0). Valeurs calculées par le back, jamais recalculées. */
+export interface TrendPoint {
+  matchId: string;
+  at: string;
+  heroId: number;
+  win: boolean;
+  matchMode: string | null;
+  gameMode: string | null;
+  kills: number | null;
+  deaths: number | null;
+  assists: number | null;
+  /** (K + A) / max(D, 1), 2 décimales. */
+  kda: number | null;
+  netWorthPerMinute: number | null;
+  durationSeconds: number | null;
+  /** % sur cette partie et les 9 précédentes du périmètre ; null s'il en manque. */
+  rollingWinRate: number | null;
+  rollingSampleSize: number;
+}
+
 /** `recent` = les `size` dernières parties, `previous` = les `size` d'avant (null si pas assez : jamais de comparaison inégale). */
 export interface PlayerTrends {
-  filters: { size: number; gameMode: GameModeFilter; matchMode: MatchModeFilter };
+  filters: {
+    size: number;
+    gameMode: GameModeFilter;
+    matchMode: MatchModeFilter;
+    /** v1.12.0 : null sans `period` (tout l'historique). */
+    period?: StatPeriod | null;
+  };
   recent: TrendBlock;
   previous: TrendBlock | null;
   delta: {
@@ -769,6 +935,16 @@ export interface PlayerTrends {
   } | null;
   /** Winrate des 10 dernières parties à chaque partie, à partir de la 10e. */
   rolling: { at: string; matchId: string; winRate: number }[];
-  coverage: { eligibleMatches: number; rollingWindow: number; notes: string[] };
+  /** v1.12.0 (absente d'un back plus ancien) : une entrée par partie du bloc récent, du plus ancien au plus récent. */
+  series?: TrendPoint[];
+  coverage: {
+    eligibleMatches: number;
+    rollingWindow: number;
+    notes: string[];
+    seriesMatches?: number;
+    seriesFrom?: string | null;
+    seriesTo?: string | null;
+    rollingPointsComplete?: number;
+  };
   meta: DataMeta;
 }

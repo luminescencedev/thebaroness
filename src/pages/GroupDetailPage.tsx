@@ -22,8 +22,7 @@ import { useRanks } from "@/features/heroes/hooks";
 import { GroupForm } from "@/features/groups/GroupForm";
 import {
   SORTS,
-  buildHighlights,
-  rankDelta,
+  highlightCards,
   scoreLabel,
   sortMembers,
   type SortKey,
@@ -55,7 +54,7 @@ const COLORS = [
 ];
 
 function Climb({ member }: { member: GroupMemberStats }) {
-  const d = rankDelta(member);
+  const d = member.rankDelta ?? null;
   if (d === null) return <span className="text-subtle">n/d</span>;
   if (d === 0) return <span className="text-muted">Stable</span>;
   const up = d > 0;
@@ -86,8 +85,8 @@ export function GroupDetailPage() {
   const members = useMemo(() => compare.data?.members ?? [], [compare.data]);
   const sorted = useMemo(() => sortMembers(members, sort), [members, sort]);
   const highlights = useMemo(
-    () => buildHighlights(members, ranks.data?.items),
-    [members, ranks.data],
+    () => highlightCards(compare.data?.highlights, members, ranks.data?.items),
+    [compare.data, members, ranks.data],
   );
   const series: Series[] = useMemo(
     () =>
@@ -189,18 +188,24 @@ export function GroupDetailPage() {
                     <p className="text-xs text-subtle">{h.title}</p>
                     <div className="mt-3 flex items-center gap-3">
                       <Avatar
-                        name={h.member.displayName}
-                        src={h.member.avatarUrl}
+                        name={h.members[0]?.displayName ?? ""}
+                        src={h.members[0]?.avatarUrl}
                         className="size-10"
                       />
                       <div className="min-w-0">
-                        <Link
-                          to={`/players/${h.member.steamId}`}
-                          className="block truncate font-medium hover:underline"
-                        >
-                          {h.member.displayName}
-                        </Link>
-                        <p className="text-sm text-text">{h.value}</p>
+                        {h.members.map((m) => (
+                          <Link
+                            key={m.steamId}
+                            to={`/players/${m.steamId}`}
+                            className="block truncate font-medium hover:underline"
+                          >
+                            {m.displayName}
+                          </Link>
+                        ))}
+                        <p className="text-sm text-text">
+                          {h.value}
+                          {h.members.length > 1 ? " (ex æquo)" : ""}
+                        </p>
                       </div>
                     </div>
                     {h.detail && <p className="mt-2 text-xs text-muted">{h.detail}</p>}

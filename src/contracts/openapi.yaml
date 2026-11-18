@@ -1,11 +1,11 @@
 # Copie figée du contrat OpenAPI du backend
-# Source : thebaroness-back, docs/openapi.yaml v1.11.0, commit ebaabd2 (17/11/2026)
-# Généré depuis src/docs/openapi.ts (v1.11.0) par `npm run openapi`.
+# Source : thebaroness-back, docs/openapi.yaml v1.13.0, commit 5249360 (18/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.13.0) par `npm run openapi`.
 # Ne pas modifier à la main.
 openapi: 3.1.0
 info:
   title: thebaroness API
-  version: 1.11.0
+  version: 1.13.0
   description: "API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l'espace privé est stocké dans MongoDB. Erreurs : `{ \"error\": { \"code\", \"message\" } }`. Inconnu = `null`, jamais 0."
 servers:
   - url: /api
@@ -278,6 +278,13 @@ paths:
               - win
               - loss
             default: all
+        - name: include
+          in: query
+          description: "v1.13.0. `summary` : joint à chaque partie de la page son résumé (`summary`) et ajoute `summaryCoverage`. Parties lues 4 à la fois via le cache partagé avec `/matches/{matchId}` (7 jours). Ne change ni le tri, ni la pagination, ni le curseur."
+          schema:
+            type: string
+            enum:
+              - summary
       description: "Sans filtre : comportement v1.8 (tout l’historique). Avec filtres : sélection sur TOUT l’historique en cache, puis tri (`playedAt` décroissant, puis `matchId` décroissant) et pagination. 0 résultat : `items: []`."
       responses:
         "200":
@@ -482,6 +489,7 @@ paths:
                 required:
                   - region
                   - items
+                  - coverage
                   - meta
                 properties:
                   region:
@@ -490,6 +498,29 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/LeaderboardEntry"
+                  coverage:
+                    type: object
+                    description: v1.12.0. Fiabilité des enrichissements de la page.
+                    required:
+                      - entries
+                      - withSteamId
+                      - inferredSteamId
+                      - withBadge
+                      - withAvatar
+                      - ranksComplete
+                    properties:
+                      entries:
+                        type: integer
+                      withSteamId:
+                        type: integer
+                      inferredSteamId:
+                        type: integer
+                      withBadge:
+                        type: integer
+                      withAvatar:
+                        type: integer
+                      ranksComplete:
+                        type: boolean
                   meta:
                     $ref: "#/components/schemas/DataMeta"
         "400":
@@ -1025,7 +1056,7 @@ paths:
       tags:
         - Joueurs
       summary: "Tendances : N dernières parties contre les N précédentes"
-      description: Depuis l’historique en cache. `previous` est null s’il n’y a pas `size` parties avant les `size` dernières (jamais de comparaison inégale). Winrate glissant sur 10 parties, défini à partir de la 10e partie.
+      description: "Depuis l’historique en cache. `previous` est null s’il n’y a pas `size` parties avant les `size` dernières (jamais de comparaison inégale). Winrate glissant sur 10 parties, défini à partir de la 10e partie. v1.12.0 : `series` (une entrée par partie du bloc récent : KDA, souls/min, winrate glissant) et `period` optionnel (sans période : tout l’historique, comportement v1.11)."
       parameters:
         - name: steamId
           in: path
@@ -1042,6 +1073,15 @@ paths:
             minimum: 5
             maximum: 50
             default: 20
+        - name: period
+          in: query
+          description: "`7d` et `30d` : fenêtre glissante UTC depuis l’instant de la requête. `season` : depuis le début de la saison classée courante (source Deadlock API) ; si inconnu, aucune borne et `meta.isPartial`. Absent : tout l’historique (comportement v1.8)."
+          schema:
+            type: string
+            enum:
+              - 7d
+              - 30d
+              - season
         - name: gameMode
           in: query
           description: "Mode de jeu (axe indépendant de `matchMode`) : `normal` inclut classées et non classées. Une partie au mode inconnu n’est retenue que sous `all`."
@@ -1308,6 +1348,7 @@ paths:
                 required:
                   - items
                   - appliedFilters
+                  - metaContext
                   - meta
                 properties:
                   items:
@@ -1316,6 +1357,39 @@ paths:
                       $ref: "#/components/schemas/PlayerHeroStat"
                   appliedFilters:
                     $ref: "#/components/schemas/AppliedFilters"
+                  metaContext:
+                    description: v1.12.0. Périmètre de la méta globale. null si elle est indisponible (`globalMeta` null partout).
+                    oneOf:
+                      - type: "null"
+                      - type: object
+                        required:
+                          - period
+                          - gameMode
+                          - matchMode
+                          - comparable
+                          - fetchedAt
+                          - isStale
+                        properties:
+                          period:
+                            type: string
+                            enum:
+                              - 30d
+                          gameMode:
+                            type: string
+                            enum:
+                              - normal
+                          matchMode:
+                            type: string
+                            enum:
+                              - all
+                          comparable:
+                            type: boolean
+                            description: true si le joueur est filtré sur le même périmètre (period=30d, gameMode=normal, matchMode=all)
+                          fetchedAt:
+                            type: string
+                            format: date-time
+                          isStale:
+                            type: boolean
                   meta:
                     $ref: "#/components/schemas/DataMeta"
         "400":
@@ -1635,7 +1709,7 @@ paths:
         "401":
           $ref: "#/components/responses/Unauthorized"
         "409":
-          description: Joueur déjà suivi par ce compte
+          description: Joueur déjà suivi (`ALREADY_TRACKED`) ou limite de 100 suivis atteinte (`TRACKED_LIMIT_REACHED`, v1.12.0)
           content:
             application/json:
               schema:
@@ -1644,6 +1718,25 @@ paths:
                 error:
                   code: ALREADY_TRACKED
                   message: Ce joueur est déjà dans votre liste.
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /tracked-players/insights:
+    get:
+      tags:
+        - Suivis
+      summary: Insights groupés de mes suivis
+      description: "v1.12.0. Une carte par suivi (100 au plus, dans l’ordre de `GET /tracked-players`) : identité, rang connu, dernière partie et forme sur les 10 dernières parties scorées. Lit le cache partagé profil/historique, 4 joueurs à la fois. Un joueur en échec garde sa ligne (`status`, `error`) sans faire échouer la liste."
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Insights
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackedInsights"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "429":
           $ref: "#/components/responses/RateLimited"
   /tracked-players/{id}:
@@ -1829,6 +1922,7 @@ components:
                 - UNAUTHORIZED
                 - NOT_FOUND
                 - ALREADY_TRACKED
+                - TRACKED_LIMIT_REACHED
                 - RATE_LIMITED
                 - UPSTREAM_ERROR
                 - SERVICE_UNAVAILABLE
@@ -2231,6 +2325,8 @@ components:
         - group
         - period
         - members
+        - highlights
+        - methodology
         - meta
       properties:
         group:
@@ -2258,6 +2354,9 @@ components:
               - longestWinStreak
               - bestMatch
               - rankHistory
+              - kdaSampleSize
+              - currentRankScore
+              - rankDelta
             properties:
               steamId:
                 type: string
@@ -2336,6 +2435,7 @@ components:
                   required:
                     - at
                     - score
+                    - badge
                   properties:
                     at:
                       type: string
@@ -2345,6 +2445,85 @@ components:
                       minimum: 1
                       maximum: 72
                       description: tier * 6 + subrank
+                    badge:
+                      type: integer
+                      description: v1.12.0. tier * 10 + subrank
+              kdaSampleSize:
+                type: integer
+                minimum: 0
+                description: Nombre de parties utilisées pour le KDA (v1.12.0).
+              currentRankScore:
+                type:
+                  - integer
+                  - "null"
+                description: v1.12.0. `tier * 6 + subrank` de `rank` ; null si non classé.
+              rankDelta:
+                type:
+                  - integer
+                  - "null"
+                description: v1.12.0. Dernier − premier `score` de `rankHistory` (sous-rangs gagnés) ; null sous 2 points.
+        highlights:
+          type: array
+          description: v1.12.0. Toujours 6 entrées, dans cet ordre. Valeur strictement positive ; égalité → tous les ex æquo dans l’ordre du groupe ; winrate et KDA à partir de 5 parties.
+          items:
+            type: object
+            required:
+              - key
+              - steamIds
+              - value
+              - matchId
+              - eligibleMembers
+              - minMatches
+            properties:
+              key:
+                type: string
+                enum:
+                  - biggest_climb
+                  - best_win_rate
+                  - most_wins
+                  - best_kda
+                  - longest_win_streak
+                  - best_match
+              steamIds:
+                type: array
+                items:
+                  type: string
+              value:
+                type:
+                  - number
+                  - "null"
+              matchId:
+                type:
+                  - string
+                  - "null"
+                description: "`best_match` seulement"
+              eligibleMembers:
+                type: integer
+              minMatches:
+                type: integer
+        methodology:
+          type: object
+          description: v1.12.0. Règles appliquées.
+          required:
+            - periodFrom
+            - rankScore
+            - kda
+            - highlightMinMatches
+            - ties
+          properties:
+            periodFrom:
+              type:
+                - string
+                - "null"
+              format: date-time
+            rankScore:
+              type: string
+            kda:
+              type: string
+            highlightMinMatches:
+              type: integer
+            ties:
+              type: string
         meta:
           $ref: "#/components/schemas/DataMeta"
     HeroMetaStats:
@@ -2431,6 +2610,11 @@ components:
             - string
             - "null"
           description: "Compte du joueur. Pseudo partagé par plusieurs comptes : celui au rang le plus élevé (voir `inferred`). null si la source ne relie le pseudo à aucun compte, ou à plusieurs sans rang connu."
+        avatarUrl:
+          type:
+            - string
+            - "null"
+          description: v1.12.0. Avatar Steam du compte `steamId` (un appel groupé, cache 6 h) ; null si inconnu.
         inferred:
           type: boolean
           description: true si `steamId` et `badge` ont été déduits parmi plusieurs comptes homonymes (compte au rang le plus élevé, puis à la partie classée la plus récente).
@@ -2444,6 +2628,8 @@ components:
                 - subrank
                 - name
                 - imageUrl
+                - badgeId
+                - color
               properties:
                 tier:
                   type: integer
@@ -2455,6 +2641,16 @@ components:
                   type:
                     - string
                     - "null"
+                badgeId:
+                  type:
+                    - integer
+                    - "null"
+                  description: v1.12.0. tier × 10 + subrank
+                color:
+                  type:
+                    - string
+                    - "null"
+                  description: v1.12.0
         topHeroes:
           type: array
           maxItems: 3
@@ -2494,6 +2690,11 @@ components:
         - purchases
         - finalItemIds
         - abilityUpgrades
+        - kda
+        - netWorthRank
+        - teamNetWorthRank
+        - lastHitsPerMinute
+        - performanceTags
       properties:
         steamId:
           type:
@@ -2602,6 +2803,34 @@ components:
                 type:
                   - integer
                   - "null"
+        kda:
+          type:
+            - number
+            - "null"
+          description: v1.12.0. `(K + A) / max(D, 1)`, 2 décimales ; null si K, D ou A inconnu.
+        netWorthRank:
+          type:
+            - integer
+            - "null"
+          description: "v1.12.0. Rang de valeur nette dans la partie (12 joueurs), décroissant, rang « compétition » : les ex æquo partagent le meilleur rang (1, 2, 2, 4). null si la valeur nette du joueur est inconnue."
+        teamNetWorthRank:
+          type:
+            - integer
+            - "null"
+          description: v1.12.0. Même règle, au sein de l’équipe.
+        lastHitsPerMinute:
+          type:
+            - number
+            - "null"
+          description: v1.12.0. `lastHits / (durée / 60)`, 2 décimales ; null si durée inconnue.
+        performanceTags:
+          type: array
+          description: v1.12.0. Distinctions calculées par The Baroness (≠ `mvpRank`, valeur officielle de Valve). Attribuées seulement si la statistique est connue pour tous les joueurs de la partie ; tous les ex æquo la reçoivent.
+          items:
+            type: string
+            enum:
+              - match_top_net_worth
+              - match_best_kda
     MatchPlayerStats:
       type: object
       description: Valeurs de fin de partie ; toute valeur absente de la source vaut null.
@@ -2750,8 +2979,11 @@ components:
             required:
               - side
               - outcome
+              - result
               - averageBadge
               - averageRankName
+              - totals
+              - totalsCoverage
               - players
             properties:
               side:
@@ -2764,6 +2996,84 @@ components:
                 enum:
                   - win
                   - loss
+                description: "Historique : vaut « loss » aussi quand le vainqueur est inconnu. Préférer `result`."
+              result:
+                type:
+                  - string
+                  - "null"
+                enum:
+                  - win
+                  - loss
+                  - null
+                description: v1.12.0. null si le vainqueur est inconnu.
+              totals:
+                type: object
+                description: v1.12.0. Somme sur l’équipe, seulement si la valeur est connue pour tous ses joueurs (sinon null, jamais une somme partielle).
+                required:
+                  - kills
+                  - deaths
+                  - assists
+                  - netWorth
+                  - lastHits
+                  - denies
+                  - playerDamage
+                  - damageTaken
+                  - objectiveDamage
+                  - healing
+                properties:
+                  kills:
+                    type:
+                      - integer
+                      - "null"
+                  deaths:
+                    type:
+                      - integer
+                      - "null"
+                  assists:
+                    type:
+                      - integer
+                      - "null"
+                  netWorth:
+                    type:
+                      - integer
+                      - "null"
+                  lastHits:
+                    type:
+                      - integer
+                      - "null"
+                  denies:
+                    type:
+                      - integer
+                      - "null"
+                  playerDamage:
+                    type:
+                      - integer
+                      - "null"
+                  damageTaken:
+                    type:
+                      - integer
+                      - "null"
+                  objectiveDamage:
+                    type:
+                      - integer
+                      - "null"
+                  healing:
+                    type:
+                      - integer
+                      - "null"
+              totalsCoverage:
+                type: object
+                required:
+                  - players
+                  - knownPlayers
+                properties:
+                  players:
+                    type: integer
+                  knownPlayers:
+                    type: object
+                    description: Joueurs dont la valeur est connue, par clé de `totals`
+                    additionalProperties:
+                      type: integer
               averageBadge:
                 type:
                   - integer
@@ -2829,6 +3139,33 @@ components:
           type: integer
           minimum: 0
           description: Nombre de parties utilisées pour le net worth par minute.
+        globalMeta:
+          description: v1.12.0. Méta globale du héros (`/heroes/{heroId}/stats`, même cache), période dans `metaContext`. null si indisponible.
+          oneOf:
+            - type: "null"
+            - type: object
+              required:
+                - matches
+                - winRate
+                - pickRate
+              properties:
+                matches:
+                  type:
+                    - integer
+                    - "null"
+                winRate:
+                  type:
+                    - number
+                    - "null"
+                pickRate:
+                  type:
+                    - number
+                    - "null"
+        winRateVsMeta:
+          type:
+            - number
+            - "null"
+          description: v1.12.0. `winRate − globalMeta.winRate` en points ; null si l’un est inconnu. Direct seulement si `metaContext.comparable`.
     AnalyticsFilters:
       type: object
       required:
@@ -3020,11 +3357,21 @@ components:
           type: object
           required:
             - size
+            - period
             - gameMode
             - matchMode
           properties:
             size:
               type: integer
+            period:
+              type:
+                - string
+                - "null"
+              enum:
+                - 7d
+                - 30d
+                - season
+                - null
             gameMode:
               type: string
               enum:
@@ -3192,17 +3539,42 @@ components:
                 type: string
               winRate:
                 type: number
+        series:
+          type: array
+          description: v1.12.0. Une entrée par partie du bloc récent (`size` au plus), du plus ancien au plus récent. Remplace les calculs par partie du front.
+          items:
+            $ref: "#/components/schemas/TrendPoint"
         coverage:
           type: object
           required:
             - eligibleMatches
             - rollingWindow
+            - seriesMatches
+            - seriesFrom
+            - seriesTo
+            - rollingPointsComplete
             - notes
           properties:
             eligibleMatches:
               type: integer
             rollingWindow:
               type: integer
+            seriesMatches:
+              type: integer
+              description: Taille de `series`
+            seriesFrom:
+              type:
+                - string
+                - "null"
+              format: date-time
+            seriesTo:
+              type:
+                - string
+                - "null"
+              format: date-time
+            rollingPointsComplete:
+              type: integer
+              description: Points de `series` dont `rollingWinRate` est défini
             notes:
               type: array
               items:
@@ -3210,8 +3582,79 @@ components:
                 enum:
                   - insufficient_history
                   - history_stale
+                  - season_start_unknown
         meta:
           $ref: "#/components/schemas/DataMeta"
+    TrendPoint:
+      type: object
+      required:
+        - matchId
+        - at
+        - heroId
+        - win
+        - matchMode
+        - gameMode
+        - kills
+        - deaths
+        - assists
+        - kda
+        - netWorthPerMinute
+        - durationSeconds
+        - rollingWinRate
+        - rollingSampleSize
+      properties:
+        matchId:
+          type: string
+        at:
+          type: string
+          format: date-time
+        heroId:
+          type: integer
+        win:
+          type: boolean
+        matchMode:
+          type:
+            - string
+            - "null"
+        gameMode:
+          type:
+            - string
+            - "null"
+        kills:
+          type:
+            - integer
+            - "null"
+        deaths:
+          type:
+            - integer
+            - "null"
+        assists:
+          type:
+            - integer
+            - "null"
+        kda:
+          type:
+            - number
+            - "null"
+          description: "`(K + A) / max(D, 1)`, 2 décimales ; null si K, D ou A inconnu"
+        netWorthPerMinute:
+          type:
+            - number
+            - "null"
+          description: "Souls/min : `netWorth / (durée / 60)`, 2 décimales ; null si durée ≤ 0"
+        durationSeconds:
+          type:
+            - integer
+            - "null"
+        rollingWinRate:
+          type:
+            - number
+            - "null"
+          description: Winrate (%) sur cette partie et les 9 précédentes du même périmètre (même hors bloc) ; null s’il en manque
+        rollingSampleSize:
+          type: integer
+          maximum: 10
+          description: Parties disponibles dans la fenêtre glissante (≤ 10)
     CatalogItem:
       type: object
       required:
@@ -3946,13 +4389,232 @@ components:
         items:
           type: array
           items:
-            $ref: "#/components/schemas/MatchSummary"
+            allOf:
+              - $ref: "#/components/schemas/MatchSummary"
+              - type: object
+                properties:
+                  summary:
+                    description: v1.13.0, avec `include=summary` seulement. null si la partie est indisponible ou si le joueur n’y figure pas.
+                    oneOf:
+                      - type: "null"
+                      - $ref: "#/components/schemas/PlayerMatchSummary"
         nextCursor:
           type:
             - string
             - "null"
         appliedFilters:
           $ref: "#/components/schemas/AppliedFilters"
+        summaryCoverage:
+          type: object
+          description: v1.13.0, avec `include=summary` seulement.
+          required:
+            - requested
+            - available
+            - notes
+          properties:
+            requested:
+              type: integer
+            available:
+              type: integer
+            notes:
+              type: array
+              items:
+                type: string
+                enum:
+                  - some_matches_unavailable
+                  - item_catalog_unavailable
+        meta:
+          $ref: "#/components/schemas/DataMeta"
+    PlayerMatchSummary:
+      type: object
+      description: Résumé d’une partie du point de vue du joueur ; mêmes règles que les champs de `MatchPlayer`.
+      required:
+        - mvpRank
+        - killParticipation
+        - kda
+        - netWorthRank
+        - teamNetWorthRank
+        - playersInMatch
+        - lastHitsPerMinute
+        - performanceTags
+        - finalItemIds
+        - teamAverageBadge
+      properties:
+        mvpRank:
+          type:
+            - integer
+            - "null"
+          description: Officiel (Valve)
+        killParticipation:
+          type:
+            - number
+            - "null"
+        kda:
+          type:
+            - number
+            - "null"
+        netWorthRank:
+          type:
+            - integer
+            - "null"
+        teamNetWorthRank:
+          type:
+            - integer
+            - "null"
+        playersInMatch:
+          type: integer
+          description: Dénominateur de `netWorthRank`
+        lastHitsPerMinute:
+          type:
+            - number
+            - "null"
+        performanceTags:
+          type: array
+          items:
+            type: string
+            enum:
+              - match_top_net_worth
+              - match_best_kda
+        finalItemIds:
+          type:
+            - array
+            - "null"
+          items:
+            type: integer
+          description: null si le catalogue d’items est indisponible
+        teamAverageBadge:
+          type:
+            - integer
+            - "null"
+    TrackedInsights:
+      type: object
+      required:
+        - items
+        - total
+        - truncated
+        - meta
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required:
+              - trackedPlayerId
+              - steamId
+              - alias
+              - tags
+              - status
+              - player
+              - rank
+              - lastMatchAt
+              - form
+              - meta
+              - error
+            properties:
+              trackedPlayerId:
+                type: string
+              steamId:
+                type: string
+              alias:
+                type: string
+              tags:
+                type: array
+                items:
+                  type: string
+              status:
+                type: string
+                enum:
+                  - ok
+                  - partial
+                  - not_found
+                  - unavailable
+                description: "`partial` : historique ou rangs indisponibles (rang/forme null) ; `not_found` : profil introuvable ; `unavailable` : source en échec."
+              player:
+                oneOf:
+                  - type: "null"
+                  - type: object
+                    required:
+                      - displayName
+                      - avatarUrl
+                    properties:
+                      displayName:
+                        type: string
+                      avatarUrl:
+                        type:
+                          - string
+                          - "null"
+              rank:
+                description: Badge de la dernière partie classée (rang « non classé » si aucune) ; null si inconnu.
+                oneOf:
+                  - type: "null"
+                  - $ref: "#/components/schemas/PlayerRank"
+              lastMatchAt:
+                type:
+                  - string
+                  - "null"
+                format: date-time
+              form:
+                oneOf:
+                  - type: "null"
+                  - type: object
+                    required:
+                      - results
+                      - matchIds
+                      - wins
+                      - losses
+                      - winRate
+                      - sampleSize
+                      - requestedSize
+                    properties:
+                      results:
+                        type: array
+                        description: Du plus récent au plus ancien
+                        items:
+                          type: string
+                          enum:
+                            - win
+                            - loss
+                      matchIds:
+                        type: array
+                        items:
+                          type: string
+                      wins:
+                        type: integer
+                      losses:
+                        type: integer
+                      winRate:
+                        type:
+                          - number
+                          - "null"
+                      sampleSize:
+                        type: integer
+                        description: ≤ requestedSize
+                      requestedSize:
+                        type: integer
+                        enum:
+                          - 10
+              meta:
+                oneOf:
+                  - type: "null"
+                  - $ref: "#/components/schemas/DataMeta"
+              error:
+                oneOf:
+                  - type: "null"
+                  - type: object
+                    required:
+                      - code
+                      - message
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+        total:
+          type: integer
+          description: Nombre total de suivis du compte
+        truncated:
+          type: boolean
+          description: true si plus de 100 suivis
         meta:
           $ref: "#/components/schemas/DataMeta"
     TrackedPlayer:

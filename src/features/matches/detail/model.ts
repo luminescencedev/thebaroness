@@ -1,26 +1,39 @@
-import type { CatalogItem, MatchDetail, MatchPlayer, MatchPurchase, TeamSide } from "@/api";
-import { kdaRatio } from "@/lib/stats";
+import type {
+  CatalogItem,
+  MatchDetail,
+  MatchPlayer,
+  MatchPurchase,
+  MatchTeam,
+  TeamSide,
+  TeamTotalKey,
+} from "@/api";
 
 /**
- * Modèle de présentation de la page partie. Tout est dérivé de `GET /matches/{id}` ; une valeur absente
- * reste null (« n/d »), jamais 0, et rien n'est synthétisé (pas de score d'impact, pas de courbe).
+ * Modèle de présentation de la page partie. Les métriques (KDA, rangs de souls, participation, totaux et
+ * résultat d'équipe) sont CALCULÉES PAR LE BACK (v1.12.0) et lues telles quelles : ce module ne fait que du tri,
+ * de la sélection et de la mise en forme. Une valeur absente reste null (« n/d »), jamais 0.
  */
 export interface BoardPlayer {
   /** Clé stable : équipe + position d'origine, indépendante du tri et du SteamID (parfois absent). */
   key: string;
   side: TeamSide;
   player: MatchPlayer;
+  /** `kda` du back. */
   kda: number | null;
-  /** Participation aux éliminations en % : valeur du back, sinon (K + A) / éliminations d'équipe si complètes. */
+  /** `killParticipation` du back, en %. */
   kp: number | null;
   mvp: boolean;
-  /** Position par souls (valeur nette) parmi tous les joueurs connus de la partie, 1 = plus riche. */
+  /** `netWorthRank` du back : 1 = plus riche de la partie, ex æquo partagés. */
   netRank: number | null;
 }
 
 export interface BoardTeam {
   side: TeamSide;
   averageRankName: string | null;
+  /** `result` du back : "unknown" quand le vainqueur est inconnu (jamais deux défaites). */
+  result: "win" | "loss" | "unknown";
+  totals: MatchTeam["totals"] | null;
+  totalsCoverage: MatchTeam["totalsCoverage"] | null;
   players: BoardPlayer[];
 }
 
@@ -32,9 +45,7 @@ export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "kda", label: "KDA" },
 ];
 
-export const kdaOf = (p: MatchPlayer): number | null => kdaRatio(p.kills, p.deaths, p.assists);
-
-/** Somme d'une valeur sur une équipe : seulement si tous les joueurs l'ont, sinon incomplète. */
+/** Total d'équipe du back : null dès qu'un joueur n'a pas la valeur ; `known / of` dit combien la connaissaient. */
 export interface TeamTotal {
   value: number | null;
   known: number;
@@ -42,48 +53,38 @@ export interface TeamTotal {
   complete: boolean;
 }
 
-export function teamTotal(
-  players: MatchPlayer[],
-  get: (p: MatchPlayer) => number | null,
-): TeamTotal {
-  const vals = players.map(get).filter((v): v is number => v !== null);
-  const complete = players.length > 0 && vals.length === players.length;
+export function teamTotal(team: BoardTeam, key: TeamTotalKey): TeamTotal {
+  const value = team.totals?.[key] ?? null;
   return {
-    value: complete ? vals.reduce((s, v) => s + v, 0) : null,
-    known: vals.length,
-    of: players.length,
-    complete,
+    value,
+    known: team.totalsCoverage?.knownPlayers[key] ?? 0,
+    of: team.totalsCoverage?.players ?? team.players.length,
+    complete: value !== null,
   };
 }
 
 const SIDES: TeamSide[] = ["amber", "sapphire"];
 
-/** Équipes dans l'ordre fixe Hidden King puis Archmother, avec joueurs enrichis. */
+/** Équipes dans l'ordre fixe Hidden King puis Archmother, avec les valeurs du back. */
 export function buildBoard(match: MatchDetail): BoardTeam[] {
-  const nets = match.teams
-    .flatMap((t) => t.players.map((p) => p.netWorth))
-    .filter((v): v is number => v !== null)
-    .sort((a, b) => b - a);
   return SIDES.flatMap((side) => {
     const team = match.teams.find((t) => t.side === side);
     if (!team) return [];
-    const kills = teamTotal(team.players, (p) => p.kills);
     return [
       {
         side,
         averageRankName: team.averageRankName ?? null,
+        result: resultOf(match, team),
+        totals: team.totals ?? null,
+        totalsCoverage: team.totalsCoverage ?? null,
         players: team.players.map((player, i) => ({
           key: `${side}:${i}`,
           side,
           player,
-          kda: kdaOf(player),
-          kp:
-            player.killParticipation ??
-            (kills.complete && kills.value && player.kills !== null && player.assists !== null
-              ? Math.min(100, ((player.kills + player.assists) / kills.value) * 100)
-              : null),
+          kda: player.kda ?? null,
+          kp: player.killParticipation ?? null,
           mvp: player.mvpRank === 1,
-          netRank: player.netWorth === null ? null : nets.indexOf(player.netWorth) + 1,
+          netRank: player.netWorthRank ?? null,
         })),
       },
     ];
@@ -120,9 +121,14 @@ export function defaultSelection(teams: BoardTeam[]): string | null {
   return all[0]?.key ?? null;
 }
 
-/** Vainqueur : uniquement `winningSide`. Les `outcome` d'équipe ne servent jamais à déduire une défaite. */
-export const resultOf = (match: MatchDetail, side: TeamSide): "win" | "loss" | "unknown" =>
-  match.winningSide === null ? "unknown" : match.winningSide === side ? "win" : "loss";
+/**
+ * Résultat d'une équipe : `result` du back (null si le vainqueur est inconnu). Un back plus ancien (sans `result`)
+ * retombe sur `winningSide`, jamais sur `outcome`, qui vaut « loss » quand le vainqueur est inconnu.
+ */
+export function resultOf(match: MatchDetail, team: MatchTeam): "win" | "loss" | "unknown" {
+  if (team.result !== undefined) return team.result ?? "unknown";
+  return match.winningSide === null ? "unknown" : match.winningSide === team.side ? "win" : "loss";
+}
 
 /** Plus grande valeur connue d'une métrique parmi tous les joueurs : référentiel des barres. */
 export function maxKnown(

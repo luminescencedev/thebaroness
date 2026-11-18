@@ -1,30 +1,25 @@
 # Comparaison des requêtes API avant et après (18/11/2026)
 
-Méthode : front `b2effca` (avant) contre le working tree (après), mode mock, Chromium 1440 px, chargement puis 3,5 s, compteur des requêtes `/api/*` (Playwright). Le mode développement double la plupart des requêtes ; seul l'écart compte.
+Méthode : front `b2effca` (avant) contre le working tree (après), mode mock, Chromium 1440 px, chargement puis 3,5 s, compteur des requêtes `/api/*` (Playwright). Le mode développement double la plupart des requêtes ; seul l'écart compte. Les routes privées sont ouvertes par `/auth/callback#token=` (session en mémoire).
 
-| Parcours               | Avant | Après | Écart |
-| ---------------------- | ----: | ----: | ----: |
-| Accueil                |    18 |    18 |     0 |
-| Profil, aperçu         |    27 |    23 |    -4 |
-| Profil, onglet Héros   |    23 |    23 |     0 |
-| Profil, onglet Parties |    29 |    25 |    -4 |
-| Fiche héros            |     8 |     8 |     0 |
-| Catalogue héros        |     2 |     2 |     0 |
-| Catalogue items        |     6 |     6 |     0 |
-| Fiche item             |     8 |     8 |     0 |
-| Classement             |     4 |     4 |     0 |
-| Recherche              |     4 |     4 |     0 |
+| Parcours               | Avant | Après |    Écart |
+| ---------------------- | ----: | ----: | -------: |
+| Accueil                |    18 |    18 |        0 |
+| Profil, aperçu         |    27 |    20 |       -7 |
+| Profil, onglet Héros   |    23 |    16 |       -7 |
+| Profil, onglet Parties |    29 |    22 |       -7 |
+| Page partie            |     4 |     4 |        0 |
+| Classement             |     4 |     4 | 0 (mock) |
+| Mes suivis (5 suivis)  |    15 |     6 |       -9 |
 
-## Détail du gain
+## Détail
 
-`GET /heroes/:id/stats` sur le profil (aperçu et Parties) : **7 avant, 3 après**. Le joueur du mock n'a que 7 héros ; en production un joueur en a souvent plus de 12, l'économie atteint donc **9 requêtes** par ouverture d'un profil (12 avant, 3 après). L'onglet Héros garde la lecture complète (12), car il affiche l'écart face à la méta pour chaque ligne. Test : `metaRequests.test.tsx` (l'aperçu lit au plus 3 héros, l'onglet Héros étend jusqu'à 12).
-
-## Ce qui n'a pas pu baisser
-
-- Accueil : 7 lectures de méta (pas de liste groupée côté back).
-- Mes suivis : 2 requêtes par joueur suivi (pas de réponse groupée) ; non mesuré ici (route authentifiée) mais le code est inchangé.
-- Profil : 8 endpoints par scope (overview, héros, parties, activité, rang, relations, tendance, profil) : chacun porte une donnée distincte, aucune requête redondante.
+- **Profil** : `GET /heroes/:id/stats` passe de 7 (tous les héros du joueur du mock) à 0 : la méta arrive dans `/players/:id/heroes`. En production un profil en lit jusqu'à 12 : l'économie atteint 12 requêtes.
+- **Mes suivis** : de `1 + 2 x N` à `2` requêtes. Avec 5 suivis : `/players/:id` x5 et `/players/:id/matches` x5 remplacés par `/tracked-players/insights` x1. Avec 100 suivis : 200 requêtes de moins.
+- **Classement** : le mock fournit les rangs dans la liste, donc aucun écart mesuré ; en production, chaque entrée sans rang et dans les 10 premières déclenchait `/players/:id` (jusqu'à 10). Test : `leaderboard.test.tsx` vérifie qu'il n'y en a plus, même pour une entrée sans rang.
+- **Groupes** : une requête `/groups/:id/compare` inchangée ; les titres sont calculés par le back (aucune requête supplémentaire, moins de calcul côté React).
+- **Accueil** : 7 lectures de méta toujours présentes (pas d'endpoint groupé).
 
 ## Comparaison visuelle
 
-Captures avant/après dans `screenshots/` (profil aperçu, Héros, Parties, accueil, classement, à 1440 et 390 px). Contenu, chiffres et composition identiques (57,50 %, KDA 3,24, 40 parties, 1 068 de valeur nette, mêmes lignes). Les captures « avant » ont été prises sur une copie d'archive git sans les polices du projet (repli sans-serif), d'où une typographie différente : ce n'est pas un écart du code.
+Captures avant/après dans `screenshots/` (profil, onglet Héros, Parties, accueil, classement, Mes suivis, groupe, partie ; `real-*` sur le vrai back). Contenu et composition identiques. Les captures « avant » ont été prises sur une copie d'archive git sans les polices du projet, d'où une typographie différente : ce n'est pas un écart du code. Seuls changements visibles voulus : groupe avec ex æquo (« ex æquo » et plusieurs noms), classement « Eternus V » (le back livre « Eternus 5 », l'ancien code affichait « Eternus 5 5 » en production), tendance « (tout l'historique) ».

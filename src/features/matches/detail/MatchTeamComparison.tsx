@@ -1,17 +1,17 @@
-import type { MatchPlayer } from "@/api";
+import type { TeamTotalKey } from "@/api";
 import { DoubleBezel } from "@/components/ui";
 import { NA, formatInt } from "@/lib/format";
 import { TEAM_META, teamLabel } from "@/lib/teams";
 import { teamTotal, type BoardTeam } from "./model";
 
-const ROWS: { label: string; get: (p: MatchPlayer) => number | null }[] = [
-  { label: "Souls (valeur nette)", get: (p) => p.netWorth },
-  { label: "Éliminations", get: (p) => p.kills },
-  { label: "Dégâts aux héros", get: (p) => p.stats?.playerDamage ?? null },
-  { label: "Soins", get: (p) => p.stats?.healing ?? null },
+const ROWS: { label: string; key: TeamTotalKey }[] = [
+  { label: "Souls (valeur nette)", key: "netWorth" },
+  { label: "Éliminations", key: "kills" },
+  { label: "Dégâts aux héros", key: "playerDamage" },
+  { label: "Soins", key: "healing" },
 ];
 
-/** Comparaison des équipes : une somme n'est affichée que si tous les joueurs ont la valeur. */
+/** Comparaison des équipes : totaux du back, nuls dès qu'un joueur n'a pas la valeur (jamais une somme partielle). */
 export function MatchTeamComparison({ teams }: { teams: BoardTeam[] }) {
   const [a, b] = teams;
   if (!a || !b) return null;
@@ -23,14 +23,8 @@ export function MatchTeamComparison({ teams }: { teams: BoardTeam[] }) {
       </p>
       <ul className="space-y-4">
         {ROWS.map((r) => {
-          const ta = teamTotal(
-            a.players.map((x) => x.player),
-            r.get,
-          );
-          const tb = teamTotal(
-            b.players.map((x) => x.player),
-            r.get,
-          );
+          const ta = teamTotal(a, r.key);
+          const tb = teamTotal(b, r.key);
           const both = ta.complete && tb.complete;
           const sum = both ? (ta.value ?? 0) + (tb.value ?? 0) : 0;
           const pa = sum > 0 ? ((ta.value ?? 0) / sum) * 100 : 50;

@@ -6,7 +6,8 @@ export const ITEM_TONE: Record<ItemCategory, { bg: string; fg: string; label: st
   vitality: { bg: "#1b3322", fg: "#6fd58a", label: "Vitalité" },
   spirit: { bg: "#2c2347", fg: "#b4abff", label: "Esprit" },
 };
-export const ROMAN = ["", "I", "II", "III", "IV", "V"];
+/** Chiffres romains : une seule table (tiers d'objets I à V, sous-rangs I à VI). */
+export { ROMAN } from "@/lib/stats";
 
 export const CATEGORIES = Object.keys(ITEM_TONE) as ItemCategory[];
 export const categoryLabel = (c: ItemCategory | null) =>

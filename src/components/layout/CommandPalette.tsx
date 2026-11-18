@@ -99,6 +99,12 @@ const glyphs = {
       <path d="M12 7v5l3 2" />
     </Glyph>
   ),
+  box: (
+    <Glyph>
+      <path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9L12 3Z" />
+      <path d="m3.5 7.5 8.5 4.5 8.5-4.5M12 12v9" />
+    </Glyph>
+  ),
   user: (
     <Glyph>
       <circle cx="12" cy="8" r="4" />
@@ -163,6 +169,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     { value: "home", label: "Accueil", to: "/", icon: glyphs.home },
     { value: "players", label: "Joueurs", to: "/search", icon: glyphs.users },
     { value: "heroes", label: "Héros", to: "/heroes", icon: glyphs.shield },
+    { value: "items", label: "Items", to: "/items", icon: glyphs.box },
     { value: "leaderboard", label: "Classement", to: "/leaderboard", icon: glyphs.trophy },
     ...(session
       ? [

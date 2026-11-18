@@ -1,5 +1,12 @@
 import { request } from "./client";
 import type {
+  AnalyticsParams,
+  BuildSort,
+  HeroBuildsResponse,
+  HeroItemPairsResponse,
+  ItemDetailResponse,
+  ItemStatsListResponse,
+  ItemStatsResponse,
   HeroDetailResponse,
   HeroListResponse,
   ItemListResponse,
@@ -47,3 +54,46 @@ export const getItems = (
   params: { type?: "upgrade" | "ability" | "weapon" } = {},
   signal?: AbortSignal,
 ) => request<ItemListResponse>("/items", { query: params, signal });
+
+export const getItem = (itemId: number | string, signal?: AbortSignal) =>
+  request<ItemDetailResponse>(`/items/${encodeURIComponent(String(itemId))}`, { signal });
+
+const analyticsQuery = (p: AnalyticsParams) => ({
+  period: p.period,
+  matchMode: p.matchMode,
+  heroId: p.heroId,
+});
+
+/** Une seule requête d'agrégats par jeu de filtres, jointe au catalogue côté front. */
+export const getItemsStats = (params: AnalyticsParams, signal?: AbortSignal) =>
+  request<ItemStatsListResponse>("/items/stats", { query: analyticsQuery(params), signal });
+
+export const getItemStats = (
+  itemId: number | string,
+  params: AnalyticsParams,
+  signal?: AbortSignal,
+) =>
+  request<ItemStatsResponse>(`/items/${encodeURIComponent(String(itemId))}/stats`, {
+    query: analyticsQuery(params),
+    signal,
+  });
+
+export const getHeroBuilds = (
+  heroId: number | string,
+  params: { sort: BuildSort; limit?: number },
+  signal?: AbortSignal,
+) =>
+  request<HeroBuildsResponse>(`/heroes/${encodeURIComponent(String(heroId))}/builds`, {
+    query: params,
+    signal,
+  });
+
+export const getHeroItemPairs = (
+  heroId: number | string,
+  params: Omit<AnalyticsParams, "heroId"> & { itemId?: number; limit?: number },
+  signal?: AbortSignal,
+) =>
+  request<HeroItemPairsResponse>(`/heroes/${encodeURIComponent(String(heroId))}/item-pairs`, {
+    query: params,
+    signal,
+  });

@@ -1,7 +1,15 @@
 import { useLocation } from "react-router";
 import { useNavLabel } from "./navContext";
 import type { ComponentType, SVGProps } from "react";
-import { BookmarkIcon, ChartIcon, HomeIcon, PersonIcon, SparkIcon, UsersIcon } from "./icons";
+import {
+  BookmarkIcon,
+  ChartIcon,
+  HomeIcon,
+  ItemsIcon,
+  PersonIcon,
+  SparkIcon,
+  UsersIcon,
+} from "./icons";
 
 export interface NavItem {
   to: string;
@@ -15,6 +23,7 @@ export const exploreItems: NavItem[] = [
   { to: "/", label: "Accueil", icon: HomeIcon, match: ["/"] },
   { to: "/search", label: "Joueurs", icon: PersonIcon, match: ["/search", "/players"] },
   { to: "/heroes", label: "Héros", icon: SparkIcon, match: ["/heroes"] },
+  { to: "/items", label: "Items", icon: ItemsIcon, match: ["/items"] },
   { to: "/leaderboard", label: "Classement", icon: ChartIcon, match: ["/leaderboard"] },
 ];
 
@@ -47,6 +56,8 @@ export function crumbsFor(pathname: string, label?: string | null): Crumb[] {
       return [{ label: "Joueurs", to: "/search" }, { label: leaf("Profil public", "Profil") }];
     case "heroes":
       return [{ label: "Héros", to: "/heroes" }, { label: leaf("Héros", "Fiche héros") }];
+    case "items":
+      return [{ label: "Items", to: "/items" }, { label: leaf("Items", "Fiche item") }];
     case "matches":
       return [{ label: "Parties" }, { label: id }];
     case "tracked":

@@ -1,18 +1,12 @@
 import { Tooltip } from "@base-ui/react/tooltip";
-import type { ItemCategory, MatchItem } from "@/api";
+import type { MatchItem } from "@/api";
 import { cn } from "@/components/ui";
+import { ITEM_TONE, ROMAN } from "@/features/items/tone";
 import { NA } from "@/lib/format";
-
-const TONE: Record<ItemCategory, { bg: string; fg: string; label: string }> = {
-  weapon: { bg: "#3a2a17", fg: "#f2a94e", label: "Arme" },
-  vitality: { bg: "#1b3322", fg: "#6fd58a", label: "Vitalité" },
-  spirit: { bg: "#2c2347", fg: "#b4abff", label: "Esprit" },
-};
-const ROMAN = ["", "I", "II", "III", "IV"];
 
 /** Icône d'objet : image fournie par le back, sinon tuile de repli (catégorie + palier), jamais une fausse icône. */
 export function ItemIcon({ item, size = 26 }: { item: MatchItem; size?: number }) {
-  const tone = TONE[item.category];
+  const tone = ITEM_TONE[item.category];
   return (
     <Tooltip.Root>
       <Tooltip.Trigger

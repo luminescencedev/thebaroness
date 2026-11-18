@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import type { HeroSummary } from "@/api";
 import { HeroPortrait } from "@/components/media/HeroPortrait";
-import { ROLE_LABELS } from "./roles";
+import { ROLE_LABELS, complexityLabel } from "./roles";
 
 /** Carte de héros : portrait, lueur et bordure à la couleur du héros, rôle en pastille colorée. */
 export function HeroCard({ hero }: { hero: HeroSummary }) {
@@ -27,6 +27,24 @@ export function HeroCard({ hero }: { hero: HeroSummary }) {
         className="absolute inset-x-0 bottom-0 h-1"
         style={{ background: `linear-gradient(90deg, ${hero.color}, transparent)` }}
       />
+      {hero.complexity !== null && (
+        <span
+          role="img"
+          aria-label={`Complexité : ${complexityLabel(hero.complexity)}`}
+          title={`Complexité : ${complexityLabel(hero.complexity)}`}
+          className="absolute top-2.5 right-2.5 flex gap-[3px] rounded-full bg-bg/70 px-2 py-1.5 backdrop-blur-[12px]"
+        >
+          {[1, 2, 3].map((n) => (
+            <span
+              key={n}
+              className="size-1.5 rounded-full"
+              style={{
+                background: n <= (hero.complexity ?? 0) ? hero.color : "rgb(255 255 255 / 0.22)",
+              }}
+            />
+          ))}
+        </span>
+      )}
       <span className="absolute inset-x-0 bottom-0 p-3.5">
         <span className="block truncate text-base font-semibold tracking-[-0.03em] text-text">
           {hero.name}

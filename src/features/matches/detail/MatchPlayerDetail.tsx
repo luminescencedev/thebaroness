@@ -171,7 +171,7 @@ function PurchaseRow({ pu }: { pu: Purchase }) {
             size={28}
             item={{
               itemId: c.id,
-              name: c.name,
+              name: c.name ?? `Objet n°${c.id}`,
               tier: c.tier ?? 1,
               category: c.slot,
               iconUrl: c.imageUrl,
@@ -228,7 +228,7 @@ function BuildPanel({
                       size={34}
                       item={{
                         itemId: id,
-                        name: c.name,
+                        name: c.name ?? `Objet n°${c.id}`,
                         tier: c.tier ?? 1,
                         category: c.slot,
                         iconUrl: c.imageUrl,

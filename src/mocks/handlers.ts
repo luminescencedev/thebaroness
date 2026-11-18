@@ -7,6 +7,7 @@ import type {
   TrackedPlayer,
 } from "@/api/types";
 import { SCENARIOS } from "./scenarios";
+import { allItemStats, buildsFor, filtersOf, itemStatsFor, pairsFor } from "./itemsMock";
 import { matchFixtures, mockConfig, playerFixtures, state } from "./state";
 import {
   allSyntheticPlayers,
@@ -54,6 +55,23 @@ const meta = (isPartial = false): DataMeta => ({
   isStale: false,
   isPartial,
 });
+
+/** Lit period (7d par défaut 30d), matchMode et heroId ; renvoie un message d'erreur si invalide. */
+function parseAnalytics(request: Request) {
+  const q = new URL(request.url).searchParams;
+  const period = q.get("period") ?? "30d";
+  if (period !== "7d" && period !== "30d") return "period : 7d ou 30d.";
+  const mode = q.get("matchMode") ?? undefined;
+  if (mode !== undefined && mode !== "ranked" && mode !== "unranked")
+    return "matchMode : ranked ou unranked.";
+  const heroId = q.get("heroId") === null ? undefined : Number(q.get("heroId"));
+  if (heroId !== undefined && (!Number.isInteger(heroId) || heroId < 1)) return "heroId invalide.";
+  return { period, mode, heroId } as {
+    period: "7d" | "30d";
+    mode: "ranked" | "unranked" | undefined;
+    heroId: number | undefined;
+  };
+}
 
 async function latency() {
   if (mockConfig.latencyMs > 0) await delay(mockConfig.latencyMs);
@@ -265,6 +283,84 @@ export const handlers = [
     });
     if (members.length === 0) return unavailable();
     return HttpResponse.json({ group, period, members, meta: meta() });
+  }),
+
+  http.get(`${API}/items/stats`, async ({ request }) => {
+    await latency();
+    const q = parseAnalytics(request);
+    if (typeof q === "string") return invalid(q);
+    return HttpResponse.json({
+      filters: filtersOf(q.period, q.mode, q.heroId ?? null),
+      items: allItemStats(q.period, q.mode, q.heroId),
+      meta: meta(),
+    });
+  }),
+
+  http.get(`${API}/items/:itemId/stats`, async ({ request, params }) => {
+    await latency();
+    const id = Number(params.itemId);
+    if (!Number.isInteger(id) || id < 0) return invalid("Identifiant d'item invalide.");
+    if (!syntheticCatalog.some((c) => c.id === id)) return notFound("Item introuvable.");
+    const q = parseAnalytics(request);
+    if (typeof q === "string") return invalid(q);
+    const stats = itemStatsFor(id, q.period, q.mode, q.heroId);
+    return HttpResponse.json({
+      itemId: id,
+      filters: filtersOf(q.period, q.mode, q.heroId ?? null),
+      stats,
+      notes: stats ? [] : ["below_source_threshold"],
+      meta: meta(),
+    });
+  }),
+
+  http.get(`${API}/items/:itemId`, async ({ params }) => {
+    await latency();
+    const id = Number(params.itemId);
+    if (!Number.isInteger(id) || id < 0) return invalid("Identifiant d'item invalide.");
+    const item = syntheticCatalog.find((c) => c.id === id);
+    return item
+      ? HttpResponse.json({ clientVersion: 6861, item, meta: meta() })
+      : notFound("Item introuvable.");
+  }),
+
+  http.get(`${API}/heroes/:heroId/builds`, async ({ request, params }) => {
+    await latency();
+    const id = Number(params.heroId);
+    if (!Number.isInteger(id) || id < 1) return invalid("Identifiant de héros invalide.");
+    if (!heroById(id)) return notFound("Héros introuvable.");
+    const q = new URL(request.url).searchParams;
+    const sort = q.get("sort") ?? "favorites";
+    if (!["favorites", "weekly_favorites", "updated_at", "published_at"].includes(sort))
+      return invalid("sort invalide.");
+    const limit = q.get("limit") === null ? 10 : Number(q.get("limit"));
+    if (!Number.isInteger(limit) || limit < 1 || limit > 50) return invalid("limit : 1 à 50.");
+    return HttpResponse.json({
+      heroId: id,
+      sort,
+      items: buildsFor(id, sort as "favorites", limit),
+      meta: meta(),
+    });
+  }),
+
+  http.get(`${API}/heroes/:heroId/item-pairs`, async ({ request, params }) => {
+    await latency();
+    const id = Number(params.heroId);
+    if (!Number.isInteger(id) || id < 1) return invalid("Identifiant de héros invalide.");
+    if (!heroById(id)) return notFound("Héros introuvable.");
+    const q = parseAnalytics(request);
+    if (typeof q === "string") return invalid(q);
+    const sp = new URL(request.url).searchParams;
+    const limit = sp.get("limit") === null ? 20 : Number(sp.get("limit"));
+    if (!Number.isInteger(limit) || limit < 1 || limit > 100) return invalid("limit : 1 à 100.");
+    const itemId = sp.get("itemId") === null ? undefined : Number(sp.get("itemId"));
+    const { heroId: _h, ...f } = filtersOf(q.period, q.mode, null);
+    void _h;
+    return HttpResponse.json({
+      heroId: id,
+      filters: { ...f, itemId: itemId ?? null },
+      items: pairsFor(id, q.period, q.mode, itemId, limit),
+      meta: meta(),
+    });
   }),
 
   http.get(`${API}/items`, async ({ request }) => {

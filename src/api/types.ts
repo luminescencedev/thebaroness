@@ -542,12 +542,12 @@ export interface GroupCompareResponse {
 export interface CatalogItem {
   id: number;
   className: string;
-  name: string;
-  type: "upgrade" | "ability" | "weapon";
+  name: string | null;
+  type: "upgrade" | "ability" | "weapon" | null;
   slot: ItemCategory | null;
   tier: number | null;
   cost: number | null;
-  isActive: boolean;
+  isActive: boolean | null;
   shopable: boolean;
   disabled: boolean;
   heroIds: number[];
@@ -556,8 +556,109 @@ export interface CatalogItem {
 }
 
 export interface ItemListResponse {
-  clientVersion: number;
+  clientVersion: number | null;
   items: CatalogItem[];
+  meta: DataMeta;
+}
+
+export interface ItemDetailResponse {
+  clientVersion: number | null;
+  item: CatalogItem;
+  meta: DataMeta;
+}
+
+/* ---------- Phase P2 (OpenAPI 1.11.0) : statistiques d'items, builds, paires ---------- */
+
+export type AnalyticsPeriod = "7d" | "30d";
+export type AnalyticsMatchMode = "ranked" | "unranked";
+
+export interface AnalyticsParams {
+  period: AnalyticsPeriod;
+  /** Absent : tous types de partie. */
+  matchMode?: AnalyticsMatchMode;
+  heroId?: number;
+}
+
+export interface AnalyticsFilters {
+  period: AnalyticsPeriod;
+  heroId: number | null;
+  matchMode: "all" | "ranked" | "unranked";
+  gameMode: "normal";
+  from: string;
+}
+
+export interface ItemStats {
+  itemId: number;
+  /** Parties où l'item a été acheté (pas un taux de choix : le dénominateur n'est pas fourni). */
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+  players: number | null;
+  sold: number | null;
+  sellRate: number | null;
+  avgBuyTimeSeconds: number | null;
+  avgSellTimeSeconds: number | null;
+}
+
+export interface ItemStatsListResponse {
+  filters: AnalyticsFilters;
+  items: ItemStats[];
+  meta: DataMeta;
+}
+
+export interface ItemStatsResponse {
+  itemId: number;
+  filters: AnalyticsFilters;
+  stats: ItemStats | null;
+  notes: "below_source_threshold"[];
+  meta: DataMeta;
+}
+
+export interface HeroBuildCategory {
+  name: string | null;
+  description: string | null;
+  items: { itemId: number; annotation: string | null }[];
+}
+
+export interface HeroBuild {
+  buildId: number;
+  heroId: number;
+  name: string | null;
+  description: string | null;
+  authorSteamId: string | null;
+  language: number | null;
+  version: number | null;
+  publishedAt: string | null;
+  updatedAt: string | null;
+  /** Rempli seulement avec sort=favorites. null n'est pas zéro. */
+  favorites: number | null;
+  /** Rempli seulement avec sort=weekly_favorites. */
+  weeklyFavorites: number | null;
+  categories: HeroBuildCategory[];
+}
+
+export type BuildSort = "favorites" | "weekly_favorites" | "updated_at" | "published_at";
+
+export interface HeroBuildsResponse {
+  heroId: number;
+  sort: string;
+  items: HeroBuild[];
+  meta: DataMeta;
+}
+
+export interface ItemPair {
+  itemIds: [number, number];
+  matches: number;
+  wins: number;
+  losses: number;
+  winRate: number | null;
+}
+
+export interface HeroItemPairsResponse {
+  heroId: number;
+  filters: Omit<AnalyticsFilters, "heroId"> & { itemId: number | null };
+  items: ItemPair[];
   meta: DataMeta;
 }
 

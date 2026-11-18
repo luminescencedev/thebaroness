@@ -85,7 +85,13 @@ function resolveItems(
       const c = catalog.get(id);
       if (!c || !c.slot) return [];
       return [
-        { itemId: id, name: c.name, tier: c.tier ?? 1, category: c.slot, iconUrl: c.imageUrl },
+        {
+          itemId: id,
+          name: c.name ?? `Objet n°${id}`,
+          tier: c.tier ?? 1,
+          category: c.slot,
+          iconUrl: c.imageUrl,
+        },
       ];
     });
 }

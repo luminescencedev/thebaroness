@@ -42,6 +42,12 @@ export const SparkIcon = (p: P) => (
     <path d="m12 2 2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6L12 2Z" />
   </Icon>
 );
+export const ItemsIcon = (p: P) => (
+  <Icon {...p}>
+    <path d="M12 3 3.5 7.5v9L12 21l8.5-4.5v-9L12 3Z" />
+    <path d="m3.5 7.5 8.5 4.5 8.5-4.5M12 12v9" />
+  </Icon>
+);
 export const ChartIcon = (p: P) => (
   <Icon {...p}>
     <path d="M3 20.5h18M3.5 18V4" />

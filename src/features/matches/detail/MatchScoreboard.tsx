@@ -26,7 +26,15 @@ function finalItems(
   return ids.flatMap((id) => {
     const c = catalog.get(id);
     return c && c.slot
-      ? [{ itemId: id, name: c.name, tier: c.tier ?? 1, category: c.slot, iconUrl: c.imageUrl }]
+      ? [
+          {
+            itemId: id,
+            name: c.name ?? `Objet n°${id}`,
+            tier: c.tier ?? 1,
+            category: c.slot,
+            iconUrl: c.imageUrl,
+          },
+        ]
       : [];
   });
 }

@@ -109,3 +109,10 @@ Les données de jeu viennent de Deadlock API en anglais et restent en anglais (n
 - Statistiques dérivées dans `src/lib/stats.ts` (fonctions pures, tests unitaires) : KDA global sur les sommes, valeur nette par minute, victoires glissantes, écart sur 20 parties, séries, rôles, écart face à la méta, distributions, calendrier UTC, heures de Paris.
 - Profil : bannière aux couleurs du héros principal, actualisation (pause de 60 s), partage, onglet dans l'URL, barre d'onglets collante, pilule du header qui rappelle le joueur au défilement, palette avec actions contextuelles.
 - Écarts avec le brief : pas de tri du catalogue par taux de victoire (demande au back), pas de radar de stats de héros (valeurs non comparables), pas de progression de rang d'un joueur seul (demande au back), les tests e2e Playwright restent à reprendre.
+
+## Items, builds et paires (18/11/2026)
+
+- « Achats » d'un item = parties observées avec achat (`matches` de `/items/stats`). Aucun taux de choix : la source ne fournit pas le dénominateur.
+- Builds : communautaires, jamais présentés comme officiels ni comme achats réels. `favorites` et `weeklyFavorites` ne s'affichent que pour le tri qui les remplit ; null n'est jamais 0.
+- Catalogue d'objets : une seule clé de cache `["items","upgrade"]`, partagée par le Match Detail, le profil, les builds et les pages Items.
+- Filtres de pages dans l'URL (`q`, `role`, `slot`, `tier`, `cost`, `shop`, `sort`, `period`, `mode`, `hero`, `tab`, `build`).

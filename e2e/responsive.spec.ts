@@ -1,7 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 // T-18 / NF-08 : aucun débordement horizontal à 375 px.
-const pages = ["/", "/search?q=corvid", "/players/76561198000000000", "/login", "/nimporte-quoi"];
+const pages = [
+  "/",
+  "/search?q=corvid",
+  "/leaderboard",
+  "/players/76561198000000000",
+  "/login",
+  "/nimporte-quoi",
+];
 
 for (const path of pages) {
   test(`pas de défilement horizontal sur ${path}`, async ({ page }) => {

@@ -10,6 +10,7 @@ import { useNavSubject } from "./navContext";
 import { copyText } from "@/lib/clipboard";
 import { useHeroes } from "@/features/heroes/hooks";
 import { usePlayerSearch } from "@/features/players/hooks";
+import { homonymKeys, normalizeName, STEAM_ID_RE } from "@/features/search/model";
 import { clearRecents, rememberPlayer, useRecentPlayers } from "@/features/search/recents";
 import { useDebounced } from "@/lib/useDebounced";
 
@@ -17,8 +18,6 @@ interface CommandPaletteProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const STEAM_ID_RE = /^\d{17}$/;
 
 const groupClass =
   "px-2 pb-1.5 [&_[cmdk-group-heading]]:flex [&_[cmdk-group-heading]]:items-center [&_[cmdk-group-heading]]:justify-between [&_[cmdk-group-heading]]:px-2.5 [&_[cmdk-group-heading]]:pt-3 [&_[cmdk-group-heading]]:pb-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:tracking-[0.08em] [&_[cmdk-group-heading]]:text-subtle [&_[cmdk-group-heading]]:uppercase";
@@ -150,6 +149,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const searching = debounced.length >= 2 && !STEAM_ID_RE.test(debounced);
   const players = usePlayerSearch(searching ? debounced : "");
   const waiting = searching && (players.isFetching || debounced !== q);
+  const shown = players.data?.items.slice(0, 5) ?? [];
+  // Même règle que /search : « même pseudo » seulement pour des pseudos identiques (casse ignorée).
+  const sameName = homonymKeys(shown);
 
   const needle = q.toLowerCase();
   const heroMatches = needle
@@ -307,7 +309,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   Recherche indisponible pour le moment.
                 </p>
               )}
-              {players.data?.items.slice(0, 5).map((p) => (
+              {shown.map((p) => (
                 <Command.Item
                   key={p.steamId}
                   value={`player-${p.steamId}`}
@@ -320,7 +322,14 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                     className="size-8 rounded-lg text-xs"
                   />
                   <span className="flex min-w-0 flex-col">
-                    <span className="truncate text-text">{p.displayName}</span>
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate text-text">{p.displayName}</span>
+                      {sameName.has(normalizeName(p.displayName)) && (
+                        <span className="shrink-0 rounded-full border border-warning/30 bg-warning/10 px-2 text-[11px] text-[#f2c98a]">
+                          même pseudo
+                        </span>
+                      )}
+                    </span>
                     <span className="mono text-xs text-subtle">{p.steamId}</span>
                   </span>
                   <OpenHint label="Ouvrir le profil" />

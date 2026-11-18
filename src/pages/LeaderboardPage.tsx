@@ -1,48 +1,86 @@
 import { Tabs } from "@base-ui/react/tabs";
-import { useState } from "react";
-import { Link } from "react-router";
-import type { LeaderboardRegion } from "@/api";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
+import type { LeaderboardRegion, LeaderboardResponse } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
-import { HeroPortrait } from "@/components/media/HeroPortrait";
-import { RankBadge } from "@/components/media/RankBadge";
 import { PageHeader } from "@/components/PageHeader";
-import { EmptyState, Skeleton, cn } from "@/components/ui";
+import { Alert, EmptyState, Skeleton, Spinner } from "@/components/ui";
 import { useLeaderboard } from "@/features/leaderboard/hooks";
-import type { LeaderboardEntry } from "@/api";
-import { rankLabel } from "@/lib/rank";
+import { LeaderboardRow } from "@/features/leaderboard/LeaderboardRow";
+import { isTied, parseRegion, REGIONS } from "@/features/leaderboard/model";
+import { formatDateTime } from "@/lib/format";
 
-const REGIONS: { value: LeaderboardRegion; label: string }[] = [
-  { value: "Europe", label: "Europe" },
-  { value: "NAmerica", label: "Amérique du Nord" },
-  { value: "SAmerica", label: "Amérique du Sud" },
-  { value: "Asia", label: "Asie" },
-  { value: "Oceania", label: "Océanie" },
-];
+/** Vrai après `ms` tant que `active` : sert à annoncer un premier chargement long (jusqu'à 10 s côté back). */
+function useAfter(ms: number, active: boolean): boolean {
+  const [late, setLate] = useState(false);
+  useEffect(() => {
+    if (!active) return;
+    const id = setTimeout(() => setLate(true), ms);
+    return () => clearTimeout(id);
+  }, [ms, active]);
+  return active && late;
+}
 
-/** Rang du joueur : celui du classement (le back le résout pour toute l'entrée). Aucune relecture du profil. */
-function EntryRank({ entry, size = "md" }: { entry: LeaderboardEntry; size?: "md" | "lg" }) {
-  if (!entry.badge) return null;
-  // Le back livre déjà « Eternus 5 » : rankLabel retire le chiffre et met le sous-rang en romain, comme le profil.
-  const name = rankLabel(entry.badge.name, entry.badge.subrank) ?? entry.badge.name;
+function ListSkeleton() {
   return (
-    <span className="flex items-center gap-2">
-      <RankBadge name={name} imageUrl={entry.badge.imageUrl} size={size === "lg" ? "lg" : "md"} />
-      <span className="text-xs text-muted">{name}</span>
-    </span>
+    <div
+      className="card @container overflow-hidden"
+      aria-busy="true"
+      aria-label="Chargement du classement"
+    >
+      {Array.from({ length: 10 }, (_, i) => (
+        <div
+          key={i}
+          className="grid h-[60px] grid-cols-[34px_36px_minmax(0,1fr)] items-center gap-x-2.5 border-t border-divider pr-3 pl-2 first:border-t-0 @[640px]:h-[62px] @[640px]:grid-cols-[52px_40px_minmax(0,1fr)] @[640px]:gap-x-3"
+        >
+          <Skeleton className="mx-auto !h-[18px] !w-[22px]" />
+          <Skeleton className="!h-9 !w-9 !rounded-full @[640px]:!h-10 @[640px]:!w-10" />
+          <span className="flex flex-col gap-2">
+            <Skeleton className="!h-3.5 w-[46%]" />
+            <Skeleton className="!h-2.5 w-[28%]" />
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CoverageLine({ data }: { data: LeaderboardResponse }) {
+  const c = data.coverage;
+  return (
+    <p className="mt-3.5 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-subtle">
+      {c && (
+        <>
+          <span>
+            <b className="font-medium text-muted tabular-nums">{c.withSteamId}</b> comptes
+            identifiés sur {c.entries}
+            {c.inferredSteamId > 0 && `, dont ${c.inferredSteamId} déduits`}
+          </span>
+          <span>{c.ranksComplete ? "Rangs complets" : "Rangs incomplets"}</span>
+        </>
+      )}
+      <span>Collecté le {formatDateTime(data.meta.fetchedAt)}</span>
+    </p>
   );
 }
 
 function Board({ region }: { region: LeaderboardRegion }) {
   const board = useLeaderboard(region);
+  const slow = useAfter(3000, board.isPending);
 
   if (board.isPending) {
     return (
-      <div className="space-y-2" aria-busy="true" aria-label="Chargement du classement">
-        {Array.from({ length: 8 }, (_, i) => (
-          <Skeleton key={i} className="h-14 rounded-card" />
-        ))}
+      <div>
+        {slow && (
+          <p className="mb-3.5 flex items-center gap-2.5 text-[13px] text-muted" role="status">
+            <Spinner className="shrink-0" />
+            Premier chargement de la région : cela peut prendre jusqu'à 10 s. Les prochaines visites
+            seront instantanées.
+          </p>
+        )}
+        <ListSkeleton />
       </div>
     );
   }
@@ -55,123 +93,69 @@ function Board({ region }: { region: LeaderboardRegion }) {
       />
     );
   }
-  if (board.data.items.length === 0) {
+  const { items, meta } = board.data;
+  if (items.length === 0) {
     return (
       <EmptyState title="Classement vide" description="Aucun joueur classé pour cette région." />
     );
   }
-  const top = board.data.items.slice(0, 3);
-  const rest = board.data.items.slice(3);
-  const MEDAL = ["#F5C451", "#C9CED8", "#D08A5A"];
   return (
-    <div className="space-y-4">
-      <ol className="grid gap-3 sm:grid-cols-3" aria-label="Podium">
-        {top.map((e, i) => (
-          <li
-            key={e.rank}
-            className="card-hero flex flex-col items-center gap-2 px-4 py-6 text-center"
-            style={{ ["--hc" as string]: MEDAL[i] }}
-          >
-            <span
-              className="text-4xl leading-none font-semibold tabular-nums"
-              style={{ color: MEDAL[i] }}
-            >
-              {e.rank}
-            </span>
-            <EntryRank entry={e} size="lg" />
-            {e.steamId ? (
-              <Link
-                to={`/players/${e.steamId}`}
-                className="max-w-full truncate text-lg font-semibold hover:underline"
-              >
-                {e.displayName}
-              </Link>
-            ) : (
-              <span className="max-w-full truncate text-lg font-semibold">{e.displayName}</span>
-            )}
-            {e.topHeroes.length > 0 && (
-              <ul className="mt-1 flex -space-x-2" aria-label="Héros les plus joués">
-                {e.topHeroes.map((h) => (
-                  <li key={h.heroId} title={h.name}>
-                    <HeroPortrait
-                      name={h.name}
-                      src={h.imageUrl}
-                      rounded="full"
-                      className="size-8 border-2 border-bg"
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ol>
-      <ol start={4} className="space-y-2">
-        {rest.map((e) => (
-          <li
-            key={e.rank}
-            className="card grid grid-cols-[2.5rem_1fr_auto] items-center gap-3 px-3 py-2.5 sm:grid-cols-[3rem_1fr_auto_auto]"
-          >
-            <span
-              className={cn(
-                "text-center text-lg font-semibold tabular-nums",
-                e.rank <= 3 ? "text-text" : "text-muted",
-              )}
-            >
-              {e.rank}
-            </span>
-            <span className="flex min-w-0 items-center gap-3">
-              <span className="min-w-0">
-                {e.steamId ? (
-                  <Link
-                    to={`/players/${e.steamId}`}
-                    className="block truncate font-medium hover:underline"
-                  >
-                    {e.displayName}
-                  </Link>
-                ) : (
-                  <span className="block truncate font-medium">{e.displayName}</span>
-                )}
-                <span className="mt-0.5 block min-h-4">
-                  <EntryRank entry={e} />
-                </span>
-              </span>
-            </span>
-            <ul
-              className="hidden items-center -space-x-2 sm:flex"
-              aria-label="Héros les plus joués"
-            >
-              {e.topHeroes.map((h) => (
-                <li key={h.heroId} title={h.name}>
-                  <HeroPortrait
-                    name={h.name}
-                    src={h.imageUrl}
-                    rounded="full"
-                    className="size-8 border-2 border-bg"
-                  />
-                  <span className="sr-only">{h.name}</span>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ol>
-      <DataMetaNotice meta={board.data.meta} />
+    <div className="fade-in">
+      {meta.isPartial && (
+        <Alert tone="info" className="mb-3.5">
+          Rangs incomplets : certains joueurs affichent « Rang n/d ». La source des rangs répond
+          lentement, actualisation automatique dans 1 min.
+        </Alert>
+      )}
+      <div className="card @container overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="hidden grid-cols-[52px_40px_minmax(0,1fr)_190px_104px_14px] gap-x-3 border-b border-divider py-2.5 pr-4 pl-2 text-[11px] font-semibold text-subtle @[640px]:grid"
+        >
+          <span className="text-center">Rang</span>
+          <span />
+          <span>Joueur</span>
+          <span>Rang Deadlock</span>
+          <span>Héros</span>
+          <span />
+        </div>
+        <ol aria-label="Joueurs classés">
+          {items.map((entry, i) => (
+            <LeaderboardRow
+              key={`${entry.rank}-${entry.steamId ?? entry.displayName}-${i}`}
+              entry={entry}
+              tied={isTied(items, i)}
+            />
+          ))}
+        </ol>
+      </div>
+      <CoverageLine data={board.data} />
+      <div className="mt-2">
+        <DataMetaNotice
+          meta={{ ...meta, isPartial: false }}
+          showDate={false}
+          onRetry={() => void board.refetch()}
+        />
+      </div>
     </div>
   );
 }
 
 export function LeaderboardPage() {
   useDocumentTitle("Classement");
-  const [region, setRegion] = useState<LeaderboardRegion>("Europe");
+  const [params, setParams] = useSearchParams();
+  const region = parseRegion(params.get("region"));
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto max-w-[880px]">
       <PageHeader title="Classement" description="Les meilleurs joueurs classés, par région." />
-      <Tabs.Root value={region} onValueChange={(v) => setRegion(v as LeaderboardRegion)}>
+      <Tabs.Root
+        value={region}
+        onValueChange={(v) => setParams({ region: v as LeaderboardRegion }, { replace: true })}
+      >
         <Tabs.List
           aria-label="Région"
-          className="relative mb-6 flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1"
+          className="relative mb-5 flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1 [scrollbar-width:none]"
         >
           <Tabs.Indicator className="absolute top-1 bottom-1 left-0 w-[var(--active-tab-width)] translate-x-[var(--active-tab-left)] rounded-full bg-white/[0.09] shadow-[0_1px_2px_rgb(0_0_0/0.4)] transition-[translate,width] duration-[220ms] ease-[var(--ease-in-out)] motion-reduce:transition-none" />
           {REGIONS.map((r) => (

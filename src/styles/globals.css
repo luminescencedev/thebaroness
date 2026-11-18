@@ -1268,3 +1268,18 @@
   letter-spacing: -0.025em;
   text-shadow: 0 14px 48px rgb(0 0 0 / 0.3);
 }
+
+/* Fondu court d'un contenu qui remplace un squelette ou un autre onglet (150 ms, jamais sur action clavier). */
+.fade-in {
+  animation: fade-in var(--dur-fast) var(--ease-out);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fade-in {
+    animation: none;
+  }
+}

@@ -269,6 +269,13 @@ export function heroMetaStats(heroId: number): HeroMetaStats {
   };
 }
 
+/** Avatar synthétique (SVG en data URI) : le mock n'appelle aucun serveur d'images. */
+function syntheticAvatar(seed: number): string {
+  const hue = (seed * 47) % 360;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='hsl(${hue} 50% 35%)'/><circle cx='32' cy='26' r='11' fill='#ddd' opacity='.8'/><path d='M10 64c3-16 12-22 22-22s19 6 22 22z' fill='#ddd' opacity='.8'/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
 export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
   const r = seeded([...region].reduce((s, c) => s + c.charCodeAt(0), 0));
   return Array.from({ length: 50 }, (_, i) => {
@@ -276,12 +283,15 @@ export function leaderboard(region: LeaderboardRegion): LeaderboardEntry[] {
     const subrank = 6 - (i % 6);
     const rank = ranks.find((x) => x.tier === tier)!;
     const top = Array.from({ length: 3 }, () => r.pick(heroes));
+    // Comme le back v1.14.0 : SteamID et avatar pour presque tous, quelques entrées non reliées, ex æquo.
+    const unlinked = i % 13 === 8;
+    const seed = [...region].reduce((sum, c) => sum + c.charCodeAt(0), 0) + i;
     return {
-      rank: i + 1,
+      rank: i === 11 || i === 31 ? i : i + 1,
       displayName: fakeName(r),
-      steamId: null,
+      steamId: unlinked ? null : `76561198${String(300000000 + seed * 7919).padStart(9, "0")}`,
       inferred: i % 7 === 3,
-      avatarUrl: null,
+      avatarUrl: unlinked || i % 9 === 5 ? null : syntheticAvatar(seed),
       // Une entrée sans rang connu (le back ne la complète plus depuis le profil : null reste null).
       badge:
         i % 11 === 9

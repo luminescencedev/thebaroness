@@ -1,11 +1,11 @@
 # The Baroness, frontend
 
-Frontend React + Vite + TypeScript. Le back est un dépôt séparé : GitHub `LilStick/thebaroness-back` (ancien nom `deadlock-tracker-back`, l'URL redirige). Cloné localement dans `../deadlock-tracker-back` ; son `docs/HANDOFF.md` est le pendant de `docs/HANDOFF.md` d'ici.
+Frontend React + Vite + TypeScript. Le back est un dépôt séparé : GitHub `LilStick/thebaroness-back` (ancien nom `deadlock-tracker-back`, l'URL redirige). Cloné localement dans `../thebaroness-back` ; son `docs/HANDOFF.md` est le pendant de `docs/HANDOFF.md` d'ici.
 
 ## Liaison avec le Claude du back
 
 `docs/HANDOFF.md` est le fichier de liaison destiné au Claude du back. **À chaque rapport rendu à l'utilisateur, mets-le à jour** : ce que le front attend du back, changements de contrat (journal), questions ouvertes. Si tu changes un DTO (`src/api/types.ts`) ou un comportement du mock, mets aussi à jour le contrat concerné dans `docs/back-*.md` et `docs/decisions.md`.
-Avant un rapport, consulte l'état du back (`git -C ../deadlock-tracker-back pull`, son README et `docs/openapi.yaml`) et reporte les écarts dans `HANDOFF.md`.
+Avant un rapport, consulte l'état du back (`git -C ../thebaroness-back pull`, son README et `docs/openapi.yaml`) et reporte les écarts dans `HANDOFF.md`.
 
 ## Workflow Git
 

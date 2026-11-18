@@ -116,3 +116,11 @@ Les données de jeu viennent de Deadlock API en anglais et restent en anglais (n
 - Builds : communautaires, jamais présentés comme officiels ni comme achats réels. `favorites` et `weeklyFavorites` ne s'affichent que pour le tri qui les remplit ; null n'est jamais 0.
 - Catalogue d'objets : une seule clé de cache `["items","upgrade"]`, partagée par le Match Detail, le profil, les builds et les pages Items.
 - Filtres de pages dans l'URL (`q`, `role`, `slot`, `tier`, `cost`, `shop`, `sort`, `period`, `mode`, `hero`, `tab`, `build`).
+
+## Classement et Recherche (18/11/2026)
+
+- Classement : liste unique sans podium (même information, 10 lignes par écran mobile). Position et ex æquo viennent du rang de la source ; la marque « = » se déduit des rangs voisins identiques, jamais de l'index.
+- `inferred` et `steamId` null sont des états de ligne explicités (pastille avec explication), jamais une identité confirmée ni un faux profil. Rang inconnu : « Rang n/d ».
+- Région dans l'URL, changement en `replace`. Pas de préchargement des régions, pas de réessai automatique, flèches du clavier sans activation : le quota du fournisseur est partagé.
+- Recherche : l'URL `?q=` est la source de vérité ; la frappe est un brouillon validé à 300 ms (`replace`) ou avec Entrée, 2 caractères minimum. Homonymes : pseudos égaux après NFKC, espaces réduits, casse ignorée ; les pseudos proches ne sont jamais présentés comme homonymes. Aucun rang dans les résultats.
+- SteamID64 seul identifiant ouvert en direct (palette et page) ; codes amis et URLs Steam ne sont pas pris en charge par `/players/search`.

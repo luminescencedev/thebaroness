@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 
 export interface Series {
   key: string;
@@ -19,6 +19,7 @@ interface MultiLineChartProps {
 }
 
 const W = 720;
+const KEY_STEPS = 24;
 const PAD = { top: 12, right: 14, bottom: 24, left: 104 };
 
 /** Courbes comparées dans le temps. Survol : valeur de chaque série à la date la plus proche. */
@@ -32,6 +33,7 @@ export function MultiLineChart({
   formatDate = (t) => new Date(t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
 }: MultiLineChartProps) {
   const [hoverX, setHoverX] = useState<number | null>(null);
+  const liveId = useId();
   const all = series.flatMap((s) => s.points);
   if (all.length < 2) return null;
 
@@ -67,7 +69,22 @@ export function MultiLineChart({
         role="img"
         aria-label={title}
         className="w-full overflow-visible"
+        tabIndex={0}
+        aria-describedby={liveId}
         onPointerLeave={() => setHoverX(null)}
+        onFocus={() => setHoverX((cur) => cur ?? W - PAD.right)}
+        onBlur={() => setHoverX(null)}
+        onKeyDown={(e) => {
+          const step = innerW / KEY_STEPS;
+          const to = (x: number) => Math.min(W - PAD.right, Math.max(PAD.left, x));
+          if (e.key === "ArrowRight") setHoverX((cur) => to((cur ?? PAD.left) + step));
+          else if (e.key === "ArrowLeft") setHoverX((cur) => to((cur ?? W - PAD.right) - step));
+          else if (e.key === "Home") setHoverX(PAD.left);
+          else if (e.key === "End") setHoverX(W - PAD.right);
+          else if (e.key === "Escape") setHoverX(null);
+          else return;
+          e.preventDefault();
+        }}
         onPointerMove={(e) => {
           const box = e.currentTarget.getBoundingClientRect();
           setHoverX(
@@ -128,6 +145,17 @@ export function MultiLineChart({
           {formatDate(t1)}
         </text>
       </svg>
+      {/* Équivalent texte du survol : annoncé aux flèches, sans souris. */}
+      <p id={liveId} className="sr-only" aria-live="polite">
+        {hoverT === null
+          ? "Flèches gauche et droite : parcourir les dates ; Début et Fin : aller aux extrémités."
+          : `${formatDate(hoverT)} : ${series
+              .flatMap((s) => {
+                const p = nearest(s);
+                return p ? [`${s.label} ${format(p.value)}`] : [];
+              })
+              .join(", ")}`}
+      </p>
       <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted">
         {series.map((s) => {
           const p = nearest(s);

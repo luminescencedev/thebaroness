@@ -438,4 +438,118 @@ describe("comparaison d'un groupe", () => {
     await userEvent.click(within(dialog).getByRole("button", { name: "Supprimer" }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/groups"));
   });
+
+  it("progression : « Voir les données » donne premier et dernier rang observés, sans la souris", async () => {
+    const hist = [
+      { at: "2026-11-01T10:00:00.000Z", score: 50 },
+      { at: "2026-11-10T10:00:00.000Z", score: 52 },
+    ];
+    stubCompare([
+      member(A, "Alpha", { rankHistory: hist }),
+      member(B, "Bravo", { rankHistory: hist }),
+    ]);
+    renderApp(`/groups/${GID}`);
+    await userEvent.click(
+      await screen.findByRole("button", { name: "Voir les données" }, { timeout: 10_000 }),
+    );
+    const table = await screen.findByRole("table");
+    const rows = within(table).getAllByRole("row");
+    expect(
+      within(table).getByRole("columnheader", { name: "Premier rang observé" }),
+    ).toBeInTheDocument();
+    expect(rows).toHaveLength(3);
+    expect(within(rows[1] as HTMLElement).getByText("Alpha")).toBeInTheDocument();
+    expect(within(rows[1] as HTMLElement).getByText("2")).toBeInTheDocument();
+  });
+
+  it("échantillon du KDA et du taux annoncé dans les lignes compactes", async () => {
+    stubCompare([member(A, "Alpha", { matches: 12, kdaSampleSize: 9 }), member(B, "Bravo")]);
+    renderApp(`/groups/${GID}`);
+    await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 });
+    expect(screen.getAllByText(/sur 9 parties/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/sur 12 parties/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Entre parenthèses : nombre de parties/)).toBeInTheDocument();
+  });
+
+  it("changement de période : les chiffres de la période précédente sont signalés comme tels", async () => {
+    let calls = 0;
+    server.use(
+      http.get("*/groups/:id/compare", async () => {
+        calls += 1;
+        if (calls > 1) await new Promise((r) => setTimeout(r, 600));
+        return HttpResponse.json({
+          group: {
+            id: GID,
+            name: "Les amis",
+            steamIds: [A, B],
+            createdAt: meta.fetchedAt,
+            updatedAt: meta.fetchedAt,
+          },
+          period: "30d",
+          members: [member(A, "Alpha"), member(B, "Bravo")],
+          highlights: [],
+          meta,
+        });
+      }),
+    );
+    renderApp(`/groups/${GID}`);
+    await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 });
+    await userEvent.click(screen.getByRole("radio", { name: "7 jours" }));
+    expect(await screen.findByText(/ceux de la période précédente/)).toBeInTheDocument();
+    await waitFor(() => expect(screen.queryByText(/ceux de la période précédente/)).toBeNull(), {
+      timeout: 5000,
+    });
+  });
+
+  it("actualisation refusée : un message, pas un silence", async () => {
+    stubCompare([member(A, "Alpha"), member(B, "Bravo")]);
+    server.use(
+      http.post("*/groups/:id/refresh", () =>
+        HttpResponse.json({ error: { code: "RATE_LIMITED", message: "x" } }, { status: 429 }),
+      ),
+    );
+    renderApp(`/groups/${GID}`);
+    await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 });
+    await userEvent.click(screen.getByRole("button", { name: "Actualiser" }));
+    expect(await screen.findByText(/Trop de requêtes/)).toBeInTheDocument();
+  });
+
+  it("une période qui échoue n'affiche pas les chiffres d'une autre période et reste modifiable", async () => {
+    let fail = false;
+    server.use(
+      http.get("*/groups/:id/compare", () => {
+        if (fail)
+          return HttpResponse.json(
+            { error: { code: "UPSTREAM_ERROR", message: "x" } },
+            { status: 502 },
+          );
+        return HttpResponse.json({
+          group: {
+            id: GID,
+            name: "Les amis",
+            steamIds: [A, B],
+            createdAt: meta.fetchedAt,
+            updatedAt: meta.fetchedAt,
+          },
+          period: "30d",
+          members: [member(A, "Alpha"), member(B, "Bravo")],
+          highlights: [],
+          meta,
+        });
+      }),
+    );
+    renderApp(`/groups/${GID}`);
+    await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 });
+    fail = true;
+    await userEvent.click(screen.getByRole("radio", { name: "Saison" }));
+    expect(
+      await screen.findByText("Comparaison indisponible", {}, { timeout: 10_000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: /Classement du groupe/ })).toBeNull();
+    fail = false;
+    await userEvent.click(screen.getByRole("radio", { name: "30 jours" }));
+    expect(
+      await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 }),
+    ).toBeInTheDocument();
+  });
 });

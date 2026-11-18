@@ -102,13 +102,22 @@ export function GroupDetailPage() {
         />
       );
     }
+    // La période reste modifiable : une période qui échoue ne doit pas enfermer sur la page d'erreur.
     return (
-      <ErrorState
-        error={compare.error}
-        title="Comparaison indisponible"
-        reassure={false}
-        onRetry={() => void compare.refetch()}
-      />
+      <div className="space-y-5">
+        <Segmented<ComparePeriod>
+          ariaLabel="Période"
+          value={period}
+          onChange={setPeriod}
+          options={PERIODS}
+        />
+        <ErrorState
+          error={compare.error}
+          title="Comparaison indisponible"
+          reassure={false}
+          onRetry={() => void compare.refetch()}
+        />
+      </div>
     );
   }
 
@@ -136,6 +145,13 @@ export function GroupDetailPage() {
             <p className="mt-1.5 text-sm text-muted">
               {group.steamIds.length} joueurs · {periodLong} · collecté le{" "}
               {formatDateTime(meta.fetchedAt)}
+            </p>
+            <p role="status" className="mt-1 text-xs text-subtle">
+              {stale
+                ? `Chargement de la période « ${periodLong} » : les chiffres affichés sont ceux de la période précédente.`
+                : compare.isFetching
+                  ? "Actualisation en cours : les chiffres affichés peuvent changer."
+                  : ""}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -211,9 +227,12 @@ export function GroupDetailPage() {
             <Section id="faits" title="Faits marquants">
               <FactsList rows={rows} />
             </Section>
-            <Section id="progression" title="Progression de rang">
-              <RankProgress members={members} groupIds={group.steamIds} ranks={ranks.data?.items} />
-            </Section>
+            <RankProgress
+              groupId={group.id}
+              members={members}
+              groupIds={group.steamIds}
+              ranks={ranks.data?.items}
+            />
             <Section id="parties" title="Meilleures parties">
               <BestMatches members={members} />
               <p className="text-[12.5px] text-subtle">

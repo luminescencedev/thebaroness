@@ -103,6 +103,19 @@ Pas de lecteur d'écran ni de zoom navigateur testés ; la courbe n'a pas de nav
 
 Erreur React existante « deux enfants avec la clé `Mes suivis` » (navigation, hors périmètre) ; accessibilité de la courbe ; l'ancienne marque (loader, favicon, Open Graph).
 
+## Sprint 3.1 : stabilisation (19/11/2026)
+
+**Backend au démarrage** : `main` = `479348f` (v1.14.0), aucun commit depuis le Sprint 3. Aucune des demandes (`include=members`, `include=pairs`, `gameMode`/`matchMode` sur `compare`, `unavailable[]`, période précédente, remise à zéro des rangs) n'est livrée (OpenAPI vérifiée). **Rien n'a été intégré ni simulé.** Plan de reprise : `REPRISE_INTEGRATION.md`.
+
+Corrections indépendantes faites :
+
+- **Graphique accessible** : `MultiLineChart` est focalisable, les flèches, Début, Fin et Échap déplacent un curseur dont les valeurs sont annoncées (zone `aria-live`) ; la progression des groupes passe par `ChartFrame` : « Voir les données » donne un tableau (premier et dernier rang observés, nombre d'observations) et un résumé lu aux lecteurs d'écran. Amélioration partagée : le graphique du profil en profite aussi ; tests dédiés (`MultiLineChart.test.tsx`).
+- **Échantillons sur mobile** : taux et KDA affichent leur effectif entre parenthèses dans les lignes compactes (« sur N parties » annoncé aux lecteurs d'écran) et une légende l'explique.
+- **Présentation intermédiaire** : évaluée à 1024 et 768 px, les lignes à deux niveaux laissaient la moitié droite vide. Un niveau moyen (conteneur de 560 à 820 px) place rang et progression à droite du nom et les victoires, taux et KDA sur la ligne suivante. Le tableau complet reste réservé aux conteneurs de 820 px et plus, pour ne pas déborder avec la sidebar.
+- **États** : pendant un changement de période, un message dit que les chiffres affichés sont ceux de la période précédente ; une relecture en cours est signalée ; une actualisation refusée (quota, délai de 60 s) affiche un message ; une période qui échoue n'affiche plus le tableau d'une autre période et la période reste modifiable.
+
+Tests : 21 pour les pages groupes, 3 pour le graphique, tout le reste inchangé ; E2E des groupes inchangé.
+
 ## BACKEND GAP ANALYSIS
 
 | Fonctionnalité                                    | Valeur utilisateur                       | Disponibilité actuelle                                | Faisabilité                                           | Coût                   | Priorité | Décision                         |

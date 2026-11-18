@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { errorMessage } from "@/lib/messages";
 import {
   compareGroup,
   createGroup,
@@ -79,5 +80,7 @@ export function useRefreshGroup(id: string, period: ComparePeriod) {
       qc.setQueryData([...key, "compare", id, period], data);
       toast.success("Comparaison actualisée");
     },
+    // Sans message, une actualisation refusée (60 s entre deux relectures, quota) paraîtrait ignorée.
+    onError: (error) => toast.error(errorMessage(error)),
   });
 }

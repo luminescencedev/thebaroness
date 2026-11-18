@@ -72,7 +72,7 @@ function Sampled({
 }
 
 const cols =
-  "grid-cols-[30px_minmax(0,1fr)] @[820px]:grid-cols-[34px_minmax(0,1.4fr)_150px_96px_120px_96px_90px]";
+  "grid-cols-[30px_minmax(0,1fr)] @[560px]:grid-cols-[34px_minmax(0,1fr)_auto] @[820px]:grid-cols-[34px_minmax(0,1.4fr)_150px_96px_120px_96px_90px]";
 
 /**
  * Classement comparatif du groupe. Tableau sur grand conteneur, lignes à deux niveaux sinon (la sidebar
@@ -165,6 +165,11 @@ export function ComparisonTable({
                     {m.displayName}
                   </Link>
                 </span>
+                {/* Conteneur moyen : rang et progression à droite du nom, le reste sur la ligne suivante. */}
+                <span className="hidden items-center gap-4 justify-self-end @[560px]:flex @[820px]:hidden">
+                  <Rank m={m} />
+                  <Climb delta={m.rankDelta} />
+                </span>
                 {/* Grand conteneur : colonnes. */}
                 <span className="hidden @[820px]:block">
                   <Rank m={m} />
@@ -195,21 +200,47 @@ export function ComparisonTable({
                   )}
                 </span>
                 {/* Petit conteneur : résumé sous le nom, mêmes informations. */}
-                <span className="col-start-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted @[820px]:hidden">
-                  <Rank m={m} />
-                  <Climb delta={m.rankDelta} />
+                <span className="col-start-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted @[560px]:col-span-2 @[820px]:hidden">
+                  <span className="flex items-center gap-4 @[560px]:hidden">
+                    <Rank m={m} />
+                    <Climb delta={m.rankDelta} />
+                  </span>
                   <span>
                     {m.wins} V / {m.losses} D
                   </span>
                   <span className={cn(low && winRate !== null && "text-warning")}>
-                    {winRate ?? "n/d"} <span className="text-subtle">({m.matches})</span>
+                    {winRate ?? "n/d"}
+                    {winRate !== null && (
+                      <>
+                        {" "}
+                        <span className="text-subtle" aria-hidden="true">
+                          ({m.matches})
+                        </span>
+                        <span className="sr-only"> sur {m.matches} parties</span>
+                        {low && <span className="sr-only"> : échantillon faible</span>}
+                      </>
+                    )}
                   </span>
-                  <span>KDA {m.kda === null ? "n/d" : formatDecimal(m.kda)}</span>
+                  <span>
+                    KDA {m.kda === null ? "n/d" : formatDecimal(m.kda)}
+                    {m.kda !== null && (
+                      <>
+                        {" "}
+                        <span className="text-subtle" aria-hidden="true">
+                          ({m.kdaSampleSize ?? m.matches})
+                        </span>
+                        <span className="sr-only"> sur {m.kdaSampleSize ?? m.matches} parties</span>
+                      </>
+                    )}
+                  </span>
                 </span>
               </li>
             );
           })}
         </ol>
+        <p className="border-t border-divider px-3.5 py-2 text-[11.5px] text-subtle @[820px]:hidden">
+          Entre parenthèses : nombre de parties prises en compte.
+        </p>
       </div>
       <p className="mt-2.5 text-[12.5px] leading-relaxed text-subtle">
         La position suit le critère choisi : c'est la place dans ce groupe, pas le rang officiel. «

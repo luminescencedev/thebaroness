@@ -10,6 +10,7 @@ import type {
   HeroDetailResponse,
   HeroListResponse,
   ItemListResponse,
+  HeroMetaBatch,
   HeroStatsResponse,
   LeaderboardRegion,
   MapAssets,
@@ -29,6 +30,13 @@ export const getHero = (heroId: number | string, signal?: AbortSignal) =>
 
 export const getHeroStats = (heroId: number | string, signal?: AbortSignal) =>
   request<HeroStatsResponse>(`/heroes/${encodeURIComponent(String(heroId))}/stats`, { signal });
+
+/** Méta de plusieurs héros en UNE requête (v1.14.0). Sans `heroIds` : tous les héros jouables. */
+export const getHeroesStats = (heroIds?: number[], signal?: AbortSignal) =>
+  request<HeroMetaBatch>("/heroes/stats", {
+    query: { heroIds: heroIds?.length ? heroIds.join(",") : undefined },
+    signal,
+  });
 
 export const listRanks = (signal?: AbortSignal) => request<RankListResponse>("/ranks", { signal });
 

@@ -1,11 +1,11 @@
 # Copie figée du contrat OpenAPI du backend
-# Source : thebaroness-back, docs/openapi.yaml v1.13.0, commit 5249360 (18/11/2026)
-# Généré depuis src/docs/openapi.ts (v1.13.0) par `npm run openapi`.
+# Source : thebaroness-back, docs/openapi.yaml v1.14.0, commit 479348f (18/11/2026)
+# Généré depuis src/docs/openapi.ts (v1.14.0) par `npm run openapi`.
 # Ne pas modifier à la main.
 openapi: 3.1.0
 info:
   title: thebaroness API
-  version: 1.13.0
+  version: 1.14.0
   description: "API du tracker de statistiques Deadlock. Les statistiques proviennent de Deadlock API (api.deadlock-api.com, source communautaire indépendante de Valve) ; l'espace privé est stocké dans MongoDB. Erreurs : `{ \"error\": { \"code\", \"message\" } }`. Inconnu = `null`, jamais 0."
 servers:
   - url: /api
@@ -422,6 +422,34 @@ paths:
                       - "null"
         "429":
           $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /heroes/stats:
+    get:
+      tags:
+        - Catalogue
+      summary: Méta de plusieurs héros en une requête
+      description: "v1.14.0. Mêmes valeurs que `/heroes/{heroId}/stats`, lues dans le même cache (`analytics:hero-stats`, 30 min, une lecture source pour tous les héros). Sans `heroIds` : tous les héros jouables, par id croissant. Les ids inconnus ou non jouables vont dans `unknownHeroIds` (pas de 404). Fenêtre fixée par la source : 30 derniers jours, mode normal, ranked et unranked confondus (`scope`)."
+      parameters:
+        - name: heroIds
+          in: query
+          description: Liste `6,72,13` (1 à 64 ids positifs). Doublons retirés, ordre conservé dans `items`.
+          schema:
+            type: string
+            pattern: ^\d{1,6}(,\d{1,6}){0,63}$
+      responses:
+        "200":
+          description: Méta groupée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HeroMetaBatch"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "502":
+          $ref: "#/components/responses/UpstreamError"
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
   /heroes/{heroId}/stats:
@@ -2590,6 +2618,62 @@ components:
                 type:
                   - integer
                   - "null"
+    HeroMetaBatch:
+      type: object
+      required:
+        - items
+        - unknownHeroIds
+        - scope
+        - coverage
+        - meta
+      properties:
+        items:
+          type: array
+          description: "Un `HeroMetaStats` par héros jouable demandé, dans l’ordre demandé. Héros sans donnée dans la fenêtre : valeurs null."
+          items:
+            $ref: "#/components/schemas/HeroMetaStats"
+        unknownHeroIds:
+          type: array
+          description: Ids demandés inconnus ou non jouables
+          items:
+            type: integer
+        scope:
+          type: object
+          required:
+            - period
+            - gameMode
+            - matchMode
+          properties:
+            period:
+              type: string
+              enum:
+                - 30d
+            gameMode:
+              type: string
+              enum:
+                - normal
+            matchMode:
+              type: string
+              enum:
+                - all
+        coverage:
+          type: object
+          required:
+            - requested
+            - known
+            - withStats
+          properties:
+            requested:
+              type: integer
+              description: Ids distincts demandés
+            known:
+              type: integer
+              description: Héros jouables parmi eux (= taille de `items`)
+            withStats:
+              type: integer
+              description: Héros avec `matches` non null
+        meta:
+          $ref: "#/components/schemas/DataMeta"
     LeaderboardEntry:
       type: object
       required:
@@ -4436,6 +4520,7 @@ components:
         - teamNetWorthRank
         - playersInMatch
         - lastHitsPerMinute
+        - netWorthPerMinute
         - performanceTags
         - finalItemIds
         - teamAverageBadge
@@ -4468,6 +4553,11 @@ components:
           type:
             - number
             - "null"
+        netWorthPerMinute:
+          type:
+            - number
+            - "null"
+          description: "v1.14.0. Souls/min : `netWorth / (durée / 60)`, 2 décimales (même formule que `/trends.series`) ; null si valeur nette inconnue ou durée ≤ 0."
         performanceTags:
           type: array
           items:

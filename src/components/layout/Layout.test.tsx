@@ -1,4 +1,4 @@
-import { act, screen, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import { sessionStore } from "@/api/session";
@@ -29,7 +29,8 @@ describe("layout", () => {
       screen.getByText(/Deadlock API, projet communautaire indépendant de Valve/),
     ).toBeInTheDocument();
     expect(screen.queryByRole("complementary", { name: "Barre latérale" })).not.toBeInTheDocument();
-    expect(document.title).toBe("The Baroness · Deadlock Tracker");
+    // Le titre est posé par un effet de la page chargée à la demande : on l'attend, on ne le suppose pas.
+    await waitFor(() => expect(document.title).toBe("The Baroness · Deadlock Tracker"));
   });
 
   it("shell : sidebar intégrée avec marque, navigation et déclencheur ⌘K", async () => {

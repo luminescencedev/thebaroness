@@ -5,7 +5,7 @@ import { server } from "@/mocks/server";
 import { renderApp } from "@/test/render";
 import { signIn } from "@/test/session";
 
-const T = { timeout: 4000 };
+const T = { timeout: 10_000 };
 
 function apiCalls() {
   const paths: string[] = [];

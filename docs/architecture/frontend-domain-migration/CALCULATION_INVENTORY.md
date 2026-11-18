@@ -58,7 +58,7 @@ Décisions : **Garder** (front), **Déplacer** (back, contrat à demander), **Re
 
 ## Classement, recherche, accueil
 
-Classement : rien à retirer (badges, `inferred`, héros déjà fournis). Recherche : une seule clé `playerKeys.search(q)` partagée, débounce déjà en place, récents locaux conservés. Accueil : `MetaWidget` fait 7 lectures de méta (**Déplacer** : liste groupée) ; pas de calcul métier.
+Classement : rien à retirer (badges, `inferred`, héros déjà fournis). Recherche : une seule clé `playerKeys.search(q)` partagée, débounce déjà en place, récents locaux conservés. Accueil : `MetaWidget` lit la méta par `GET /heroes/stats` (une requête, v1.14.0) ; pas de calcul métier.
 
 ## Items (`items/catalogView.ts`, `costs.ts`, `format.ts`)
 
@@ -79,4 +79,4 @@ Recherche, tri, filtre catégorie et coût exact, options de coût dérivées du
 | `netPerMinute`, `matchKda` par ligne d'historique                                                  | **Garder** : `include=summary` ne donne pas la valeur nette par minute et n'est pas adopté (voir `MIGRATION_REPORT.md` section 8)                             |
 | `heroRows.few` (seuil 5)                                                                           | **Garder** : indication d'interface, alignée sur `highlightMinMatches`                                                                                        |
 | `Histogram`, `median`, `ROMAN` en double                                                           | **Supprimé** / unifié                                                                                                                                         |
-| Méta de l'accueil (7 lectures)                                                                     | **Temporaire** : pas d'endpoint groupé                                                                                                                        |
+| Méta de l'accueil                                                                                  | **Remplacé** par `GET /heroes/stats` (v1.14.0)                                                                                                                |

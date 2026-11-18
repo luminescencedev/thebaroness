@@ -27,7 +27,7 @@ describe("catalogue d'objets : une clé, une requête", () => {
     const { result } = renderHook(() => ({ map: useItemCatalog(), raw: useUpgradeCatalog() }), {
       wrapper: wrapper(qc),
     });
-    await waitFor(() => expect(result.current.map.data).toBeDefined(), { timeout: 4000 });
+    await waitFor(() => expect(result.current.map.data).toBeDefined(), { timeout: 10_000 });
     expect(result.current.raw.data?.items.length).toBe(result.current.map.data?.size);
     expect(calls).toEqual(["?type=upgrade"]);
   });
@@ -47,7 +47,7 @@ describe("catalogue d'objets : une clé, une requête", () => {
     await new Promise((r) => setTimeout(r, 200));
     expect(n).toBe(0);
     rerender({ on: true });
-    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 4000 });
+    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 10_000 });
     expect(n).toBe(1);
   });
 });

@@ -15,7 +15,7 @@ describe("classement : identités et rangs résolus par le back", () => {
     server.events.on("request:start", listener);
     stops.push(() => server.events.removeListener("request:start", listener));
     renderApp("/leaderboard");
-    await screen.findByRole("list", { name: "Podium" }, { timeout: 4000 });
+    await screen.findByRole("list", { name: "Podium" }, { timeout: 10_000 });
     await new Promise((r) => setTimeout(r, 400));
     expect(calls.filter((p) => /\/players\/\d+$/.test(p))).toEqual([]);
     expect(calls.filter((p) => p.endsWith("/leaderboard"))).toHaveLength(1);

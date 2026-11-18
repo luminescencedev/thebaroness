@@ -42,11 +42,11 @@ Copie hors dépôt de `5249360`, MongoDB locale. Joueur réel LilStick : `/trend
 ## 8. Évalué et non adopté
 
 - **`include=summary` sur l'historique** : la ligne de partie à grande largeur affiche les équipes, le build, le CS et les tirs critiques, que le résumé ne contient pas. Le détail complet reste nécessaire par ligne visible ; ajouter le résumé coûterait 1,2 s pour 3 parties (8,5 s à froid pour 50) sans retirer une requête. Les petits écrans (qui ne chargent pas le détail) gagneraient KP et CS par minute : à décider avec le design.
-- **Accueil** : 7 lectures de méta (`/heroes/:id/stats`) restent, aucun endpoint de méta groupée n'existe.
+- **Accueil** : traité depuis (voir « Méta groupée »).
 
 ## 9. Travaux restants
 
-1. Endpoint de méta groupée pour l'accueil (7 lectures) : toujours absent du back v1.13.0 (vérifié le 18/11 : aucun commit après `5249360`). La lecture est isolée dans `useHeroesMeta` : le jour où l'endpoint existe, seule cette fonction change.
+1. ~~Méta groupée pour l'accueil~~ : livrée par le back v1.14.0 (`GET /heroes/stats`) et consommée (voir « Méta groupée »).
 2. Afficher `avatarUrl` du classement (sprint Classement).
 3. Valeur nette par minute dans le résumé de partie, pour retirer `netPerMinute` des lignes d'historique.
 4. Dépréciations annoncées par le back (`teams[].outcome`, `/trends.rolling`) : le front ne les lit plus ; à confirmer avant retrait côté back.
@@ -69,6 +69,14 @@ Copie hors dépôt de `5249360`, MongoDB locale. Joueur réel LilStick : `/trend
 
 **Dépend du back**
 
-- Méta groupée des héros (accueil).
 - `netWorthPerMinute` dans `summary`.
 - Désignation du joueur consulté dans `/matches/:id` (supprimerait `isOwner`).
+- (livré en v1.14.0, non consommé) `summary.netWorthPerMinute` : utile seulement si `include=summary` est adopté.
+
+## Méta groupée (back v1.14.0, 18/11/2026)
+
+- Contrat copié (`src/contracts/openapi.yaml` v1.14.0, `479348f`), type `HeroMetaBatch`, `getHeroesStats(ids)`.
+- `useHeroesMeta(ids)` fait UNE requête `GET /heroes/stats?heroIds=…` (ids dédupliqués et triés, `staleTime` 30 min). Les 7 requêtes `/heroes/:id/stats` de l'accueil disparaissent ; `/heroes/:id/stats` reste utilisé par la fiche héros. Héros absent de la réponse ou sans donnée : « n/d », jamais 0 ; erreur de l'endpoint : les lignes restent, valeurs « n/d ».
+- Mesure (mock, avant `d66e85b`, après working tree) : accueil 11 à 5 requêtes. Vérifié sur le vrai back v1.14.0 local : 1 requête groupée, `scope` 30 jours / normal, `unknownHeroIds` respecté, valeurs identiques à `/heroes/6/stats` (2 144 429 parties, 52,07 %, 32,17 %), 0,45 s. Capture `real-accueil-1440.png`.
+- Mock : handler `/heroes/stats` déclaré avant `/heroes/:heroId` (sinon « stats » serait lu comme un identifiant).
+- Non adopté : `summary.netWorthPerMinute` (v1.14.0) existe maintenant, mais `include=summary` reste non adopté (la ligne de partie a besoin du détail complet pour équipes, build et tirs critiques). `netPerMinute` reste donc la seule implémentation locale, utilisée par l'affichage d'une ligne.

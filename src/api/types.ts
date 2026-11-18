@@ -336,6 +336,18 @@ export interface HeroStatsResponse {
   meta: DataMeta;
 }
 
+/** v1.14.0 : méta de plusieurs héros en une requête (mêmes valeurs que `/heroes/:id/stats`, même cache côté back). */
+export interface HeroMetaBatch {
+  /** Un `HeroMetaStats` par héros jouable demandé, dans l'ordre demandé ; valeurs null sans donnée. */
+  items: HeroMetaStats[];
+  /** Ids inconnus ou non jouables (pas de 404). */
+  unknownHeroIds: number[];
+  /** Fenêtre fixée par la source. */
+  scope: { period: "30d"; gameMode: "normal"; matchMode: "all" };
+  coverage: { requested: number; known: number; withStats: number };
+  meta: DataMeta;
+}
+
 export interface RankTier {
   tier: number;
   name: string;

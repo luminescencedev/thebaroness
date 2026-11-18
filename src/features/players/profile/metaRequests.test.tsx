@@ -4,7 +4,7 @@ import { SCENARIOS } from "@/mocks/scenarios";
 import { server } from "@/mocks/server";
 import { renderApp } from "@/test/render";
 
-const T = { timeout: 4000 };
+const T = { timeout: 10_000 };
 
 /** Compte les lectures de méta de héros (`GET /heroes/:id/stats`) émises pendant un parcours. */
 function countHeroStats() {

@@ -198,6 +198,31 @@ export const handlers = [
     return HttpResponse.json({ items, meta: meta() });
   }),
 
+  // v1.14.0 : méta groupée. Déclaré AVANT `/heroes/:heroId` (sinon « stats » serait lu comme un identifiant).
+  http.get(`${API}/heroes/stats`, async ({ request }) => {
+    await latency();
+    const raw = new URL(request.url).searchParams.get("heroIds");
+    if (raw !== null && !/^\d{1,6}(,\d{1,6}){0,63}$/.test(raw))
+      return invalid("heroIds : 1 à 64 identifiants séparés par des virgules.");
+    const requested =
+      raw === null
+        ? heroes.map((h) => h.id).sort((a, b) => a - b)
+        : [...new Set(raw.split(",").map(Number))];
+    const known = requested.filter((id) => heroById(id));
+    const items = known.map((id) => heroMetaStats(id));
+    return HttpResponse.json({
+      items,
+      unknownHeroIds: requested.filter((id) => !heroById(id)),
+      scope: { period: "30d", gameMode: "normal", matchMode: "all" },
+      coverage: {
+        requested: requested.length,
+        known: known.length,
+        withStats: items.filter((i) => i.matches !== null).length,
+      },
+      meta: meta(),
+    });
+  }),
+
   http.get(`${API}/heroes/:heroId/stats`, async ({ params }) => {
     await latency();
     const id = Number(params.heroId);

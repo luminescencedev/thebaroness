@@ -18,7 +18,7 @@ Méthode : front `b2effca` (avant) contre le working tree (après), mode mock, C
 - **Mes suivis** : de `1 + 2 x N` à `2` requêtes. Avec 5 suivis : `/players/:id` x5 et `/players/:id/matches` x5 remplacés par `/tracked-players/insights` x1. Avec 100 suivis : 200 requêtes de moins.
 - **Classement** : le mock fournit les rangs dans la liste, donc aucun écart mesuré ; en production, chaque entrée sans rang et dans les 10 premières déclenchait `/players/:id` (jusqu'à 10). Test : `leaderboard.test.tsx` vérifie qu'il n'y en a plus, même pour une entrée sans rang.
 - **Groupes** : une requête `/groups/:id/compare` inchangée ; les titres sont calculés par le back (aucune requête supplémentaire, moins de calcul côté React).
-- **Accueil** : 7 lectures de méta toujours présentes (pas d'endpoint groupé).
+- **Accueil** : 7 lectures de méta à cette étape ; remplacées par une requête groupée avec le back v1.14.0 (voir la fin du document).
 
 ## Comparaison visuelle
 
@@ -27,3 +27,7 @@ Captures avant/après dans `screenshots/` (profil, onglet Héros, Parties, accue
 ## Étape de finalisation (aucun écart attendu)
 
 Les changements de cette étape (catalogue d'objets mutualisé, `useHeroesMeta`, clé de recherche normalisée, `staleTime` du classement) ne changent pas le nombre de requêtes d'un premier chargement : accueil 18, profil 20, Mes suivis 6 (inchangés). Gains attendus à l'usage : une recherche saisie avec une autre casse ne relance plus de requête, et un retour sur une région de classement déjà vue dans les 5 minutes n'en relance aucune. Ces deux gains sont couverts par des tests de cache, pas mesurés en navigateur.
+
+## Méta groupée de l'accueil (back v1.14.0)
+
+Mesure faite dans la même session, avant (`d66e85b`) et après (working tree), mock, accueil non connecté : **11 requêtes à 5** (`/heroes/:id/stats` x7 remplacés par `/heroes/stats` x1 ; `/heroes` et `/leaderboard` inchangés). Les valeurs absolues diffèrent des tableaux précédents (autre jeu de widgets chargés, mode développement qui double les requêtes) : seul l'écart de la session compte. Sur le vrai back local : 0,45 s pour la requête groupée.

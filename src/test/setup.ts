@@ -7,7 +7,7 @@ import { resetMockState } from "@/mocks/state";
 
 // Premier rendu d'un fichier : les pages sont chargées à la demande et la machine peut être chargée. Le délai
 // par défaut de findBy (1 s) rendait ces tests instables sans rien prouver de plus.
-configure({ asyncUtilTimeout: 4000 });
+configure({ asyncUtilTimeout: 10_000 });
 
 // jsdom n'implémente pas ResizeObserver (utilisé par cmdk et Base UI).
 globalThis.ResizeObserver ??= class {

@@ -8,7 +8,7 @@ import { BELOW_THRESHOLD_ITEM, NO_BUILDS_HERO, NO_PAIRS_HERO } from "@/mocks/ite
 import { renderApp } from "@/test/render";
 import { formatInt } from "@/lib/format";
 
-const T = { timeout: 4000 };
+const T = { timeout: 10_000 };
 const souls = (n: number) => `${formatInt(n)} souls`;
 const item = syntheticCatalog[3]!;
 

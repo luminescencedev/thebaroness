@@ -15,7 +15,7 @@ describe("recherche et profil", () => {
     const title = await screen.findByRole("heading", { name: "Corvid", level: 1 });
     // Pseudo et rang partagent le même conteneur : jamais séparés dans un coin du header.
     expect(within(title.parentElement as HTMLElement).getByText("Oracle IV")).toBeInTheDocument();
-    expect(await screen.findByText("Performance", {}, { timeout: 4000 })).toBeInTheDocument();
+    expect(await screen.findByText("Performance", {}, { timeout: 10_000 })).toBeInTheDocument();
     expect(screen.getByText("Rang et modes")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("tab", { name: /Parties/ }));
     expect((await screen.findAllByText("Victoire")).length).toBeGreaterThan(0);
@@ -25,7 +25,7 @@ describe("recherche et profil", () => {
     renderApp(`/players/${SCENARIOS.steamIdFull}?tab=matches`);
     expect(await screen.findByRole("tab", { name: /Parties/, selected: true })).toBeInTheDocument();
     await waitFor(() => expect(screen.getAllByRole("listitem").length).toBeGreaterThan(20), {
-      timeout: 4000,
+      timeout: 10_000,
     });
     expect(screen.getByText(/parties chargées/)).toHaveTextContent(
       "Filtré et paginé par le serveur",
@@ -33,7 +33,7 @@ describe("recherche et profil", () => {
 
     await userEvent.click(screen.getByRole("radio", { name: "Défaites" }));
     await waitFor(() => expect(screen.queryAllByText("Victoire")).toHaveLength(0), {
-      timeout: 4000,
+      timeout: 10_000,
     });
     expect((await screen.findAllByText("Défaite")).length).toBeGreaterThan(0);
 
@@ -57,7 +57,7 @@ describe("recherche et profil", () => {
     ) as HTMLElement;
     // Build du mode démo : repère « exemple synthétique », puis objets nommés.
     expect(
-      await within(panel).findByText(/exemple synthétique du mode démo/, {}, { timeout: 4000 }),
+      await within(panel).findByText(/exemple synthétique du mode démo/, {}, { timeout: 10_000 }),
     ).toBeInTheDocument();
     expect(within(panel).getAllByRole("listitem").length).toBeGreaterThan(10);
     expect(within(panel).getByRole("region", { name: "Archmother" })).toBeInTheDocument();

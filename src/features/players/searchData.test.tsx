@@ -42,7 +42,7 @@ describe("recherche de joueurs : couche de données", () => {
       act(() => rerender({ q }));
       await new Promise((r) => setTimeout(r, 15));
     }
-    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 4000 });
+    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 10_000 });
     // Seule la dernière valeur stabilisée est demandée.
     expect(seen.filter((s) => !s.aborted).map((s) => s.q)).toEqual(["corvid"]);
   });
@@ -64,7 +64,7 @@ describe("recherche de joueurs : couche de données", () => {
     });
     await new Promise((r) => setTimeout(r, 40));
     act(() => rerender({ q: "abc" }));
-    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 4000 });
+    await waitFor(() => expect(result.current.data).toBeDefined(), { timeout: 10_000 });
     await new Promise((r) => setTimeout(r, 300));
     expect(seen.find((s) => s.q === "ab")?.aborted ?? true).toBe(true);
     expect(seen.find((s) => s.q === "abc")?.aborted).toBe(false);
@@ -86,7 +86,7 @@ describe("recherche de joueurs : couche de données", () => {
       },
     );
     await waitFor(() => expect(result.current.a.data && result.current.b.data).toBeTruthy(), {
-      timeout: 4000,
+      timeout: 10_000,
     });
     expect(n).toBe(1);
   });

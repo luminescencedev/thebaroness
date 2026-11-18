@@ -17,20 +17,20 @@ Requêtes mesurées en développement avec le mock (Playwright, page chargée pu
 
 ## Contrats demandés au back : état
 
-| Demande                               | Livré (v1.12.0 / v1.13.0)                                                                                      | Consommé                                                |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
-| Méta groupée pour le profil           | oui, dans `/players/:id/heroes` (`globalMeta`, `winRateVsMeta`, `metaContext`), pas d'endpoint `/heroes/stats` | oui (profil) ; **accueil : non** (7 lectures restantes) |
-| `GET /tracked-players/insights`       | oui                                                                                                            | oui                                                     |
-| Série de performance                  | oui, dans `/players/:id/trends` (`series`, `period`)                                                           | oui                                                     |
-| `rankDelta` et `highlights` de groupe | oui                                                                                                            | oui                                                     |
-| Rangs et distinctions de partie       | oui (`netWorthRank`, `kda`, `performanceTags`, `totals`, `result`)                                             | oui                                                     |
-| Classement : rangs et avatars résolus | oui (`badge.badgeId`, `color`, `avatarUrl`, `coverage`)                                                        | rangs oui ; avatars réservés au sprint Classement       |
-| Résumé par ligne d'historique         | oui (`include=summary`, v1.13.0)                                                                               | non adopté (voir `MIGRATION_REPORT.md`)                 |
+| Demande                               | Livré (v1.12.0 / v1.13.0)                                                                                      | Consommé                                                   |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Méta groupée pour le profil           | oui, dans `/players/:id/heroes` (`globalMeta`, `winRateVsMeta`, `metaContext`), pas d'endpoint `/heroes/stats` | oui (profil) ; accueil oui : `GET /heroes/stats` (v1.14.0) |
+| `GET /tracked-players/insights`       | oui                                                                                                            | oui                                                        |
+| Série de performance                  | oui, dans `/players/:id/trends` (`series`, `period`)                                                           | oui                                                        |
+| `rankDelta` et `highlights` de groupe | oui                                                                                                            | oui                                                        |
+| Rangs et distinctions de partie       | oui (`netWorthRank`, `kda`, `performanceTags`, `totals`, `result`)                                             | oui                                                        |
+| Classement : rangs et avatars résolus | oui (`badge.badgeId`, `color`, `avatarUrl`, `coverage`)                                                        | rangs oui ; avatars réservés au sprint Classement          |
+| Résumé par ligne d'historique         | oui (`include=summary`, v1.13.0)                                                                               | non adopté (voir `MIGRATION_REPORT.md`)                    |
 
 ## Nouvelles demandes (non bloquantes)
 
-1. Méta des héros en un seul appel (`GET /heroes/stats`) pour l'accueil.
-2. Valeur nette par minute dans `summary` pour retirer `netPerMinute` des lignes de partie.
+1. ~~Méta des héros en un seul appel~~ : livré (v1.14.0), consommé.
+2. ~~Valeur nette par minute dans `summary`~~ : livré (v1.14.0), non consommé tant que `include=summary` n'est pas adopté.
 
 ## Compatibilité
 

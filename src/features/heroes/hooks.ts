@@ -1,5 +1,5 @@
-import { useQueries, useQuery } from "@tanstack/react-query";
-import { getHero, getHeroStats, getMap, listHeroes, listRanks } from "@/api";
+import { useQuery } from "@tanstack/react-query";
+import { getHero, getHeroStats, getHeroesStats, getMap, listHeroes, listRanks } from "@/api";
 import { vividColor } from "@/lib/color";
 
 /** Le catalogue change rarement (cahier 9.2 : 24 h côté back). */
@@ -30,21 +30,23 @@ export const useHeroStats = (heroId: string) =>
   });
 
 /**
- * Méta de plusieurs héros pour un widget (accueil). Aujourd'hui : UNE requête `/heroes/:id/stats` par héros, avec
- * la même clé que la fiche héros (le cache est partagé). Le back n'expose pas encore de méta groupée : le jour où
- * il le fera, seule l'implémentation de ce hook change, pas les composants.
+ * Méta de plusieurs héros pour un widget (accueil) : UNE requête `GET /heroes/stats?heroIds=…` (v1.14.0) au lieu
+ * d'une par héros. `isPending` vaut tant que la réponse groupée n'est pas là ; un héros absent de la réponse ou
+ * sans donnée reste « n/d » (jamais 0). La fenêtre est fixée par la source (30 jours, mode normal).
  */
 export function useHeroesMeta(heroIds: number[]) {
-  const queries = useQueries({
-    queries: heroIds.map((id) => ({
-      queryKey: ["heroes", String(id), "stats"],
-      queryFn: ({ signal }: { signal: AbortSignal }) => getHeroStats(id, signal),
-    })),
+  const ids = [...new Set(heroIds)].sort((a, b) => a - b);
+  const query = useQuery({
+    queryKey: ["heroes", "stats-batch", ids.join(",")],
+    queryFn: ({ signal }) => getHeroesStats(ids, signal),
+    enabled: ids.length > 0,
+    staleTime: 30 * 60_000,
   });
+  const byId = new Map((query.data?.items ?? []).map((s) => [s.heroId, s]));
   return new Map(
-    heroIds.map((id, i) => [
+    heroIds.map((id) => [
       id,
-      { stats: queries[i]?.data?.stats, isPending: Boolean(queries[i]?.isPending) },
+      { stats: byId.get(id), isPending: query.isPending && ids.length > 0 },
     ]),
   );
 }

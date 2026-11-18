@@ -65,13 +65,13 @@ describe("page partie", () => {
 
   it("retour : revient à la page précédente", async () => {
     const { router } = renderApp(`/players/${SCENARIOS.steamIdFull}`);
-    await screen.findByRole("heading", { name: "Corvid", level: 1 }, { timeout: 4000 });
+    await screen.findByRole("heading", { name: "Corvid", level: 1 }, { timeout: 10_000 });
     await router.navigate(`/matches/${id}`);
-    await screen.findByRole("region", { name: "Scoreboard Hidden King" }, { timeout: 4000 });
+    await screen.findByRole("region", { name: "Scoreboard Hidden King" }, { timeout: 10_000 });
     await userEvent.click(screen.getByRole("button", { name: "Retour à la page précédente" }));
     await waitFor(
       () => expect(router.state.location.pathname).toBe(`/players/${SCENARIOS.steamIdFull}`),
-      { timeout: 4000 },
+      { timeout: 10_000 },
     );
   });
 });

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { GroupHighlight, GroupMemberStats } from "@/api";
 import { groupHighlights } from "@/mocks/groupHighlights";
-import { highlightCards, sortMembers } from "./compare";
+import {
+  highlightRows,
+  isLowSample,
+  positionMembers,
+  sortMembers,
+  unavailableIds,
+} from "./compare";
 
 const member = (o: Partial<GroupMemberStats>): GroupMemberStats => ({
   steamId: "76561198000000001",
@@ -50,14 +56,14 @@ describe("titres de la période : le back décide, le front formate", () => {
   });
 
   it("tous les ex æquo sont conservés dans l'ordre du back", () => {
-    const [card] = highlightCards([h({ steamIds: ["1", "2"], value: 60 })], [m1, m2], undefined);
+    const [card] = highlightRows([h({ steamIds: ["1", "2"], value: 60 })], [m1, m2], undefined);
     expect(card?.members.map((m) => m.displayName)).toEqual(["A", "B"]);
     expect(card?.value).toBe("60 %");
     expect(card?.detail).toBe("12 parties");
   });
   it("personne d'éligible : aucune carte, rien d'inventé", () => {
-    expect(highlightCards([h({})], [m1, m2], undefined)).toEqual([]);
-    expect(highlightCards(undefined, [m1, m2], undefined)).toEqual([]);
+    expect(highlightRows([h({})], [m1, m2], undefined)).toEqual([]);
+    expect(highlightRows(undefined, [m1, m2], undefined)).toEqual([]);
   });
   it("progression : libellé et sous-rangs depuis rankHistory", () => {
     const climber = member({
@@ -68,7 +74,7 @@ describe("titres de la période : le back décide, le front formate", () => {
       ],
       rankDelta: 3,
     });
-    const [card] = highlightCards(
+    const [card] = highlightRows(
       [h({ key: "biggest_climb", steamIds: ["1"], value: 3, minMatches: 0 })],
       [climber],
       [{ tier: 4, name: "Archon" }] as never,
@@ -113,5 +119,49 @@ describe("mock : mêmes règles que le back (seuil, strictement positif, ex æqu
       steamIds: [],
       value: null,
     });
+  });
+});
+
+describe("positions de présentation du groupe", () => {
+  const m = (id: string, wins: number, extra: Partial<GroupMemberStats> = {}) =>
+    member({ steamId: id, displayName: id.toUpperCase(), wins, ...extra });
+
+  it("les ex æquo partagent la meilleure position (1, 2, 2, 4)", () => {
+    const r = positionMembers([m("a", 9), m("b", 7), m("c", 7), m("d", 3)], "wins");
+    expect(r.map((x) => [x.member.steamId, x.position, x.tied])).toEqual([
+      ["a", 1, false],
+      ["b", 2, true],
+      ["c", 2, true],
+      ["d", 4, false],
+    ]);
+  });
+
+  it("valeur inconnue : pas de position, jamais comptée comme 0", () => {
+    const r = positionMembers(
+      [m("a", 1, { currentRankScore: 40 }), m("b", 1, { currentRankScore: null })],
+      "rank",
+    );
+    expect(r.map((x) => [x.member.steamId, x.position])).toEqual([
+      ["a", 1],
+      ["b", null],
+    ]);
+  });
+
+  it("une progression de 0 n'est pas une progression inconnue", () => {
+    const r = positionMembers(
+      [m("a", 1, { rankDelta: 0 }), m("b", 1, { rankDelta: null })],
+      "climb",
+    );
+    expect(r.map((x) => x.position)).toEqual([1, null]);
+  });
+
+  it("membres indisponibles : ceux du groupe absents de la comparaison", () => {
+    expect(unavailableIds(["a", "b", "c"], [m("a", 1), m("c", 1)])).toEqual(["b"]);
+  });
+
+  it("échantillon faible sous le seuil des titres", () => {
+    expect(isLowSample(m("a", 1, { matches: 4 }))).toBe(true);
+    expect(isLowSample(m("a", 1, { matches: 5 }))).toBe(false);
+    expect(isLowSample(m("a", 1, { matches: 9 }), 10)).toBe(true);
   });
 });

@@ -124,3 +124,13 @@ Les données de jeu viennent de Deadlock API en anglais et restent en anglais (n
 - Région dans l'URL, changement en `replace`. Pas de préchargement des régions, pas de réessai automatique, flèches du clavier sans activation : le quota du fournisseur est partagé.
 - Recherche : l'URL `?q=` est la source de vérité ; la frappe est un brouillon validé à 300 ms (`replace`) ou avec Entrée, 2 caractères minimum. Homonymes : pseudos égaux après NFKC, espaces réduits, casse ignorée ; les pseudos proches ne sont jamais présentés comme homonymes. Aucun rang dans les résultats.
 - SteamID64 seul identifiant ouvert en direct (palette et page) ; codes amis et URLs Steam ne sont pas pris en charge par `/players/search`.
+
+## Groupes et comparaison (18/11/2026)
+
+- Page de groupe : le tableau comparatif ouvre la page, les faits marquants suivent en liste dense (pas de cartes), puis progression, meilleures parties, méthode. Variante « synthèse d'abord » écartée : elle repousse la comparaison sous le pli sur mobile.
+- Position dans le groupe : calculée sur la valeur du critère actif (1, 2, 2, 4), distincte du rang officiel ; valeur inconnue = pas de position, jamais 0.
+- Toute proportion s'affiche avec son effectif ; sous le seuil du back (5 parties) elle est signalée « échantillon faible ». Aucun score composite.
+- Un membre omis par le back est nommé (différence entre `steamIds` du groupe et `members`), la comparaison est dite partielle.
+- Suppression d'un groupe dans un menu « ⋯ », avec confirmation ; erreur affichée dans la boîte.
+- Formulaire en dialogue (le plus simple sur mobile), limites du back reprises (60 caractères, 2 à 20 joueurs), recherche et règle d'homonymes partagées avec `/search`.
+- Parties communes, filtre de mode, identité des membres dans la liste : demandées au back (`docs/back-groups-sprint3-requests.md`), non simulées.

@@ -1,16 +1,12 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { isApiError, type ComparePeriod, type GroupMemberStats } from "@/api";
+import { isApiError, type ComparePeriod } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
-import { MultiLineChart, type Series } from "@/components/charts";
 import { DataMetaNotice } from "@/components/DataMetaNotice";
 import { ErrorState } from "@/components/ErrorState";
-import { HeroPortrait } from "@/components/media/HeroPortrait";
-import { RankBadge } from "@/components/media/RankBadge";
 import {
-  Avatar,
+  Alert,
   Button,
-  Card,
   Dialog,
   EmptyState,
   Segmented,
@@ -18,54 +14,50 @@ import {
   buttonStyles,
   cn,
 } from "@/components/ui";
-import { useRanks } from "@/features/heroes/hooks";
-import { GroupForm } from "@/features/groups/GroupForm";
+import { BestMatches } from "@/features/groups/BestMatches";
 import {
-  SORTS,
-  highlightCards,
-  scoreLabel,
-  sortMembers,
+  DEFAULT_MIN_MATCHES,
+  highlightRows,
+  unavailableIds,
   type SortKey,
 } from "@/features/groups/compare";
+import { ComparisonTable } from "@/features/groups/ComparisonTable";
+import { FactsList } from "@/features/groups/FactsList";
+import { GroupForm } from "@/features/groups/GroupForm";
+import { GroupMenu } from "@/features/groups/GroupMenu";
 import {
   useDeleteGroup,
   useGroupCompare,
   useRefreshGroup,
   useUpdateGroup,
 } from "@/features/groups/hooks";
+import { RankProgress } from "@/features/groups/RankProgress";
+import { useRanks } from "@/features/heroes/hooks";
 import { useTrackedList } from "@/features/tracked-players/hooks";
-import { formatDecimal, formatPercent } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
+import { errorMessage } from "@/lib/messages";
 
-const PERIODS: { value: ComparePeriod; label: string }[] = [
-  { value: "7d", label: "7 jours" },
-  { value: "30d", label: "30 jours" },
-  { value: "season", label: "Saison" },
+const PERIODS: { value: ComparePeriod; label: string; long: string }[] = [
+  { value: "7d", label: "7 jours", long: "7 derniers jours" },
+  { value: "30d", label: "30 jours", long: "30 derniers jours" },
+  { value: "season", label: "Saison", long: "saison en cours" },
 ];
 
-const COLORS = [
-  "#b4abff",
-  "#3dd68c",
-  "#f5b14c",
-  "#ff6b6f",
-  "#5b9dff",
-  "#e879f9",
-  "#2dd4bf",
-  "#fb923c",
-];
-
-function Climb({ member }: { member: GroupMemberStats }) {
-  const d = member.rankDelta ?? null;
-  if (d === null) return <span className="text-subtle">n/d</span>;
-  if (d === 0) return <span className="text-muted">Stable</span>;
-  const up = d > 0;
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
-    <span className={cn("font-medium", up ? "text-win" : "text-loss")}>
-      {up ? "En hausse" : "En baisse"} ({up ? "+" : ""}
-      {d})
-    </span>
+    <section aria-labelledby={id} className="space-y-3">
+      <h2 id={id} className="text-lg">
+        {title}
+      </h2>
+      {children}
+    </section>
   );
 }
 
+/**
+ * Comparaison d'un groupe. Ordre : le tableau comparatif d'abord (la raison d'être de la page), puis les
+ * faits marquants, la progression de rang, les meilleures parties et la méthode. Tout vient du back.
+ */
 export function GroupDetailPage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
@@ -83,37 +75,21 @@ export function GroupDetailPage() {
   useDocumentTitle(compare.data?.group.name ?? "Groupe");
 
   const members = useMemo(() => compare.data?.members ?? [], [compare.data]);
-  const sorted = useMemo(() => sortMembers(members, sort), [members, sort]);
-  const highlights = useMemo(
-    () => highlightCards(compare.data?.highlights, members, ranks.data?.items),
+  const rows = useMemo(
+    () => highlightRows(compare.data?.highlights, members, ranks.data?.items),
     [compare.data, members, ranks.data],
-  );
-  const series: Series[] = useMemo(
-    () =>
-      members
-        .filter((m) => m.rankHistory.length > 1)
-        .map((m, i) => ({
-          key: m.steamId,
-          label: m.displayName,
-          color: COLORS[i % COLORS.length] ?? "#fff",
-          points: m.rankHistory.map((p) => ({ at: Date.parse(p.at), value: p.score })),
-        })),
-    [members],
   );
 
   if (compare.isPending) {
     return (
-      <div className="space-y-4" aria-busy="true">
-        <Skeleton className="h-24 rounded-card" />
-        <Skeleton className="h-64 rounded-card" />
+      <div className="space-y-4" aria-busy="true" aria-label="Chargement de la comparaison">
+        <Skeleton className="h-20 rounded-card" />
+        <Skeleton className="h-72 rounded-card" />
       </div>
     );
   }
   if (compare.isError && !compare.data) {
-    if (
-      isApiError(compare.error) &&
-      (compare.error.status === 404 || compare.error.status === 400)
-    ) {
+    if (isApiError(compare.error) && [400, 404].includes(compare.error.status)) {
       return (
         <EmptyState
           title="Groupe introuvable"
@@ -126,14 +102,26 @@ export function GroupDetailPage() {
         />
       );
     }
-    return <ErrorState error={compare.error} onRetry={() => void compare.refetch()} />;
+    return (
+      <ErrorState
+        error={compare.error}
+        title="Comparaison indisponible"
+        reassure={false}
+        onRetry={() => void compare.refetch()}
+      />
+    );
   }
 
-  const { group, meta } = compare.data;
+  const { group, meta, methodology } = compare.data;
   const stale = compare.isPlaceholderData;
+  const minMatches = methodology?.highlightMinMatches ?? DEFAULT_MIN_MATCHES;
+  const missing = unavailableIds(group.steamIds, members);
+  const nameOf = (steamId: string) =>
+    tracked.data?.items.find((t) => t.steamId === steamId)?.alias || steamId;
+  const periodLong = PERIODS.find((p) => p.value === period)?.long ?? "";
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-9">
       <div className="space-y-3">
         {/* Le fil d'Ariane du header masque le parent sous 640 px : lien de retour équivalent. */}
         <Link
@@ -143,9 +131,12 @@ export function GroupDetailPage() {
           <span aria-hidden="true">‹</span> Groupes
         </Link>
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl sm:text-4xl">{group.name}</h1>
-            <p className="mt-1.5 text-sm text-muted">{group.steamIds.length} joueurs comparés</p>
+          <div className="min-w-0">
+            <h1 className="text-3xl break-words sm:text-4xl">{group.name}</h1>
+            <p className="mt-1.5 text-sm text-muted">
+              {group.steamIds.length} joueurs · {periodLong} · collecté le{" "}
+              {formatDateTime(meta.fetchedAt)}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Segmented<ComparePeriod>
@@ -165,248 +156,106 @@ export function GroupDetailPage() {
             <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
               Modifier
             </Button>
-            <Button variant="danger" size="sm" onClick={() => setConfirming(true)}>
-              Supprimer
-            </Button>
+            <GroupMenu onDelete={() => setConfirming(true)} />
           </div>
         </div>
       </div>
 
       <div
-        className={cn("space-y-12 transition-opacity duration-150", stale && "opacity-60")}
+        className={cn("space-y-9 transition-opacity duration-150", stale && "opacity-60")}
         aria-busy={stale}
       >
-        {highlights.length > 0 && (
-          <section aria-labelledby="titres" className="space-y-4">
-            <h2 id="titres" className="text-xl">
-              Les titres de la période
-            </h2>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {highlights.map((h) => (
-                <li key={h.id}>
-                  <Card className="h-full">
-                    <p className="text-xs text-subtle">{h.title}</p>
-                    <div className="mt-3 flex items-center gap-3">
-                      <Avatar
-                        name={h.members[0]?.displayName ?? ""}
-                        src={h.members[0]?.avatarUrl}
-                        className="size-10"
-                      />
-                      <div className="min-w-0">
-                        {h.members.map((m) => (
-                          <Link
-                            key={m.steamId}
-                            to={`/players/${m.steamId}`}
-                            className="block truncate font-medium hover:underline"
-                          >
-                            {m.displayName}
-                          </Link>
-                        ))}
-                        <p className="text-sm text-text">
-                          {h.value}
-                          {h.members.length > 1 ? " (ex æquo)" : ""}
-                        </p>
-                      </div>
-                    </div>
-                    {h.detail && <p className="mt-2 text-xs text-muted">{h.detail}</p>}
-                    {h.matchId && (
-                      <Link
-                        to={`/matches/${h.matchId}`}
-                        className="mt-2 inline-block text-xs text-accent-text underline underline-offset-4"
-                      >
-                        Voir la partie
-                      </Link>
-                    )}
-                  </Card>
-                </li>
-              ))}
-            </ul>
-          </section>
+        {(missing.length > 0 || meta.isPartial) && (
+          <Alert tone="warning" className="space-y-1">
+            {missing.length > 0 ? (
+              <p>
+                {missing.length === 1 ? "Un joueur n'a" : `${missing.length} joueurs n'ont`} pas pu
+                être chargé{missing.length > 1 ? "s" : ""} : {missing.map(nameOf).join(", ")}. Les
+                autres restent comparables, mais cette comparaison est partielle.
+              </p>
+            ) : (
+              <p>
+                Données partielles : certaines informations (rangs ou héros) sont indisponibles pour
+                le moment.
+              </p>
+            )}
+          </Alert>
+        )}
+        {compare.isError && (
+          <Alert tone="info" role="status">
+            {errorMessage(compare.error)} Les données affichées datent du{" "}
+            {formatDateTime(meta.fetchedAt)}.
+          </Alert>
         )}
 
-        <section aria-labelledby="classement" className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id="classement" className="text-xl">
-              Classement du groupe
-            </h2>
-            <div role="group" aria-label="Trier par" className="flex flex-wrap gap-1.5">
-              {SORTS.map((s) => (
-                <button
-                  key={s.key}
-                  type="button"
-                  aria-pressed={sort === s.key}
-                  onClick={() => setSort(s.key)}
-                  className={cn(
-                    "pressable hover-text h-8 rounded-full border px-3 text-[13px]",
-                    sort === s.key
-                      ? "border-border-strong bg-surface-strong text-text"
-                      : "border-border text-muted",
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <ol className="space-y-2 md:hidden" aria-label="Classement du groupe">
-            {sorted.map((m, i) => (
-              <li key={m.steamId} className="card flex flex-col gap-3 p-4">
-                <div className="flex items-center gap-3">
-                  <span className="w-5 text-base font-semibold text-muted tabular-nums">
-                    {i + 1}
-                  </span>
-                  <Avatar name={m.displayName} src={m.avatarUrl} className="size-9 text-xs" />
-                  <Link
-                    to={`/players/${m.steamId}`}
-                    className="min-w-0 flex-1 truncate font-medium hover:underline"
-                  >
-                    {m.displayName}
-                  </Link>
-                  <Climb member={m} />
-                </div>
-                <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 pl-8 text-xs text-muted">
-                  <RankBadge name={m.rank?.name} imageUrl={m.rank?.imageUrl} size="sm" label />
-                  <span className="tabular-nums">
-                    {m.wins} V / {m.losses} D
-                  </span>
-                  <span className="tabular-nums">{formatPercent(m.winRate)}</span>
-                  <span className="tabular-nums">KDA {formatDecimal(m.kda)}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div className="card hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[40rem] text-sm">
-              <caption className="sr-only">
-                Classement des joueurs du groupe, trié par{" "}
-                {SORTS.find((s) => s.key === sort)?.label}
-              </caption>
-              <thead>
-                <tr className="border-b border-border text-left text-xs text-subtle">
-                  <th scope="col" className="w-12 px-4 py-2.5 font-medium">
-                    #
-                  </th>
-                  <th scope="col" className="px-2 py-2.5 font-medium">
-                    Joueur
-                  </th>
-                  <th scope="col" className="px-2 py-2.5 font-medium">
-                    Rang
-                  </th>
-                  <th scope="col" className="px-2 py-2.5 font-medium">
-                    Progression
-                  </th>
-                  <th scope="col" className="px-2 py-2.5 font-medium">
-                    Victoires
-                  </th>
-                  <th scope="col" className="px-2 py-2.5 font-medium">
-                    Taux
-                  </th>
-                  <th scope="col" className="px-4 py-2.5 font-medium">
-                    KDA
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sorted.map((m, i) => (
-                  <tr key={m.steamId} className="border-b border-border last:border-0">
-                    <td className="px-4 py-3 text-base font-semibold tabular-nums text-muted">
-                      {i + 1}
-                    </td>
-                    <th scope="row" className="px-2 py-3 text-left font-normal">
-                      <span className="flex items-center gap-3">
-                        <Avatar name={m.displayName} src={m.avatarUrl} className="size-9 text-xs" />
-                        <Link
-                          to={`/players/${m.steamId}`}
-                          className="truncate font-medium hover:underline"
-                        >
-                          {m.displayName}
-                        </Link>
-                      </span>
-                    </th>
-                    <td className="px-2 py-3">
-                      <RankBadge name={m.rank?.name} imageUrl={m.rank?.imageUrl} size="sm" label />
-                    </td>
-                    <td className="px-2 py-3">
-                      <Climb member={m} />
-                    </td>
-                    <td className="px-2 py-3 text-muted">
-                      {m.wins} V / {m.losses} D
-                    </td>
-                    <td className="px-2 py-3 text-muted">{formatPercent(m.winRate)}</td>
-                    <td className="px-4 py-3 text-muted">{formatDecimal(m.kda)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-xs text-subtle">
-            Progression : sous-rangs gagnés ou perdus sur la période (un rang compte 6 sous-rangs).
-          </p>
-        </section>
+        <Section id="comparaison" title="Comparaison">
+          {members.length === 0 ? (
+            <EmptyState
+              title="Aucune donnée"
+              description="Aucun joueur du groupe n'a de données sur cette période."
+            />
+          ) : (
+            <ComparisonTable
+              members={members}
+              groupIds={group.steamIds}
+              sort={sort}
+              onSort={setSort}
+              minMatches={minMatches}
+              ranks={ranks.data?.items}
+            />
+          )}
+        </Section>
 
-        {series.length > 0 && (
-          <section aria-labelledby="courbe" className="space-y-4">
-            <h2 id="courbe" className="text-xl">
-              Progression de rang
-            </h2>
-            <Card>
-              <MultiLineChart
-                series={series}
-                title="Progression de rang de chaque joueur du groupe"
-                format={(v) => scoreLabel(Math.round(v), ranks.data?.items)}
-              />
-            </Card>
-          </section>
+        {members.length > 0 && (
+          <>
+            <Section id="faits" title="Faits marquants">
+              <FactsList rows={rows} />
+            </Section>
+            <Section id="progression" title="Progression de rang">
+              <RankProgress members={members} groupIds={group.steamIds} ranks={ranks.data?.items} />
+            </Section>
+            <Section id="parties" title="Meilleures parties">
+              <BestMatches members={members} />
+              <p className="text-[12.5px] text-subtle">
+                Meilleure partie de chaque joueur sur la période, selon le KDA.
+              </p>
+            </Section>
+          </>
         )}
 
-        <section aria-labelledby="exploits" className="space-y-4">
-          <h2 id="exploits" className="text-xl">
-            Meilleures parties
-          </h2>
-          <ul className="grid gap-3 md:grid-cols-2">
-            {sortMembers(members, "kda")
-              .filter((m) => m.bestMatch)
-              .map((m) => (
-                <li key={m.steamId}>
-                  <Link
-                    to={`/matches/${m.bestMatch?.matchId}`}
-                    className="pressable card flex items-center gap-4 p-4 hover:border-border-strong"
-                  >
-                    <HeroPortrait
-                      name={m.bestMatch?.heroName ?? ""}
-                      src={m.bestMatch?.heroImageUrl}
-                      rounded="full"
-                      className="size-12"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate font-medium">{m.displayName}</span>
-                      <span className="block text-sm text-muted">
-                        {m.bestMatch?.heroName} : {m.bestMatch?.kills} / {m.bestMatch?.deaths} /{" "}
-                        {m.bestMatch?.assists}
-                      </span>
-                    </span>
-                    <span className="text-right">
-                      <span className="block text-lg font-semibold tracking-[-0.03em]">
-                        {formatDecimal(m.bestMatch?.kda)}
-                      </span>
-                      <span className="block text-xs text-subtle">KDA</span>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-          </ul>
-          <p className="text-xs text-subtle">
-            Meilleure partie de la période de chaque joueur, selon le KDA.
-          </p>
-        </section>
+        <details className="group text-[13px] text-muted">
+          <summary className="cursor-pointer select-none">Méthode et limites</summary>
+          <div className="mt-2 max-w-2xl space-y-1.5 leading-relaxed text-subtle">
+            <p>
+              Rang : tier × 6 + sous-rang, tel que fourni par le back. Progression : dernier moins
+              premier rang observé en parties classées sur la période, « n/d » sous 2 observations.
+            </p>
+            <p>
+              KDA : (K + A) / max(D, 1) sur les parties où kills, morts et assistances sont connus.
+              Taux de victoire et KDA : un titre n'est attribué qu'à partir de {minMatches} parties
+              ; en dessous, la valeur est signalée « échantillon faible ».
+            </p>
+            <p>
+              Les modes de jeu sont confondus et les joueurs n'ont pas forcément le même nombre de
+              parties : comparez les effectifs avant de conclure. Les ex æquo gardent tous la
+              distinction.
+              {methodology?.periodFrom &&
+                ` Période : depuis le ${formatDateTime(methodology.periodFrom)}.`}
+            </p>
+          </div>
+        </details>
 
-        <DataMetaNotice meta={meta} />
+        <DataMetaNotice meta={{ ...meta, isPartial: false }} showDate={false} />
       </div>
 
       <Dialog
         open={editing}
-        onOpenChange={setEditing}
+        onOpenChange={(next) => {
+          setEditing(next);
+          if (!next) update.reset();
+        }}
         title="Modifier le groupe"
+        description="Renommez le groupe ou changez ses joueurs."
         className="max-w-lg"
       >
         <GroupForm
@@ -422,10 +271,18 @@ export function GroupDetailPage() {
 
       <Dialog
         open={confirming}
-        onOpenChange={setConfirming}
+        onOpenChange={(next) => {
+          setConfirming(next);
+          if (!next) remove.reset();
+        }}
         title="Supprimer ce groupe ?"
         description="Les joueurs restent dans vos suivis. Seul le groupe est supprimé."
       >
+        {remove.isError && (
+          <p role="alert" className="mt-3 text-[13px] text-loss">
+            {errorMessage(remove.error)}
+          </p>
+        )}
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setConfirming(false)}>
             Annuler
@@ -435,8 +292,10 @@ export function GroupDetailPage() {
             loading={remove.isPending}
             onClick={() =>
               remove.mutate(undefined, {
-                onSuccess: () => void navigate("/groups", { replace: true }),
-                onSettled: () => setConfirming(false),
+                onSuccess: () => {
+                  setConfirming(false);
+                  void navigate("/groups", { replace: true });
+                },
               })
             }
           >

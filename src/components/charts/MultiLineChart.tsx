@@ -13,6 +13,9 @@ interface MultiLineChartProps {
   format?: (v: number) => string;
   height?: number;
   formatDate?: (t: number) => string;
+  /** Bornes de l'axe vertical (par exemple l'échelle des rangs, 0 à 72) : l'axe ne dépasse jamais ce que la donnée peut valoir. */
+  min?: number;
+  max?: number;
 }
 
 const W = 720;
@@ -24,6 +27,8 @@ export function MultiLineChart({
   title,
   format = (v) => String(v),
   height = 260,
+  min,
+  max,
   formatDate = (t) => new Date(t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
 }: MultiLineChartProps) {
   const [hoverX, setHoverX] = useState<number | null>(null);
@@ -32,8 +37,14 @@ export function MultiLineChart({
 
   const t0 = Math.min(...all.map((p) => p.at));
   const t1 = Math.max(...all.map((p) => p.at));
-  const lo = Math.floor(Math.min(...all.map((p) => p.value)) - 1);
-  const hi = Math.ceil(Math.max(...all.map((p) => p.value)) + 1);
+  const lo = Math.max(
+    min ?? Number.NEGATIVE_INFINITY,
+    Math.floor(Math.min(...all.map((p) => p.value)) - 1),
+  );
+  const hi = Math.min(
+    max ?? Number.POSITIVE_INFINITY,
+    Math.ceil(Math.max(...all.map((p) => p.value)) + 1),
+  );
   const innerW = W - PAD.left - PAD.right;
   const innerH = height - PAD.top - PAD.bottom;
   const x = (t: number) => PAD.left + ((t - t0) / (t1 - t0 || 1)) * innerW;

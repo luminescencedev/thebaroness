@@ -13,28 +13,63 @@ export const SORTS: { key: SortKey; label: string }[] = [
   { key: "wins", label: "Victoires" },
 ];
 
-/** Valeurs du back (`currentRankScore`, `rankDelta`) : le front ne les recalcule pas, il trie seulement. */
-const value = (m: GroupMemberStats, key: SortKey): number => {
+/** Valeur de tri fournie par le back ; null quand elle est inconnue (jamais 0). */
+export const sortValue = (m: GroupMemberStats, key: SortKey): number | null => {
   switch (key) {
     case "rank":
-      return m.currentRankScore ?? -1;
+      return m.currentRankScore ?? null;
     case "climb":
-      return m.rankDelta ?? -999;
+      return m.rankDelta ?? null;
     case "winRate":
-      return m.winRate ?? -1;
+      return m.winRate;
     case "kda":
-      return m.kda ?? -1;
+      return m.kda;
     case "wins":
       return m.wins;
   }
 };
 
+/** Tri d'affichage : valeur décroissante, inconnus en dernier, nom en dernier recours. */
 export const sortMembers = (members: GroupMemberStats[], key: SortKey) =>
   [...members].sort(
-    (a, b) => value(b, key) - value(a, key) || a.displayName.localeCompare(b.displayName),
+    (a, b) =>
+      (sortValue(b, key) ?? Number.NEGATIVE_INFINITY) -
+        (sortValue(a, key) ?? Number.NEGATIVE_INFINITY) ||
+      a.displayName.localeCompare(b.displayName),
   );
 
-export interface HighlightCard {
+export interface PositionedMember {
+  member: GroupMemberStats;
+  /** Position dans le groupe selon le critère (1, 2, 2, 4) ; null si la valeur est inconnue. */
+  position: number | null;
+  /** Une autre personne du groupe a exactement la même valeur. */
+  tied: boolean;
+}
+
+/**
+ * Positions de présentation : les ex æquo partagent la meilleure position (1, 2, 2, 4), calculée sur la
+ * valeur du critère actif. Ce n'est PAS le rang officiel du joueur : c'est sa place dans ce groupe.
+ */
+export function positionMembers(members: GroupMemberStats[], key: SortKey): PositionedMember[] {
+  const sorted = sortMembers(members, key);
+  return sorted.map((member) => {
+    const v = sortValue(member, key);
+    if (v === null) return { member, position: null, tied: false };
+    const better = sorted.filter((o) => (sortValue(o, key) ?? Number.NEGATIVE_INFINITY) > v).length;
+    const same = sorted.filter((o) => sortValue(o, key) === v).length;
+    return { member, position: better + 1, tied: same > 1 };
+  });
+}
+
+/** Membres du groupe absents de la comparaison (le back omet un membre dont les données manquent). */
+export const unavailableIds = (groupIds: readonly string[], members: GroupMemberStats[]) =>
+  groupIds.filter((id) => !members.some((m) => m.steamId === id));
+
+/** Seuil sous lequel une proportion n'est pas fiable : celui des titres du back, 5 parties par défaut. */
+export const DEFAULT_MIN_MATCHES = 5;
+export const isLowSample = (m: GroupMemberStats, min = DEFAULT_MIN_MATCHES) => m.matches < min;
+
+export interface HighlightRow {
   id: HighlightKey;
   title: string;
   /** Tous les ex æquo, dans l'ordre du groupe. */
@@ -42,6 +77,8 @@ export interface HighlightCard {
   value: string;
   detail?: string;
   matchId?: string;
+  /** Seuil de parties imposé par le back à ce titre (0 : aucun). */
+  minMatches: number;
 }
 
 const TITLES: Record<HighlightKey, string> = {
@@ -57,23 +94,24 @@ const TITLES: Record<HighlightKey, string> = {
  * Titres de la période : le back décide qui gagne (règles, seuils, ex æquo). Ce module ne fait que les
  * nommer et formater leur valeur ; une entrée sans gagnant n'est pas affichée.
  */
-export function highlightCards(
+export function highlightRows(
   highlights: GroupHighlight[] | undefined,
   members: GroupMemberStats[],
   ranks: RankTier[] | undefined,
-): HighlightCard[] {
+): HighlightRow[] {
   const byId = new Map(members.map((m) => [m.steamId, m]));
   return (highlights ?? []).flatMap((h) => {
     const winners = h.steamIds.flatMap((id) => byId.get(id) ?? []);
     const first = winners[0];
     if (!first || h.value === null) return [];
-    const card = (value: string, detail?: string, matchId?: string): HighlightCard => ({
+    const card = (value: string, detail?: string, matchId?: string): HighlightRow => ({
       id: h.key,
       title: TITLES[h.key],
       members: winners,
       value,
       detail,
       matchId,
+      minMatches: h.minMatches,
     });
     switch (h.key) {
       case "biggest_climb": {

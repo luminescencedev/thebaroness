@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { MatchDetail } from "@/api";
-import { useItemCatalog } from "@/features/players/hooks";
+import { useItemCatalog } from "@/features/items/hooks";
 import { MatchPlayerDetail } from "./MatchPlayerDetail";
 import { MatchScoreboard } from "./MatchScoreboard";
 import { MatchSummaryHeader } from "./MatchSummaryHeader";

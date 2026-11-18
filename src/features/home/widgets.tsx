@@ -5,7 +5,8 @@ import { smoothPath } from "@/components/charts";
 import { HeroPortrait } from "@/components/media/HeroPortrait";
 import { RankBadge } from "@/components/media/RankBadge";
 import { Avatar, DoubleBezel, Skeleton, cn } from "@/components/ui";
-import { useHeroStats, useHeroes } from "@/features/heroes/hooks";
+import { useHeroesMeta, useHeroes } from "@/features/heroes/hooks";
+import type { HeroMetaStats } from "@/api";
 import { useLeaderboard } from "@/features/leaderboard/hooks";
 import { useRecentPlayers } from "@/features/search/recents";
 import { formatPercent } from "@/lib/format";
@@ -155,9 +156,15 @@ const FEATURED = [
   "Dynamo",
 ];
 
-function HeroLine({ hero }: { hero: HeroSummary }) {
-  const stats = useHeroStats(String(hero.id));
-  const s = stats.data?.stats;
+function HeroLine({
+  hero,
+  meta,
+}: {
+  hero: HeroSummary;
+  meta: { stats: HeroMetaStats | undefined; isPending: boolean } | undefined;
+}) {
+  const s = meta?.stats;
+  const pending = meta?.isPending ?? true;
   return (
     <li>
       <Link
@@ -185,10 +192,10 @@ function HeroLine({ hero }: { hero: HeroSummary }) {
                   : "text-text"),
           )}
         >
-          {stats.isPending ? <Skeleton className="ml-auto h-3 w-10" /> : formatPercent(s?.winRate)}
+          {pending ? <Skeleton className="ml-auto h-3 w-10" /> : formatPercent(s?.winRate)}
         </span>
         <span className="pr-1 text-right text-[12.5px] font-medium text-[#c5c8d4] tabular-nums">
-          {stats.isPending ? <Skeleton className="ml-auto h-3 w-10" /> : formatPercent(s?.pickRate)}
+          {pending ? <Skeleton className="ml-auto h-3 w-10" /> : formatPercent(s?.pickRate)}
         </span>
       </Link>
     </li>
@@ -203,6 +210,7 @@ export function MetaWidget({ className }: { className?: string }) {
         .slice(0, 7)
     : [];
   const list = picked.length >= 3 ? picked : (heroes.data?.items.slice(0, 7) ?? []);
+  const meta = useHeroesMeta(list.map((h) => h.id));
 
   return (
     <DoubleBezel
@@ -229,7 +237,7 @@ export function MetaWidget({ className }: { className?: string }) {
         ) : (
           <ul>
             {list.map((h) => (
-              <HeroLine key={h.id} hero={h} />
+              <HeroLine key={h.id} hero={h} meta={meta.get(h.id)} />
             ))}
           </ul>
         )}

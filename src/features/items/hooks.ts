@@ -28,16 +28,26 @@ const keepSameEntity =
   (prev, prevQuery) =>
     prevQuery?.queryKey[1] === entityId ? prev : undefined;
 
+/** Options partagées du catalogue d'objets de boutique : UNE clé, UNE requête, pour toutes les pages. */
+const upgradeCatalogOptions = (enabled: boolean) => ({
+  queryKey: ["items", "upgrade"] as const,
+  queryFn: ({ signal }: { signal: AbortSignal }) => getItems({ type: "upgrade" }, signal),
+  enabled,
+  staleTime: CATALOG_STALE,
+  retry: false,
+});
+
+/** Catalogue brut (méta, version du client) : pages Items, builds, paires. */
+export const useUpgradeCatalog = (enabled = true) => useQuery(upgradeCatalogOptions(enabled));
+
 /**
- * Catalogue des objets de boutique : MÊME clé que `useItemCatalog` du Match Detail, donc une seule requête
- * partagée par le scoreboard, le profil, les builds et le catalogue.
+ * Même requête, vue indexée par identifiant d'objet : scoreboard, lignes de partie et profil. `enabled` permet de
+ * ne charger le catalogue qu'à la première ligne dépliée.
  */
-export const useUpgradeCatalog = () =>
+export const useItemCatalog = (enabled = true) =>
   useQuery({
-    queryKey: ["items", "upgrade"],
-    queryFn: ({ signal }) => getItems({ type: "upgrade" }, signal),
-    staleTime: CATALOG_STALE,
-    retry: false,
+    ...upgradeCatalogOptions(enabled),
+    select: (r) => new Map(r.items.map((i) => [i.id, i])),
   });
 
 export const useItem = (itemId: string) =>

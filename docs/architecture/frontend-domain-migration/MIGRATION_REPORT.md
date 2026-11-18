@@ -46,8 +46,29 @@ Copie hors dépôt de `5249360`, MongoDB locale. Joueur réel LilStick : `/trend
 
 ## 9. Travaux restants
 
-1. Endpoint de méta groupée pour l'accueil (7 lectures).
+1. Endpoint de méta groupée pour l'accueil (7 lectures) : toujours absent du back v1.13.0 (vérifié le 18/11 : aucun commit après `5249360`). La lecture est isolée dans `useHeroesMeta` : le jour où l'endpoint existe, seule cette fonction change.
 2. Afficher `avatarUrl` du classement (sprint Classement).
 3. Valeur nette par minute dans le résumé de partie, pour retirer `netPerMinute` des lignes d'historique.
 4. Dépréciations annoncées par le back (`teams[].outcome`, `/trends.rolling`) : le front ne les lit plus ; à confirmer avant retrait côté back.
-5. Dédoublonner `useItemCatalog` et `useUpgradeCatalog` (même clé, aucun écart).
+5. ~~Dédoublonner `useItemCatalog` et `useUpgradeCatalog`~~ : fait (voir « Finalisation »).
+
+## Finalisation (18/11/2026, après le commit `4dd4741`)
+
+**Fait**
+
+- `useItemCatalog` (profil, partie) et `useUpgradeCatalog` (items, builds) partageaient déjà la clé `["items","upgrade"]` mais étaient deux définitions. Elles sortent maintenant d'une seule fabrique d'options (`items/hooks.ts`) : même requête, même cache, `enabled` conservé pour le chargement à la première ligne dépliée. Test : une seule requête réseau pour les deux vues, aucune tant que `enabled` est faux.
+- `useHeroesMeta(ids)` : l'accueil ne lit plus la méta dans chaque ligne. Même nombre de requêtes (une par héros, clés partagées avec la fiche héros), mais un seul point à remplacer quand le back livrera la méta groupée. Test de référence : une lecture par héros du widget, jamais deux.
+- Recherche de joueurs : la clé de cache est normalisée (casse, espaces), donc palette, page de recherche et formulaire de groupe partagent une entrée. Tests : rafale de frappes avec debounce (une seule requête), annulation de la requête précédente, deux consommateurs, une requête.
+- Classement : `staleTime` de 5 minutes (retour sur une région déjà vue sans relancer le calcul à froid du back, ~8,6 s mesurés).
+
+**Non modifié volontairement**
+
+- `netPerMinute`, `matchKda` (lignes d'historique) : `include=summary` fournit `kda` mais pas la valeur nette par minute ; il n'est pas adopté (8,5 s à froid pour 50 résumés, aucune requête retirée). Les deux fonctions restent la seule implémentation locale de ces métriques, utilisée par l'affichage d'une ligne. À retirer quand le back ajoutera `netWorthPerMinute` au résumé.
+- `isOwner` dans `matchModel` : identification du joueur du profil dans la partie (SteamID, sinon héros et K/D/A). Ce n'est pas une métrique, c'est un repli d'identité tant que le détail de partie ne désigne pas le joueur consulté.
+- `maxNet`, `maxDmg`, `FEW_GAMES` : présentation.
+
+**Dépend du back**
+
+- Méta groupée des héros (accueil).
+- `netWorthPerMinute` dans `summary`.
+- Désignation du joueur consulté dans `/matches/:id` (supprimerait `isOwner`).

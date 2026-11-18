@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getMatch, type MatchSummary } from "@/api";
-import { useItemCatalog } from "@/features/players/hooks";
+import { useItemCatalog } from "@/features/items/hooks";
 import { enrichMatch } from "@/lib/matchModel";
 
 /** Vrai dès que l'élément approche de l'écran (une seule fois). Sans IntersectionObserver : vrai. */

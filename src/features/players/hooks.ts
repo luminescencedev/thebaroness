@@ -1,7 +1,6 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import {
-  getItems,
   getPlayer,
   getPlayerActivity,
   getPlayerHeroes,
@@ -17,7 +16,8 @@ import {
 import type { MatchFilters } from "./scope";
 
 export const playerKeys = {
-  search: (q: string) => ["players", "search", q] as const,
+  /** Clé normalisée : « Corvid », « corvid » et « corvid  » partagent une entrée (le back met en cache en minuscules). */
+  search: (q: string) => ["players", "search", q.trim().toLowerCase()] as const,
   profile: (steamId: string) => ["players", steamId] as const,
   /** Préfixe : toutes les listes de parties du joueur, quel que soit le filtre. */
   matchesAll: (steamId: string) => ["players", steamId, "matches"] as const,
@@ -130,18 +130,6 @@ export function useRefreshPlayer(steamId: string) {
       for (const k of ["activity", "rank-history", "relationships", "trends"])
         void qc.invalidateQueries({ queryKey: ["players", steamId, k] });
     },
-  });
-}
-
-/** Catalogue des objets : une seule requête pour tout le catalogue, partagée par toutes les lignes. */
-export function useItemCatalog(enabled = true) {
-  return useQuery({
-    queryKey: ["items", "upgrade"],
-    queryFn: ({ signal }) => getItems({ type: "upgrade" }, signal),
-    enabled,
-    staleTime: 60 * 60_000,
-    retry: false,
-    select: (r) => new Map(r.items.map((i) => [i.id, i])),
   });
 }
 

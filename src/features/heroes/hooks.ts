@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { getHero, getHeroStats, getMap, listHeroes, listRanks } from "@/api";
 import { vividColor } from "@/lib/color";
 
@@ -28,6 +28,26 @@ export const useHeroStats = (heroId: string) =>
     queryKey: ["heroes", heroId, "stats"],
     queryFn: ({ signal }) => getHeroStats(heroId, signal),
   });
+
+/**
+ * Méta de plusieurs héros pour un widget (accueil). Aujourd'hui : UNE requête `/heroes/:id/stats` par héros, avec
+ * la même clé que la fiche héros (le cache est partagé). Le back n'expose pas encore de méta groupée : le jour où
+ * il le fera, seule l'implémentation de ce hook change, pas les composants.
+ */
+export function useHeroesMeta(heroIds: number[]) {
+  const queries = useQueries({
+    queries: heroIds.map((id) => ({
+      queryKey: ["heroes", String(id), "stats"],
+      queryFn: ({ signal }: { signal: AbortSignal }) => getHeroStats(id, signal),
+    })),
+  });
+  return new Map(
+    heroIds.map((id, i) => [
+      id,
+      { stats: queries[i]?.data?.stats, isPending: Boolean(queries[i]?.isPending) },
+    ]),
+  );
+}
 
 export const useRanks = () =>
   useQuery({

@@ -4,7 +4,17 @@ export interface Series {
   key: string;
   label: string;
   color: string;
-  points: { at: number; value: number }[];
+  /**
+   * `segment` : deux points consécutifs de segments différents ne sont JAMAIS reliés (par exemple deux saisons
+   * classées dont les rangs ne sont pas comparables). Sans `segment`, une seule courbe continue.
+   */
+  points: { at: number; value: number; segment?: number | string }[];
+}
+
+/** Repère vertical (par exemple le début d'une saison classée). */
+export interface ChartMarker {
+  at: number;
+  label: string;
 }
 
 interface MultiLineChartProps {
@@ -16,6 +26,8 @@ interface MultiLineChartProps {
   /** Bornes de l'axe vertical (par exemple l'échelle des rangs, 0 à 72) : l'axe ne dépasse jamais ce que la donnée peut valoir. */
   min?: number;
   max?: number;
+  /** Repères verticaux datés, dans la plage affichée seulement. */
+  markers?: ChartMarker[];
 }
 
 const W = 720;
@@ -30,6 +42,7 @@ export function MultiLineChart({
   height = 260,
   min,
   max,
+  markers = [],
   formatDate = (t) => new Date(t).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
 }: MultiLineChartProps) {
   const [hoverX, setHoverX] = useState<number | null>(null);
@@ -100,11 +113,31 @@ export function MultiLineChart({
             </text>
           </g>
         ))}
+        {markers
+          .filter((m) => m.at > t0 && m.at < t1)
+          .map((m) => (
+            <g key={`${m.at}-${m.label}`} aria-hidden="true">
+              <line
+                x1={x(m.at)}
+                x2={x(m.at)}
+                y1={PAD.top}
+                y2={PAD.top + innerH}
+                stroke="var(--border-strong)"
+                strokeDasharray="3 4"
+              />
+              <text x={x(m.at) + 4} y={PAD.top + 10} fontSize="10" fill="var(--subtle)">
+                {m.label}
+              </text>
+            </g>
+          ))}
         {series.map((s) => (
           <path
             key={s.key}
             d={s.points
-              .map((p, i) => `${i === 0 ? "M" : "L"}${x(p.at).toFixed(1)},${y(p.value).toFixed(1)}`)
+              .map((p, i) => {
+                const cut = i === 0 || p.segment !== s.points[i - 1]?.segment;
+                return `${cut ? "M" : "L"}${x(p.at).toFixed(1)},${y(p.value).toFixed(1)}`;
+              })
               .join(" ")}
             fill="none"
             stroke={s.color}
@@ -113,6 +146,23 @@ export function MultiLineChart({
             strokeLinecap="round"
           />
         ))}
+        {/* Un segment d'un seul point n'a pas de trait : on le montre quand même. */}
+        {series.flatMap((s) =>
+          s.points.flatMap((p, i) =>
+            p.segment !== s.points[i - 1]?.segment && p.segment !== s.points[i + 1]?.segment ? (
+              <circle
+                key={`${s.key}-${i}`}
+                cx={x(p.at)}
+                cy={y(p.value)}
+                r="2.5"
+                fill={s.color}
+                aria-hidden="true"
+              />
+            ) : (
+              []
+            ),
+          ),
+        )}
         {hoverX !== null && (
           <g>
             <line

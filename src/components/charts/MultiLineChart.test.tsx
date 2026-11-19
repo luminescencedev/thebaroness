@@ -62,3 +62,53 @@ describe("MultiLineChart : accès sans souris", () => {
     expect(screen.getByText(/Flèches gauche et droite/)).toBeInTheDocument();
   });
 });
+
+describe("MultiLineChart : segments et repères", () => {
+  const t = (d: string) => Date.parse(d);
+  const split: Series[] = [
+    {
+      key: "a",
+      label: "Alpha",
+      color: "#b4abff",
+      points: [
+        { at: t("2026-11-01"), value: 66, segment: 1 },
+        { at: t("2026-11-03"), value: 68, segment: 1 },
+        { at: t("2026-11-08"), value: 50, segment: 2 },
+        { at: t("2026-11-12"), value: 52, segment: 2 },
+        { at: t("2026-11-14"), value: 54, segment: 3 },
+      ],
+    },
+  ];
+
+  it("ne relie jamais deux segments : un « M » par segment, un point isolé reste visible", () => {
+    const { container } = render(
+      <MultiLineChart
+        series={split}
+        title="Rang"
+        markers={[{ at: t("2026-11-05"), label: "Saison 2" }]}
+      />,
+    );
+    const d = container.querySelector("path[stroke='#b4abff']")!.getAttribute("d") ?? "";
+    expect(d.match(/M/g)).toHaveLength(3);
+    expect(d.match(/L/g)).toHaveLength(2); // 1 trait par segment de 2 points, aucun entre segments
+    expect(container.querySelectorAll("circle")).toHaveLength(1); // le segment d'un seul point
+    expect(screen.getByText("Saison 2")).toBeInTheDocument();
+  });
+
+  it("sans segment : une courbe continue, comme avant", () => {
+    const { container } = render(<MultiLineChart series={series} title="P" />);
+    const d = container.querySelector("path[stroke='#b4abff']")!.getAttribute("d") ?? "";
+    expect(d.match(/M/g)).toHaveLength(1);
+  });
+
+  it("un repère hors de la plage affichée n'est pas tracé", () => {
+    render(
+      <MultiLineChart
+        series={split}
+        title="R"
+        markers={[{ at: t("2027-01-01"), label: "Futur" }]}
+      />,
+    );
+    expect(screen.queryByText("Futur")).toBeNull();
+  });
+});

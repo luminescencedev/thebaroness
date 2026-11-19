@@ -15,6 +15,8 @@ export const SCENARIOS = {
   steamIdPartial: "76561198000000001",
   /** Profil : 503 SERVICE_UNAVAILABLE. */
   steamIdUnavailable: "76561198000000503",
+  /** Groupes : membre dont la lecture est refusée par le quota de la source (429). */
+  steamIdRateLimited: "76561198000000429",
 } as const;
 
 /** Compte Steam fictif du mode mock : même joueur que Corvid. */

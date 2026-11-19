@@ -1,5 +1,18 @@
 # Demandes au back : groupes et comparaison (Sprint 3, 18/11/2026)
 
+> **État au 19/11/2026 : le back v1.15.0 (`f319777`) a répondu à toutes les demandes.** Ce document est conservé comme historique de la demande ; le contrat qui fait foi est `docs/openapi.yaml` du back (copie : `src/contracts/openapi.yaml`) et `docs/back-groups-contract.md` (mise à jour v1.15.0).
+>
+> | Demande                      | Décision du back                                                                                                                                           | Intégré au front                                    |
+> | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+> | P1-1 identité des membres    | LIVRÉE (`include=members`, avec `resolved` et `membersCoverage`)                                                                                           | oui                                                 |
+> | P1-2 parties jouées ensemble | LIVRÉE, MODIFIÉE : `include=pairs`, calcul exact par intersection d'historiques, « même équipe » (`partyConfirmed` toujours false), pas de `sameParty`     | oui (toujours avec la comparaison)                  |
+> | P1-3 filtres de mode         | LIVRÉE (`gameMode`, `matchMode`, `appliedFilters`, `excludedUnknownModeMatches`)                                                                           | oui                                                 |
+> | P1-4 membres indisponibles   | LIVRÉE (`unavailable[]`, raisons `not_found`, `rate_limited`, `timeout`, `provider_error`, `unknown`)                                                      | oui                                                 |
+> | P2-1 période précédente      | LIVRÉE (`previous`, `deltaVsPrevious`, `methodology.previousPeriod`), null pour `season`                                                                   | oui                                                 |
+> | P2-2 remise à zéro des rangs | QUALIFIÉE : ce n'est pas une remise à zéro mais un changement de saison classée (05/11/2026 20:00 UTC), annotée par `season` ; pas de marqueur `rankReset` | oui (courbes coupées par saison, groupes et profil) |
+>
+> Le texte ci-dessous est la demande d'origine (hypothèses comprises) ; les noms et formes réellement livrés diffèrent sur plusieurs points (voir l'OpenAPI).
+
 Document de liaison pour le Claude du back. Contexte : refonte des pages `/groups` et `/groups/:id` (rapport : `docs/design/sprint3-groups/RAPPORT.md`). Le front fonctionne **entièrement** avec le contrat v1.14.0 : aucune de ces demandes n'est bloquante (aucun P0). Rien ci-dessous n'est implémenté côté front tant que le back ne l'a pas livré, et rien n'est simulé en production.
 
 Ce qui est confirmé par le code du back (`479348f`) est marqué **[code]** ; ce qui reste une hypothèse est marqué **[hypothèse]**.

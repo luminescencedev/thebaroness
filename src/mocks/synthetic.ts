@@ -577,18 +577,64 @@ function longestWinStreak(matches: MatchSummary[]): number {
 }
 
 const PERIOD_DAYS: Record<ComparePeriod, number | null> = { "7d": 7, "30d": 30, season: null };
+const MOCK_NOW = Date.parse("2026-11-16T12:00:00.000Z");
+const DAY = 86_400_000;
 
-/** Statistiques d'un membre sur une période, calculées depuis ses parties synthétiques. */
+/**
+ * Saisons classées SYNTHETIQUES du mock, calquées sur la source réelle (Beta Season 1 jusqu'au 05/11/2026 20:00 UTC,
+ * Beta Season 2 ensuite). Le mock ne recompresse pas les badges : il ne fait que marquer la frontière.
+ */
+export const MOCK_SEASONS = [
+  {
+    season: 1,
+    name: "Beta Season 1",
+    startedAt: "2026-07-30T17:00:00.000Z",
+    endedAt: "2026-11-05T20:00:00.000Z",
+  },
+  { season: 2, name: "Beta Season 2", startedAt: "2026-11-05T20:00:00.000Z", endedAt: null },
+];
+export const seasonAt = (at: string): number | null => {
+  const t = Date.parse(at);
+  return (
+    MOCK_SEASONS.find(
+      (s) => t >= Date.parse(s.startedAt) && (s.endedAt === null || t < Date.parse(s.endedAt)),
+    )?.season ?? null
+  );
+};
+export const periodFromMs = (period: ComparePeriod): number =>
+  period === "season"
+    ? Date.parse(MOCK_SEASONS[1]!.startedAt)
+    : MOCK_NOW - (PERIOD_DAYS[period] ?? 0) * DAY;
+
+export interface MemberStatsOptions {
+  gameMode?: "all" | "normal" | "street_brawl";
+  matchMode?: "all" | "ranked" | "unranked";
+  now?: number;
+}
+
+/** Statistiques d'un membre sur une période et des modes, calculées depuis ses parties synthétiques. */
 export function memberStats(
   p: SyntheticPlayer,
   all: MatchSummary[],
   period: ComparePeriod,
-  now = Date.parse("2026-11-16T12:00:00.000Z"),
+  { gameMode = "all", matchMode = "all", now = MOCK_NOW }: MemberStatsOptions = {},
 ): GroupMemberStats {
-  const days = PERIOD_DAYS[period];
-  const inPeriod = all.filter(
-    (m) => days === null || Date.parse(m.playedAt) >= now - days * 86400000,
-  );
+  const from =
+    period === "season" ? periodFromMs("season") : now - (PERIOD_DAYS[period] ?? 0) * DAY;
+  const inWindow = (m: MatchSummary, a: number, b: number) => {
+    const t = Date.parse(m.playedAt);
+    return t >= a && t < b;
+  };
+  const modeOk = (m: MatchSummary) =>
+    (gameMode === "all" || m.gameMode === gameMode) &&
+    (matchMode === "all" || m.matchMode === matchMode);
+  const period0 = all.filter((m) => inWindow(m, from, Number.POSITIVE_INFINITY));
+  const inPeriod = period0.filter(modeOk);
+  // Un mode inconnu ne compte que sous « tous » : les parties sans mode sont écartées par un filtre précis.
+  const excluded = period0.filter(
+    (m) =>
+      (gameMode !== "all" && m.gameMode == null) || (matchMode !== "all" && m.matchMode == null),
+  ).length;
   const s = statsFromMatches(inPeriod);
   const best = [...inPeriod]
     .filter((m) => m.kills !== null && m.assists !== null && m.deaths !== null)
@@ -607,9 +653,55 @@ export function memberStats(
         kda: round2(best.kda),
       }
     : null;
-  const history = rankHistory(p, all).filter(
-    (pt) => days === null || Date.parse(pt.at) >= now - days * 86400000,
-  );
+  const history = rankHistory(p, all)
+    .filter((pt) => Date.parse(pt.at) >= from)
+    .map((pt) => ({ ...pt, badge: pt.score * 10, season: seasonAt(pt.at) }));
+  // Dernier moins premier score DE LA MÊME SAISON que le dernier point ; null sous deux points.
+  const lastSeason = history.at(-1)?.season ?? null;
+  const sameSeason = history.filter((pt) => pt.season === lastSeason);
+  const rankDelta =
+    sameSeason.length >= 2 ? (sameSeason.at(-1)?.score ?? 0) - (sameSeason[0]?.score ?? 0) : null;
+
+  // Fenêtre de même durée juste avant (jamais pour « saison »), mêmes filtres.
+  const days = PERIOD_DAYS[period];
+  const prevFrom = days === null ? null : from - days * DAY;
+  const prevList =
+    prevFrom === null ? null : all.filter((m) => inWindow(m, prevFrom, from) && modeOk(m));
+  const ps = prevList ? statsFromMatches(prevList) : null;
+  const previous =
+    prevList && ps && prevFrom !== null
+      ? {
+          from: new Date(prevFrom).toISOString(),
+          to: new Date(from).toISOString(),
+          matches: prevList.length,
+          wins: ps.wins ?? 0,
+          winRate: ps.winRate,
+          kda: ps.kda,
+          kdaSampleSize: prevList.filter(
+            (m) => m.kills !== null && m.deaths !== null && m.assists !== null,
+          ).length,
+        }
+      : null;
+  const kdaN = inPeriod.filter(
+    (m) => m.kills !== null && m.deaths !== null && m.assists !== null,
+  ).length;
+  // Ratios null sous 5 parties de chaque côté (KDA : parties complètes), comme le back.
+  const deltaVsPrevious = previous
+    ? {
+        matches: inPeriod.length - previous.matches,
+        winRate:
+          inPeriod.length >= 5 &&
+          previous.matches >= 5 &&
+          s.winRate !== null &&
+          previous.winRate !== null
+            ? round2(s.winRate - previous.winRate)
+            : null,
+        kda:
+          kdaN >= 5 && previous.kdaSampleSize >= 5 && s.kda !== null && previous.kda !== null
+            ? round2(s.kda - previous.kda)
+            : null,
+      }
+    : null;
   return {
     steamId: p.steamId,
     displayName: p.displayName,
@@ -622,13 +714,13 @@ export function memberStats(
     kda: s.kda,
     longestWinStreak: longestWinStreak(inPeriod),
     bestMatch,
-    rankHistory: history.map((pt) => ({ ...pt, badge: pt.score * 10 })),
-    kdaSampleSize: inPeriod.filter(
-      (m) => m.kills !== null && m.deaths !== null && m.assists !== null,
-    ).length,
+    rankHistory: history,
+    kdaSampleSize: kdaN,
     currentRankScore: rankScore(p.tier, p.subrank),
-    // Dernier moins premier score ; null sous deux points (jamais 0 par défaut).
-    rankDelta: history.length >= 2 ? (history.at(-1)?.score ?? 0) - (history[0]?.score ?? 0) : null,
+    rankDelta,
+    excludedUnknownModeMatches: gameMode === "all" && matchMode === "all" ? 0 : excluded,
+    previous,
+    deltaVsPrevious,
   };
 }
 

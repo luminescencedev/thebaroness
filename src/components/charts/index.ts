@@ -8,7 +8,7 @@ export { Donut, type DonutSegment } from "./Donut";
 export { FormStrip } from "./FormStrip";
 export { HourBars } from "./HourBars";
 export { LineChart, type LinePoint } from "./LineChart";
-export { MultiLineChart, type Series } from "./MultiLineChart";
+export { MultiLineChart, type ChartMarker, type Series } from "./MultiLineChart";
 export { Radar, type RadarAxis } from "./Radar";
 export { RadialGauge } from "./RadialGauge";
 export { RankProgress, type RankSeries } from "./RankProgress";

@@ -2,6 +2,7 @@
  * Mock des routes profil V2 (OpenAPI 1.9.0) : mêmes règles que le back (docs/HANDOFF.md du back).
  * Les parties sont SYNTHETIQUES ; seul le calcul reproduit le contrat réel.
  */
+import { MOCK_SEASONS, seasonAt } from "./synthetic";
 import type {
   AppliedFilters,
   CoverageNote,
@@ -349,14 +350,21 @@ export function rankHistoryOf(
         name: r.name,
         imageUrl: r.imageUrl,
         outcome: m.outcome,
+        season: seasonAt(m.playedAt),
       });
     }
     score = Math.max(1, score + (m.outcome === "win" ? -(i % 2) : i % 3 === 0 ? 1 : 0));
   });
   const from = periodStart(period);
+  const ordered = points.reverse();
+  const seasons = MOCK_SEASONS.filter(
+    (x) => x.endedAt === null || (from !== null && Date.parse(x.endedAt) > from) || from === null,
+  );
+  const crossesSeasons = new Set(ordered.map((x) => x.season)).size > 1;
   return {
     period,
-    points: points.reverse(),
+    seasons,
+    points: ordered,
     coverage: {
       requestedFrom: from === null ? null : new Date(from).toISOString(),
       requestedTo: new Date(MOCK_NOW).toISOString(),
@@ -364,7 +372,10 @@ export function rankHistoryOf(
       pointCount: points.length,
       missingBadge: missing,
       isPartial: false,
-      notes: missing > 0 ? ["badge_missing_on_some_ranked_matches"] : [],
+      notes: [
+        ...(missing > 0 ? ["badge_missing_on_some_ranked_matches"] : []),
+        ...(crossesSeasons ? ["spans_multiple_seasons"] : []),
+      ],
     },
   };
 }

@@ -24,11 +24,27 @@ function RankProgress({ history }: { history: ReturnType<typeof usePlayerRankHis
     const base = ranks.data?.items.find((r) => r.tier === tier)?.name;
     return base ? `${base} ${ROMAN[sub] ?? sub}` : String(s);
   };
-  const chart: AreaPoint[] = points.map((p) => ({
-    value: p.score,
-    title: p.name,
-    lines: [formatDate(p.at), p.outcome === "win" ? "Victoire" : "Défaite"],
-  }));
+  // Deux saisons classées ne sont pas comparables (la source recalcule les rangs) : un point vide entre elles
+  // interrompt la courbe, qui n'est jamais reliée d'une saison à l'autre.
+  const chart: AreaPoint[] = points.flatMap((p, i) => {
+    const point: AreaPoint = {
+      value: p.score,
+      title: p.name,
+      lines: [formatDate(p.at), p.outcome === "win" ? "Victoire" : "Défaite"],
+    };
+    const prev = points[i - 1];
+    const cut =
+      prev !== undefined && prev.season != null && p.season != null && prev.season !== p.season;
+    return cut
+      ? [{ value: null, title: "Changement de saison classée", lines: [] }, point]
+      : [point];
+  });
+  const crossesSeasons = chart.some((p) => p.value === null);
+  const seasonNote = (() => {
+    const later = (history.data.seasons ?? []).slice(1);
+    const when = later[0] ? formatDate(later[0].startedAt) : null;
+    return `Changement de saison classée${when ? ` le ${when}` : ""} : la source recalcule les rangs, deux saisons ne sont pas comparables. La courbe est coupée.`;
+  })();
   const scores = points.map((p) => p.score);
   // Bornes entières, étendue multiple de 4 : les 5 graduations tombent sur des rangs distincts.
   const lo = Math.min(...scores) - 1;
@@ -59,6 +75,9 @@ function RankProgress({ history }: { history: ReturnType<typeof usePlayerRankHis
             {coverage.missingBadge > 0 ? ` (${coverage.missingBadge} sans badge, non tracées)` : ""}
             . Aucun MMR : seulement le rang observé.
           </p>
+          {crossesSeasons && (
+            <p className="mt-1 text-[11px] leading-relaxed text-subtle">{seasonNote}</p>
+          )}
         </div>
       )}
     </div>

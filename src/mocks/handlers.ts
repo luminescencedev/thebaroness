@@ -7,12 +7,11 @@ import type {
   TrackedPlayer,
 } from "@/api/types";
 import { SCENARIOS } from "./scenarios";
-import { HIGHLIGHT_MIN_MATCHES, groupHighlights } from "./groupHighlights";
+import { compareResponse, groupsWithMembers } from "./groupCompare";
 import { allItemStats, buildsFor, filtersOf, itemStatsFor, pairsFor } from "./itemsMock";
 import { matchFixtures, mockConfig, playerFixtures, state } from "./state";
 import {
   allSyntheticPlayers,
-  memberStats,
   syntheticMatches,
   heroById,
   heroMetaStats,
@@ -23,7 +22,7 @@ import {
   rankFor,
   syntheticCatalog,
 } from "./synthetic";
-import type { ComparePeriod, Group, LeaderboardRegion } from "@/api/types";
+import type { CompareScope, Group, LeaderboardRegion } from "@/api/types";
 import mapFixture from "./fixtures/map.json";
 import {
   activityOf,
@@ -72,6 +71,23 @@ function parseAnalytics(request: Request) {
     period: "7d" | "30d";
     mode: "ranked" | "unranked" | undefined;
     heroId: number | undefined;
+  };
+}
+
+/** Lit period, gameMode, matchMode et include=pairs d'une comparaison ; renvoie un message si invalide. */
+function parseCompareScope(request: Request) {
+  const q = new URL(request.url).searchParams;
+  const period = q.get("period") ?? "30d";
+  const gameMode = q.get("gameMode") ?? "all";
+  const matchMode = q.get("matchMode") ?? "all";
+  const include = q.get("include");
+  if (!["7d", "30d", "season"].includes(period)) return "Période invalide.";
+  if (!["all", "normal", "street_brawl"].includes(gameMode)) return "gameMode invalide.";
+  if (!["all", "ranked", "unranked"].includes(matchMode)) return "matchMode invalide.";
+  if (include !== null && include !== "pairs") return "include invalide.";
+  return {
+    scope: { period, gameMode, matchMode } as CompareScope,
+    pairs: include === "pairs",
   };
 }
 
@@ -311,14 +327,11 @@ export const handlers = [
     if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
     const group = state.groups.get(owner)?.find((g) => g.id === id);
     if (!group) return notFound("Groupe introuvable.");
-    const period = (new URL(request.url).searchParams.get("period") ?? "30d") as ComparePeriod;
-    if (!["7d", "30d", "season"].includes(period)) return invalid("Période invalide.");
-    const members = group.steamIds.flatMap((steamId) => {
-      const p = allSyntheticPlayers.find((x) => x.steamId === steamId);
-      return p ? [memberStats(p, syntheticMatches[steamId] ?? [], period)] : [];
-    });
-    if (members.length === 0) return unavailable();
-    return HttpResponse.json({ group, period, members, meta: meta() });
+    const scope = parseCompareScope(request);
+    if (typeof scope === "string") return invalid(scope);
+    const { body, missing } = compareResponse(group, scope.scope, { pairs: scope.pairs });
+    if (body.members.length === 0) return unavailable();
+    return HttpResponse.json({ ...body, meta: meta(missing > 0) });
   }),
 
   http.get(`${API}/items/stats`, async ({ request }) => {
@@ -633,6 +646,8 @@ export const handlers = [
     const items = [...(state.groups.get(owner) ?? [])].sort((a, b) =>
       b.updatedAt.localeCompare(a.updatedAt),
     );
+    if (new URL(request.url).searchParams.get("include") === "members")
+      return HttpResponse.json({ ...groupsWithMembers(items), meta: meta() });
     return HttpResponse.json({ items });
   }),
 
@@ -663,26 +678,10 @@ export const handlers = [
     if (!OBJECT_ID_RE.test(id)) return invalid("Identifiant invalide.");
     const group = state.groups.get(owner)?.find((g) => g.id === id);
     if (!group) return notFound("Groupe introuvable.");
-    const period = (new URL(request.url).searchParams.get("period") ?? "30d") as ComparePeriod;
-    if (!["7d", "30d", "season"].includes(period)) return invalid("Période invalide.");
-    const members = group.steamIds.flatMap((steamId) => {
-      const p = allSyntheticPlayers.find((x) => x.steamId === steamId);
-      return p ? [memberStats(p, syntheticMatches[steamId] ?? [], period)] : [];
-    });
-    return HttpResponse.json({
-      group,
-      period,
-      members,
-      highlights: groupHighlights(members),
-      methodology: {
-        periodFrom: null,
-        rankScore: "tier * 6 + sous-rang",
-        kda: "(K + A) / max(D, 1) sur les parties où K, D et A sont connus",
-        highlightMinMatches: HIGHLIGHT_MIN_MATCHES,
-        ties: "tous les ex æquo sont conservés",
-      },
-      meta: meta(members.length < group.steamIds.length),
-    });
+    const scope = parseCompareScope(request);
+    if (typeof scope === "string") return invalid(scope);
+    const { body, missing } = compareResponse(group, scope.scope, { pairs: scope.pairs });
+    return HttpResponse.json({ ...body, meta: meta(missing > 0) });
   }),
 
   http.get(`${API}/groups/:id`, async ({ request, params }) => {

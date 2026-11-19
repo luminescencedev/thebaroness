@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
 import { Link } from "react-router";
 import type { GroupMemberStats, RankTier } from "@/api";
+import { DeltaChip } from "@/components/charts";
 import { RankBadge } from "@/components/media/RankBadge";
 import { Avatar, cn } from "@/components/ui";
 import { rankLabel } from "@/lib/rank";
@@ -15,6 +17,8 @@ interface ComparisonTableProps {
   /** Seuil de parties sous lequel une proportion est signalée « échantillon faible ». */
   minMatches: number;
   ranks: RankTier[] | undefined;
+  /** Période précédente de même durée (`methodology.previousPeriod`) : null pour « saison », aucun écart affiché. */
+  previousLabel?: string | null;
 }
 
 function Rank({ m }: { m: GroupMemberStats }) {
@@ -54,11 +58,13 @@ function Sampled({
   count,
   label,
   low,
+  delta,
 }: {
   value: string;
   count: number;
   label: string;
   low: boolean;
+  delta?: ReactNode;
 }) {
   return (
     <span className="flex flex-col leading-tight">
@@ -67,7 +73,34 @@ function Sampled({
         {count} {label}
         {low && " · échantillon faible"}
       </small>
+      {delta && <span className="mt-1">{delta}</span>}
     </span>
+  );
+}
+
+/**
+ * Écart face à la période précédente, tel que le back le calcule (`deltaVsPrevious`) : jamais recalculé ici.
+ * null (sous 5 parties d'un des côtés, ou « saison ») : « n/d », sans le déguiser en écart nul.
+ */
+function Vs({
+  member,
+  kind,
+  show,
+}: {
+  member: GroupMemberStats;
+  kind: "winRate" | "kda";
+  show: boolean;
+}) {
+  const d = member.deltaVsPrevious;
+  if (!show || d === undefined || d === null) return null;
+  return (
+    <DeltaChip
+      value={d[kind]}
+      unit={kind === "winRate" ? " pts" : ""}
+      digits={kind === "winRate" ? 1 : 2}
+      threshold={kind === "winRate" ? 0.5 : 0.05}
+      context="face à la période précédente"
+    />
   );
 }
 
@@ -84,7 +117,9 @@ export function ComparisonTable({
   sort,
   onSort,
   minMatches,
+  previousLabel = null,
 }: ComparisonTableProps) {
+  const showPrev = previousLabel !== null;
   const rows = positionMembers(members, sort);
   const sortLabel = SORTS.find((s) => s.key === sort)?.label ?? "";
   return (
@@ -184,7 +219,13 @@ export function ComparisonTable({
                   {winRate === null ? (
                     <span className="text-subtle">n/d</span>
                   ) : (
-                    <Sampled value={winRate} count={m.matches} label="parties" low={low} />
+                    <Sampled
+                      value={winRate}
+                      count={m.matches}
+                      label="parties"
+                      low={low}
+                      delta={<Vs member={m} kind="winRate" show={showPrev} />}
+                    />
                   )}
                 </span>
                 <span className="hidden @[820px]:block">
@@ -196,6 +237,7 @@ export function ComparisonTable({
                       count={m.kdaSampleSize ?? m.matches}
                       label="parties"
                       low={false}
+                      delta={<Vs member={m} kind="kda" show={showPrev} />}
                     />
                   )}
                 </span>
@@ -219,7 +261,8 @@ export function ComparisonTable({
                         <span className="sr-only"> sur {m.matches} parties</span>
                         {low && <span className="sr-only"> : échantillon faible</span>}
                       </>
-                    )}
+                    )}{" "}
+                    <Vs member={m} kind="winRate" show={showPrev} />
                   </span>
                   <span>
                     KDA {m.kda === null ? "n/d" : formatDecimal(m.kda)}
@@ -231,7 +274,8 @@ export function ComparisonTable({
                         </span>
                         <span className="sr-only"> sur {m.kdaSampleSize ?? m.matches} parties</span>
                       </>
-                    )}
+                    )}{" "}
+                    <Vs member={m} kind="kda" show={showPrev} />
                   </span>
                 </span>
               </li>
@@ -241,6 +285,12 @@ export function ComparisonTable({
         <p className="border-t border-divider px-3.5 py-2 text-[11.5px] text-subtle @[820px]:hidden">
           Entre parenthèses : nombre de parties prises en compte.
         </p>
+        {showPrev && (
+          <p className="border-t border-divider px-3.5 py-2 text-[11.5px] text-subtle">
+            Écarts de taux et de KDA : face à la période précédente ({previousLabel}), « n/d » sous
+            5 parties de chaque côté.
+          </p>
+        )}
       </div>
       <p className="mt-2.5 text-[12.5px] leading-relaxed text-subtle">
         La position suit le critère choisi : c'est la place dans ce groupe, pas le rang officiel. «

@@ -1,4 +1,10 @@
-import type { GroupHighlight, GroupMemberStats, HighlightKey, RankTier } from "@/api";
+import type {
+  GroupHighlight,
+  GroupMemberStats,
+  GroupUnavailableReason,
+  HighlightKey,
+  RankTier,
+} from "@/api";
 import { scoreLabel } from "@/lib/rank";
 
 export { scoreLabel };
@@ -146,3 +152,14 @@ export function highlightRows(
     }
   });
 }
+
+/** Raison d'indisponibilité d'un membre, en clair, sans détail technique. */
+const REASON: Record<GroupUnavailableReason, string> = {
+  not_found: "profil introuvable",
+  rate_limited: "réessayez dans un instant",
+  timeout: "réessayez dans un instant",
+  provider_error: "données indisponibles",
+  unknown: "données indisponibles",
+};
+export const unavailableReasonText = (r: GroupUnavailableReason | undefined) =>
+  REASON[r ?? "unknown"] ?? REASON.unknown;

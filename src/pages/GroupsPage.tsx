@@ -1,29 +1,56 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import type { Group, TrackedPlayer } from "@/api";
+import type { GroupWithMembers, MemberIdentity, TrackedPlayer } from "@/api";
 import { useDocumentTitle } from "@/app/useDocumentTitle";
 import { ErrorState } from "@/components/ErrorState";
 import { PageHeader } from "@/components/PageHeader";
-import { Button, Dialog, EmptyState, Skeleton } from "@/components/ui";
+import { Avatar, Button, Dialog, EmptyState, Skeleton } from "@/components/ui";
 import { GroupForm } from "@/features/groups/GroupForm";
 import { useCreateGroup, useGroups } from "@/features/groups/hooks";
 import { useTrackedList } from "@/features/tracked-players/hooks";
 import { timeAgo } from "@/lib/format";
 
-/** Aperçu des membres : seulement les noms que le front connaît (alias de vos suivis). Aucun appel de plus. */
-function memberPreview(group: Group, tracked: TrackedPlayer[]): string {
-  const total = group.steamIds.length;
-  const names = group.steamIds
-    .map((id) => tracked.find((t) => t.steamId === id)?.alias)
-    .filter((n): n is string => Boolean(n));
-  const shown = names.slice(0, 3);
-  const rest = total - shown.length;
-  return shown.length === 0
-    ? `${total} joueurs`
-    : `${total} joueurs · ${shown.join(", ")}${rest > 0 ? ` et ${rest} autre${rest > 1 ? "s" : ""}` : ""}`;
+/** Nom d'un membre : alias de vos suivis d'abord, puis le pseudo résolu par le back, sinon le SteamID abrégé. */
+function memberName(m: MemberIdentity, tracked: TrackedPlayer[]): { name: string; known: boolean } {
+  const alias = tracked.find((t) => t.steamId === m.steamId)?.alias;
+  if (alias) return { name: alias, known: true };
+  if (m.resolved) return { name: m.displayName, known: true };
+  return { name: `Joueur ${m.steamId.slice(-4)}`, known: false };
 }
 
-function GroupRow({ group, tracked }: { group: Group; tracked: TrackedPlayer[] }) {
+/**
+ * Aperçu des membres : identités fournies par le back avec `GET /groups?include=members` (une seule requête
+ * pour toute la liste). Sans elles (back plus ancien), seulement les alias de vos suivis et le nombre de joueurs.
+ */
+function memberPreview(group: GroupWithMembers, tracked: TrackedPlayer[]) {
+  const total = group.steamIds.length;
+  const members = group.members ?? [];
+  const named = members.map((m) => ({ m, ...memberName(m, tracked) }));
+  if (named.length === 0) {
+    const names = group.steamIds
+      .map((id) => tracked.find((t) => t.steamId === id)?.alias)
+      .filter((n): n is string => Boolean(n))
+      .slice(0, 3);
+    const rest = total - names.length;
+    return {
+      avatars: [] as typeof named,
+      text:
+        names.length === 0
+          ? `${total} joueurs`
+          : `${total} joueurs · ${names.join(", ")}${rest > 0 ? ` et ${rest} autre${rest > 1 ? "s" : ""}` : ""}`,
+    };
+  }
+  const shown = named.slice(0, 3);
+  const rest = total - shown.length;
+  const list = shown.map((n) => n.name).join(", ");
+  return {
+    avatars: shown,
+    text: rest > 0 ? `${list} et ${rest} autre${rest > 1 ? "s" : ""}` : list,
+  };
+}
+
+function GroupRow({ group, tracked }: { group: GroupWithMembers; tracked: TrackedPlayer[] }) {
+  const preview = memberPreview(group, tracked);
   return (
     <li className="border-t border-divider first:border-t-0">
       <Link
@@ -40,8 +67,23 @@ function GroupRow({ group, tracked }: { group: Group; tracked: TrackedPlayer[] }
           <span className="block truncate text-[15px] font-medium tracking-[-0.012em]">
             {group.name}
           </span>
-          <span className="mt-0.5 block truncate text-[12.5px] text-subtle">
-            {memberPreview(group, tracked)}
+          <span className="mt-1 flex min-w-0 items-center gap-2 text-[12.5px] text-subtle">
+            {preview.avatars.length > 0 && (
+              <span aria-hidden="true" className="flex shrink-0 -space-x-1.5">
+                {preview.avatars.map(({ m, name }) => (
+                  <Avatar
+                    key={m.steamId}
+                    name={name}
+                    src={m.avatarUrl}
+                    className="size-5 overflow-hidden text-[8px] ring-2 ring-[var(--surface-1)]"
+                  />
+                ))}
+              </span>
+            )}
+            <span className="truncate">
+              <span className="sr-only">{group.steamIds.length} joueurs : </span>
+              {preview.text}
+            </span>
           </span>
         </span>
         <span className="hidden text-xs whitespace-nowrap text-subtle sm:block">

@@ -116,6 +116,27 @@ Corrections indépendantes faites :
 
 Tests : 21 pour les pages groupes, 3 pour le graphique, tout le reste inchangé ; E2E des groupes inchangé.
 
+## Sprint 3.2 : intégration du back v1.15.0 (19/11/2026)
+
+**Backend** : `main` = `f319777` (v1.15.0), contrat copié dans `src/contracts/openapi.yaml`. Les six demandes sont livrées (voir le tableau en tête de `docs/back-groups-sprint3-requests.md`).
+
+Intégré :
+
+- **Liste des groupes** : `GET /groups?include=members`, une seule requête pour toute la liste, aucune par membre. Trois avatars et « A, B et N autres » ; l'alias de vos suivis passe avant le pseudo du back ; identité non résolue : « Joueur 0099 », jamais le SteamID brut en guise de pseudo ; repli sur le nombre de joueurs avec un back plus ancien.
+- **Période et modes** : période, format et type dans l'URL (mêmes contrôles et libellés que le profil), clé de cache complète, périmètre affiché = celui de la réponse (`appliedFilters`) ; « modes confondus » seulement sous « tous » ; parties au mode inconnu écartées annoncées dans « Méthode et limites ».
+- **Membres indisponibles** : la liste vient du back avec une raison en clair (introuvable ; réessayez dans un instant ; données indisponibles), sans détail technique.
+- **Période précédente** : `deltaVsPrevious` affiché tel quel dans le tableau (pastilles de variation sous le taux et le KDA, sur les lignes compactes aussi), « n/d » sous 5 parties de chaque côté, aucun écart pour « saison », fenêtre comparée nommée.
+- **Jouer ensemble** : nouvelle section, « dans la même équipe », jamais « en escouade ». Chargée avec la comparaison (`include=pairs`) : mesuré +0,1 s pour 8 membres, donc une seule requête et pas de bouton. Paires triées par parties, échantillon faible signalé, adversaires mentionnés, membres « non évalués » nommés (jamais comptés à 0), absence de la donnée distinguée d'une absence de parties.
+- **Saisons classées** (cause établie par le back : changement de saison du 05/11/2026 20:00 UTC, la source recompresse les rangs) : la courbe de rang des groupes est coupée à chaque changement de saison (segments, jamais reliés), repère de saison, explication, progression limitée à la dernière saison ; saisons indisponibles : courbe continue et avertissement. Même traitement sur la courbe de rang du PROFIL (`rank-history`), qui était concernée.
+
+Composants : `MultiLineChart` (segments par `segment`, repères `markers`, point isolé visible), `PairsSection`, `ComparisonTable` (écarts), `GroupsPage` (avatars).
+
+Vérifié sur un back local v1.15.0 (copie hors dépôt, MongoDB locale, utilisateur inséré) : liste avec identités (3 résolus sur 4, un SteamID inconnu : `resolved: false`), comparaison 30 jours (2 saisons, un membre `not_found`, `meta.isPartial`), filtres normal/classée (394 et 188 parties), saison (`previous` null), Street Brawl 7 jours, `gameMode` invalide (400), `include` invalide (400), paires (1 paire commune, un membre non évalué), 8 membres à froid : 0,9 s la comparaison, +0,1 s les paires. Captures réelles dans `captures-3-2/` : 1440, 1024, 768, 390, 320 px (liste, détail, filtre classée, saison), aucun débordement horizontal.
+
+Tests : 264 (21 pages groupes inchangées, 13 nouveaux pour la v1.15.0, 7 pour le mock, 3 pour le graphique, 3 pour la courbe du profil).
+
+Limites : avatars Steam non chargés dans l'environnement de test (initiales de repli) ; les écarts de période précédente d'un joueur sans historique avant la fenêtre restent « n/d » ; le nom d'un membre indisponible est son alias ou son SteamID (la liste des groupes ne fournit pas ses identités à la page de détail).
+
 ## BACKEND GAP ANALYSIS
 
 | Fonctionnalité                                    | Valeur utilisateur                       | Disponibilité actuelle                                | Faisabilité                                           | Coût                   | Priorité | Décision                         |
@@ -135,4 +156,4 @@ Aucun P0 : le parcours principal fonctionne avec le contrat actuel. Handoff dét
 
 ## Avant le Sprint 4
 
-Rien de bloquant. Candidats : accessibilité de la courbe (données en tableau, clavier), brancher P1-1 puis P1-2 quand le back les livre, qualifier la remise à zéro des rangs avec le back, corriger la clé dupliquée de la navigation.
+Rien de bloquant. (Mise à jour du 19/11 : les points « brancher P1-1 puis P1-2 » et « qualifier la remise à zéro des rangs » sont faits, voir Sprint 3.2.) Candidats : accessibilité de la courbe (données en tableau, clavier), brancher P1-1 puis P1-2 quand le back les livre, qualifier la remise à zéro des rangs avec le back, corriger la clé dupliquée de la navigation.

@@ -9,7 +9,7 @@ import {
   refreshGroup,
   listGroups,
   updateGroup,
-  type ComparePeriod,
+  type CompareScope,
   type GroupInput,
 } from "@/api";
 import { useSession } from "@/features/auth/useSession";
@@ -28,10 +28,14 @@ export function useGroups() {
 export const useGroup = (id: string) =>
   useQuery({ queryKey: [...key, "one", id], queryFn: ({ signal }) => getGroup(id, signal) });
 
-export const useGroupCompare = (id: string, period: ComparePeriod) =>
+/** Clé de comparaison : période ET modes (un nouveau filtre ne réutilise jamais les chiffres d'un autre). */
+const compareKey = (id: string, s: CompareScope) =>
+  [...key, "compare", id, s.period, s.gameMode, s.matchMode] as const;
+
+export const useGroupCompare = (id: string, scope: CompareScope) =>
   useQuery({
-    queryKey: [...key, "compare", id, period],
-    queryFn: ({ signal }) => compareGroup(id, period, signal),
+    queryKey: compareKey(id, scope),
+    queryFn: ({ signal }) => compareGroup(id, scope, signal),
     placeholderData: keepPreviousData,
     refetchInterval: 180_000,
     refetchOnWindowFocus: true,
@@ -72,12 +76,12 @@ export function useDeleteGroup(id: string) {
 }
 
 /** Actualisation forcée de tous les membres : remplace la comparaison affichée. */
-export function useRefreshGroup(id: string, period: ComparePeriod) {
+export function useRefreshGroup(id: string, scope: CompareScope) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: () => refreshGroup(id, period),
+    mutationFn: () => refreshGroup(id, scope),
     onSuccess: (data) => {
-      qc.setQueryData([...key, "compare", id, period], data);
+      qc.setQueryData(compareKey(id, scope), data);
       toast.success("Comparaison actualisée");
     },
     // Sans message, une actualisation refusée (60 s entre deux relectures, quota) paraîtrait ignorée.

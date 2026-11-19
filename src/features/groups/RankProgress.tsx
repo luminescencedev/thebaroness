@@ -1,6 +1,6 @@
-import type { GroupMemberStats, RankTier } from "@/api";
+import type { GroupMemberStats, RankedSeason, RankTier } from "@/api";
 import { ChartFrame } from "@/components/charts/ChartFrame";
-import { MultiLineChart, type Series } from "@/components/charts";
+import { MultiLineChart, type ChartMarker, type Series } from "@/components/charts";
 import { formatDate } from "@/lib/format";
 import { memberColor } from "./colors";
 import { scoreLabel } from "./compare";
@@ -15,19 +15,37 @@ export function RankProgress({
   members,
   groupIds,
   ranks,
+  seasons = [],
+  seasonBoundariesKnown = false,
 }: {
   groupId: string;
   members: GroupMemberStats[];
   groupIds: readonly string[];
   ranks: RankTier[] | undefined;
+  /** `methodology.seasons` : saisons classées qui chevauchent la période. */
+  seasons?: RankedSeason[];
+  seasonBoundariesKnown?: boolean;
 }) {
   const withCurve = members.filter((m) => m.rankHistory.length > 1);
   const series: Series[] = withCurve.map((m) => ({
     key: m.steamId,
     label: m.displayName,
     color: memberColor(groupIds, m.steamId),
-    points: m.rankHistory.map((p) => ({ at: Date.parse(p.at), value: p.score })),
+    // Les rangs de deux saisons ne sont pas comparables : un segment par saison, jamais reliés entre eux.
+    points: m.rankHistory.map((p) => ({
+      at: Date.parse(p.at),
+      value: p.score,
+      segment: p.season ?? "n",
+    })),
   }));
+  const markers: ChartMarker[] = seasonBoundariesKnown
+    ? seasons
+        .slice(1)
+        .map((s) => ({ at: Date.parse(s.startedAt), label: s.name ?? `Saison ${s.season}` }))
+    : [];
+  const crossesSeasons =
+    markers.length > 0 &&
+    withCurve.some((m) => new Set(m.rankHistory.map((p) => p.season)).size > 1);
   const without = members.filter((m) => m.rankHistory.length < 2).map((m) => m.displayName);
 
   if (series.length === 0) {
@@ -77,7 +95,16 @@ export function RankProgress({
         // Échelle de rang du back : 1 (Obscurus 1) à 72 (Eternus 6). L'axe ne montre jamais de rang inexistant.
         min={1}
         max={72}
+        markers={markers}
       />
+      {crossesSeasons && (
+        <p className="mt-3 text-[12.5px] leading-relaxed text-subtle">
+          Changement de saison classée le {formatDate(new Date(markers[0]!.at).toISOString())} (
+          {markers.map((m) => m.label).join(", ")}) : la source recalcule les rangs, deux saisons ne
+          sont pas comparables. La courbe est coupée, et la progression ne porte que sur la dernière
+          saison.
+        </p>
+      )}
       {without.length > 0 && (
         <p className="mt-3 text-[12.5px] text-subtle">
           Sans courbe (moins de 2 parties classées avec rang connu) : {without.join(", ")}.

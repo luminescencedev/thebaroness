@@ -590,6 +590,13 @@ export interface MapAssets {
 
 export type ComparePeriod = "7d" | "30d" | "season";
 
+/** Sélection de la comparaison de groupe : mêmes valeurs et défauts que le profil. */
+export interface CompareScope {
+  period: ComparePeriod;
+  gameMode: GameModeFilter;
+  matchMode: MatchModeFilter;
+}
+
 export interface Group {
   id: string;
   name: string;
@@ -598,8 +605,82 @@ export interface Group {
   updatedAt: string;
 }
 
+/** v1.15.0 : identité d'un membre, résolue par le back en une passe pour tous les groupes. */
+export interface MemberIdentity {
+  steamId: SteamId;
+  /** Pseudo Steam ; SteamID64 si `resolved` est false. */
+  displayName: string;
+  avatarUrl: string | null;
+  /** false : identité non résolue (repli sur le SteamID64). */
+  resolved: boolean;
+}
+
+export interface GroupWithMembers extends Group {
+  /** Avec `include=members` seulement, dans l'ordre de `steamIds`. */
+  members?: MemberIdentity[];
+}
+
 export interface GroupsResponse {
-  items: Group[];
+  items: GroupWithMembers[];
+  /** Avec `include=members` seulement. */
+  membersCoverage?: {
+    requested: number;
+    resolved: number;
+    fetched: number;
+    providerFailed: boolean;
+  };
+  meta?: DataMeta;
+}
+
+/** Saison classée de la source (v1.15.0). Les badges de deux saisons ne sont pas comparables. */
+export interface RankedSeason {
+  season: number;
+  /** Ex. « Beta Season 2 ». */
+  name: string | null;
+  startedAt: string;
+  endedAt: string | null;
+}
+
+export type GroupUnavailableReason =
+  "not_found" | "rate_limited" | "timeout" | "provider_error" | "unknown";
+
+export interface GroupPairItem {
+  /** Dans l'ordre du groupe. */
+  steamIds: [SteamId, SteamId];
+  together: {
+    matches: number;
+    wins: number;
+    losses: number;
+    /** null si `matches` vaut 0. */
+    winRate: number | null;
+    lastPlayedAt: string | null;
+  };
+  /** Victoires de `steamIds[0]` dans les parties jouées l'un contre l'autre. */
+  against: { matches: number; firstWins: number };
+}
+
+/**
+ * Parties communes entre membres (v1.15.0, `include=pairs`) : intersection exacte des historiques sur la
+ * sélection de la comparaison. « Même équipe » seulement : une escouade n'est pas déterminable.
+ */
+export interface GroupPairs {
+  scope: {
+    relation: "same_team";
+    partyConfirmed: false;
+    basis: "match_history_intersection";
+    period: ComparePeriod;
+    gameMode: GameModeFilter;
+    matchMode: MatchModeFilter;
+  };
+  /** Seulement les paires avec au moins une partie commune, par `together.matches` décroissant. */
+  items: GroupPairItem[];
+  coverage: {
+    membersIncluded: number;
+    /** Membres absents : leurs paires n'ont PAS été évaluées (« non évalué », jamais 0). */
+    membersMissing: SteamId[];
+    pairsEvaluated: number;
+    pairsWithCommonMatches: number;
+  };
 }
 
 export interface GroupInput {
@@ -615,6 +696,8 @@ export interface RankPoint {
   score: number;
   /** v1.12.0 : badge de la source pour ce point. */
   badge?: number;
+  /** v1.15.0 : saison classée du point ; null si les saisons sont indisponibles. Ne jamais relier deux saisons. */
+  season?: number | null;
 }
 
 export interface BestMatch {
@@ -650,6 +733,20 @@ export interface GroupMemberStats {
   currentRankScore?: number | null;
   /** Dernier moins premier score de `rankHistory` ; null sous 2 points (pas 0). */
   rankDelta?: number | null;
+  /** v1.15.0 : parties de la période écartées par un filtre de mode précis car leur mode est inconnu (0 sous « all »). */
+  excludedUnknownModeMatches?: number;
+  /** v1.15.0 : même filtre sur la fenêtre de même durée juste avant ; null pour `season`. */
+  previous?: {
+    from: string;
+    to: string;
+    matches: number;
+    wins: number;
+    winRate: number | null;
+    kda: number | null;
+    kdaSampleSize: number;
+  } | null;
+  /** v1.15.0 : actuel moins précédent ; `winRate` (points) et `kda` null sous 5 parties de chaque côté. null pour `season`. */
+  deltaVsPrevious?: { matches: number; winRate: number | null; kda: number | null } | null;
 }
 
 export type HighlightKey =
@@ -685,7 +782,21 @@ export interface GroupCompareResponse {
     kda: string;
     highlightMinMatches: number;
     ties: string;
+    /** v1.15.0 */
+    rankDeltaScope?: "latest_season_in_period";
+    /** Saisons classées qui chevauchent la période. */
+    seasons?: RankedSeason[];
+    /** false : saisons indisponibles, `season` null partout et `rankDelta` sur toute la période. */
+    seasonBoundariesKnown?: boolean;
+    /** null pour `season`. */
+    previousPeriod?: { from: string; to: string } | null;
   };
+  /** v1.15.0 */
+  appliedFilters?: { period: ComparePeriod; gameMode: GameModeFilter; matchMode: MatchModeFilter };
+  /** v1.15.0 : membres omis de `members`, dans l'ordre du groupe, avec la raison. */
+  unavailable?: { steamId: SteamId; reason: GroupUnavailableReason }[];
+  /** v1.15.0, avec `include=pairs` seulement. */
+  pairs?: GroupPairs;
   meta: DataMeta;
 }
 
@@ -825,11 +936,15 @@ export interface RankHistoryPoint {
   name: string;
   imageUrl: string | null;
   outcome: MatchOutcome;
+  /** v1.15.0 : saison classée du point ; null si les saisons sont indisponibles. Ne jamais relier deux saisons. */
+  season?: number | null;
 }
 
 export interface RankHistory {
   period: StatPeriod;
   points: RankHistoryPoint[];
+  /** v1.15.0 : saisons classées qui chevauchent la période. */
+  seasons?: RankedSeason[];
   coverage: {
     requestedFrom: string | null;
     requestedTo: string;

@@ -1,5 +1,7 @@
 # Reprise de l'intégration backend des groupes (Sprint 3.1)
 
+> **TERMINÉ le 19/11/2026 (Sprint 3.2).** Le back v1.15.0 a livré les six demandes et elles sont intégrées (voir `RAPPORT.md`, section « Sprint 3.2 », et `docs/back-groups-contract.md`). Ce document est conservé comme procédure de reprise générique.
+
 À lire en premier par la session Claude Code qui reprend ce travail (autre poste, autre session). Le front est à jour de tout ce qui ne dépend pas du back ; il reste à intégrer ce que le back livre.
 
 ## Où on en est (19/11/2026)

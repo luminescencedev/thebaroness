@@ -495,10 +495,18 @@ describe("comparaison d'un groupe", () => {
     renderApp(`/groups/${GID}`);
     await screen.findByRole("heading", { name: "Les amis" }, { timeout: 10_000 });
     await userEvent.click(screen.getByRole("radio", { name: "7 jours" }));
-    expect(await screen.findByText(/ceux de la période précédente/)).toBeInTheDocument();
-    await waitFor(() => expect(screen.queryByText(/ceux de la période précédente/)).toBeNull(), {
-      timeout: 5000,
-    });
+    expect(
+      await screen.findByText(/les chiffres affichés sont ceux de « 30 derniers jours »/),
+    ).toBeInTheDocument();
+    await waitFor(
+      () =>
+        expect(
+          screen.queryByText(/les chiffres affichés sont ceux de « 30 derniers jours »/),
+        ).toBeNull(),
+      {
+        timeout: 5000,
+      },
+    );
   });
 
   it("actualisation refusée : un message, pas un silence", async () => {

@@ -47,6 +47,16 @@ export interface Crumb {
  * (nom du joueur, du héros, du groupe) publié par useDocumentTitle ; avant son chargement, un repli neutre.
  */
 export function crumbsFor(pathname: string, label?: string | null): Crumb[] {
+  const crumbs = rawCrumbs(pathname, label);
+  // Le titre publié peut être, un instant, celui de la page de liste (« Mes suivis » > « Mes suivis ») : on
+  // ne répète jamais le parent, on retombe sur un libellé neutre jusqu'au titre de la page de détail.
+  const [parent, leaf] = crumbs;
+  return parent && leaf && parent.label === leaf.label
+    ? [parent, { ...leaf, label: "Détail" }]
+    : crumbs;
+}
+
+function rawCrumbs(pathname: string, label?: string | null): Crumb[] {
   const [root, id] = pathname.split("/").filter(Boolean);
   if (!id) return [];
   const leaf = (rootLabel: string, fallback: string) =>

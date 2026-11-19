@@ -67,7 +67,7 @@ export function Topbar({
               {crumbs.map((c, i) => {
                 const last = i === crumbs.length - 1;
                 return (
-                  <Fragment key={c.label}>
+                  <Fragment key={`${i}-${c.label}`}>
                     {i > 0 && <SlashIcon className="hidden size-3.5 text-[#4b4d54] sm:block" />}
                     <li
                       className={cn(
